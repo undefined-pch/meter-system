@@ -1,0 +1,43 @@
+[
+  {
+    "name": "女装",
+    "children": [
+      {
+        "name": "1号楼",
+        "value": 35,
+        "children": [
+          {
+            "name": "电池报警",
+            "value": 10
+          },
+          {
+            "name": "温度报警",
+            "value": 80
+          },
+          {
+            "name": "传感器异常",
+            "value": 10
+          }
+        ]
+      },
+      {
+        "name": "2号楼",
+        "value": 65,
+        "children": [
+          {
+            "name": "水管爆裂",
+            "value": 10
+          },
+          {
+            "name": "水管泄露",
+            "value": 80
+          },
+          {
+            "name": "电池报警",
+            "value": 10
+          }
+        ]
+      }
+    ]
+  }
+]

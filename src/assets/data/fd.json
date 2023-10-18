@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1",
+    "community": "福鼎家园",
+    "buildingnumber": "1号楼",
+    "floors": "10",
+    "households": "20",
+    "types": "居民",
+    "founder": "admin",
+    "foundertime": "2023-6-6",
+    "updated": "admin",
+    "updatedtime": "2023-7-7",
+    "notes": "null"
+  },
+  {
+    "id": "2",
+    "community": "福鼎家园",
+    "buildingnumber": "2号楼",
+    "floors": "10",
+    "households": "20",
+    "types": "居民",
+    "founder": "admin",
+    "foundertime": "2023-6-6",
+    "updated": "admin",
+    "updatedtime": "2023-7-7",
+    "notes": "null"
+  }
+]

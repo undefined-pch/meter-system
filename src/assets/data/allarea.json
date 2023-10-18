@@ -1,0 +1,62 @@
+[
+  {
+    "region": "自定义区域",
+    "village": "福鼎家园",
+    "address": "浙江省杭州市余杭区",
+    "zipcode": "0577",
+    "area": "40",
+    "build": "2",
+    "households": "40",
+    "property": "XX物业",
+    "company": "XX水司",
+    "person": "admin",
+    "time":"2023-6-6",
+    "nearperson":"admin",
+    "neartime":"2023-7-7"
+  },
+  {
+    "region": "自定义区域",
+    "village": "西溪北苑",
+    "address": "浙江省杭州市余杭区",
+    "zipcode": "0577",
+    "area": "70",
+    "build": "1",
+    "households": "40",
+    "property": "XX物业",
+    "company": "XX水司",
+    "person": "admin",
+    "time":"2023-6-6",
+    "nearperson":"admin",
+    "neartime":"2023-7-7"
+  },
+  {
+    "region": "自定义区域",
+    "village": "万利大厦",
+    "address": "浙江省杭州市余杭区",
+    "zipcode": "0577",
+    "area": "20",
+    "build": "1",
+    "households": "40",
+    "property": "XX物业",
+    "company": "XX水司",
+    "person": "admin",
+    "time":"2023-6-6",
+    "nearperson":"admin",
+    "neartime":"2023-7-7"
+  },
+  {
+    "region": "自定义区域",
+    "village": "XX小区",
+    "address": "浙江省杭州市余杭区",
+    "zipcode": "0577",
+    "area": "20",
+    "build": "1",
+    "households": "40",
+    "property": "XX物业",
+    "company": "XX水司",
+    "person": "admin",
+    "time":"2023-6-6",
+    "nearperson":"admin",
+    "neartime":"2023-7-7"
+  }
+]

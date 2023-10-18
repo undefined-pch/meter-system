@@ -1,0 +1,79 @@
+[
+  {
+    "name": "女装",
+    "children": [
+      {
+        "name": "福鼎家园",
+        "value": 200,
+        "children": [
+          {
+            "name": "电池报警",
+            "value": 10
+          },
+          {
+            "name": "温度报警",
+            "value": 80
+          },
+          {
+            "name": "传感器异常",
+            "value": 10
+          }
+        ]
+      },
+      {
+        "name": "西溪北苑",
+        "value": 60,
+        "children": [
+          {
+            "name": "水管爆裂",
+            "value": 10
+          },
+          {
+            "name": "水管泄露",
+            "value": 80
+          },
+          {
+            "name": "电池报警",
+            "value": 10
+          }
+        ]
+      },
+      {
+        "name": "万利大厦",
+        "value": 150,
+        "children": [
+          {
+            "name": "电池报警",
+            "value": 10
+          },
+          {
+            "name": "温度报警",
+            "value": 80
+          },
+          {
+            "name": "水管爆裂",
+            "value": 10
+          }
+        ]
+      },
+      {
+        "name": "XX小区",
+        "value": 30,
+        "children": [
+          {
+            "name": "电池报警",
+            "value": 10
+          },
+          {
+            "name": "温度报警",
+            "value": 80
+          },
+          {
+            "name": "传感器异常",
+            "value": 10
+          }
+        ]
+      }
+    ]
+  }
+]
