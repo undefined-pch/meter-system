@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { getTopMenu } from "@/router/utils";
 import { useNav } from "@/layout/hooks/useNav";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const props = defineProps({
   collapse: Boolean
@@ -20,7 +22,7 @@ const { title } = useNav();
         :to="getTopMenu()?.path ?? '/'"
       >
         <img src="/logo.svg" alt="logo" />
-        <span class="sidebar-title">{{ title }}</span>
+        <span class="sidebar-title">{{ t("maintitle.title") }}</span>
       </router-link>
       <router-link
         v-else
@@ -30,7 +32,7 @@ const { title } = useNav();
         :to="getTopMenu()?.path ?? '/'"
       >
         <img src="/logo.svg" alt="logo" />
-        <span class="sidebar-title">{{ title }}</span>
+        <span class="sidebar-title">{{ t("maintitle.title") }}</span>
       </router-link>
     </transition>
   </div>

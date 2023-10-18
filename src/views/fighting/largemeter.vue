@@ -14,7 +14,7 @@
             :remote-method="remoteCompany"
             :loading="loading"
             @change="searchEffortList"
-            style=" width: 120px;margin-right: 10px"
+            style="width: 120px; margin-right: 10px"
           >
             <el-option
               v-for="item in searchCompanyoptions"
@@ -33,7 +33,7 @@
             placeholder="请输入要查找的区域名称"
             :remote-method="query => remoteRegion(query, 'false')"
             :loading="searchRegionloading"
-            style=" width: 120px;margin-right: 10px"
+            style="width: 120px; margin-right: 10px"
             @change="searchRegionLists"
           >
             <el-option
@@ -53,7 +53,7 @@
             placeholder="请输入要查找的小区名称"
             :remote-method="query => remoteVillage(query, 'false')"
             :loading="searchVillageloading"
-            style=" width: 120px;margin-right: 10px"
+            style="width: 120px; margin-right: 10px"
             @change="searchVillageLists"
           >
             <el-option
@@ -71,9 +71,7 @@
             remote
             reserve-keyword
             placeholder="请输入要查找的楼栋名称"
-            :remote-method="query => remoteBuild(query, 'false')"
-            :loading="searchBuildloading"
-            style=" width: 120px;margin-right: 10px"
+            style="width: 120px; margin-right: 10px"
             @change="searchBuildLists"
           >
             <el-option
@@ -91,9 +89,7 @@
             remote
             reserve-keyword
             placeholder="请输入要查找的楼栋名称"
-            :remote-method="query => remoteBuild(query, 'false')"
-            :loading="searchBuildloading"
-            style=" width: 120px;margin-right: 10px"
+            style="width: 120px; margin-right: 10px"
             @change="searchBuildLists"
           >
             <el-option
@@ -409,13 +405,8 @@
               <template #default="{ data }">
                 <el-select
                   v-model="data.buildingnumber"
-                  filterable
                   clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入楼栋编号"
-                  :remote-method="query => remoteBuild(query, 'false')"
-                  :loading="searchBuildloading"
+                  placeholder="请选择楼栋编号"
                   style="width: 100%"
                   @change="searchBuildLists"
                 >
@@ -694,8 +685,13 @@ import { useDebounceFn } from "@vueuse/core";
 // import { ElMessageBox, ElMessage } from "element-plus";
 // import fdData from "@/assets/data/fd.json"; // 导入福鼎家园楼栋数据
 import { getcompany, getregion, getlist } from "@/api/effort";
-import { getbuild } from "@/api/build";
-import { getlargemeter, largemeteradd, largemeterfix } from "@/api/largemeter";
+// import { getbuild } from "@/api/build";
+import {
+  getlargemeter,
+  largemeteradd,
+  largemeterfix,
+  largemeterdelete
+} from "@/api/largemeter";
 import { getcollector } from "@/api/collector";
 
 // 生产厂家
@@ -872,14 +868,14 @@ const removeEvent = async (row: RowVO) => {
     if ($table) {
       // $table.remove(row);
       // 删除接口
-      collectordelete(params).then(res => {
+      largemeterdelete(params).then(res => {
         // console.log(res.data);
         if (res.retcode == 200) {
           VXETable.modal.message({
             content: `${res.message}`,
             status: "success"
           });
-          getcollector();
+          getlargemeterList();
         }
       });
     }
@@ -1186,33 +1182,33 @@ const remoteVillage = useDebounceFn((query: string, isform) => {
 }, 500);
 
 // 获取全部楼栋信息
-const searchBuildList = ref<ListItem[]>([]);
-const searchBuildloading = ref(false); // 搜索加载状态
+// const searchBuildList = ref<ListItem[]>([]);
+// const searchBuildloading = ref(false); // 搜索加载状态
 const searchBuildoptions = ref<ListItem[]>([]); // 列表数据
 // 输入楼栋方法
-const remoteBuild = useDebounceFn((query: string, isform) => {
-  if (query) {
-    searchBuildloading.value = true;
-    const data = {
-      page: 1,
-      pageSize: 1000,
-      company: isform == "true" ? householdData.company : CompanyKeyword.value,
-      region: isform == "true" ? householdData.region : RegionKeyword.value,
-      village: isform == "true" ? householdData.village : VillageKeyword.value,
-      buildnumber: query
-    };
-    getbuild(data).then(res => {
-      if (res.retcode == 200) {
-        searchBuildloading.value = false;
-        searchBuildoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.buildnumber };
-        });
-      } else {
-        searchBuildoptions.value = searchBuildList.value;
-      }
-    });
-  }
-}, 500);
+// const remoteBuild = useDebounceFn((query: string, isform) => {
+//   if (query) {
+//     searchBuildloading.value = true;
+//     const data = {
+//       page: 1,
+//       pageSize: 1000,
+//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
+//       region: isform == "true" ? householdData.region : RegionKeyword.value,
+//       village: isform == "true" ? householdData.village : VillageKeyword.value,
+//       buildnumber: query
+//     };
+//     getbuild(data).then(res => {
+//       if (res.retcode == 200) {
+//         searchBuildloading.value = false;
+//         searchBuildoptions.value = res.data.data.map(item => {
+//           return { value: item._id, label: item.buildnumber };
+//         });
+//       } else {
+//         searchBuildoptions.value = searchBuildList.value;
+//       }
+//     });
+//   }
+// }, 500);
 
 const rgcompany = ref(""); // 入参水司
 const rgregion = ref(""); // 入参区域
@@ -1236,6 +1232,7 @@ const searchRegionLists = val => {
 // 根据水司-区域-小区模糊搜索查询小区信息
 const searchVillageLists = val => {
   rgvillage.value = val;
+  console.log("获取楼栋信息", val);
   getlargemeterList();
 };
 

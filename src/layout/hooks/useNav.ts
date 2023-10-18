@@ -72,6 +72,7 @@ export function useNav() {
   });
 
   const title = computed(() => {
+    // console.log($storage, "1");
     // return $config.Title;
     return "智能水表管理系统";
   });

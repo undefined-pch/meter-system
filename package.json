@@ -26,6 +26,8 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@iconify-icons/icon-park-twotone": "^1.2.8",
+    "@iconify-icons/solar": "^1.2.3",
     "@iconify/icons-mdi": "^1.2.47",
     "@pureadmin/descriptions": "^1.1.1",
     "@pureadmin/table": "^2.3.2",
@@ -60,7 +62,6 @@
   "devDependencies": {
     "@iconify-icons/ep": "^1.2.12",
     "@iconify-icons/ri": "^1.2.9",
-    "@iconify/vue": "^4.1.1",
     "@intlify/unplugin-vue-i18n": "^0.11.0",
     "@pureadmin/theme": "^3.1.0",
     "@types/js-cookie": "^3.0.3",

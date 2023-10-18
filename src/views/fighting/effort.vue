@@ -3,7 +3,7 @@
     <vxe-toolbar custom ref="toolbarRef">
       <template #buttons>
         <div>
-          水司名称:
+          {{ t("company") }}:
           <el-select
             v-model="CompanyKeyword"
             filterable
@@ -15,7 +15,7 @@
             :loading="loading"
             @change="searchEffortList"
             @focus="getallCompany"
-            style=" width: 150px;margin-left: 10px"
+            style="width: 150px; margin-left: 10px"
           >
             <el-option
               v-for="item in options"
@@ -26,7 +26,7 @@
           </el-select>
         </div>
         <div style="margin-left: 10px">
-          区域名称:
+          {{ t("areaname") }}:
           <el-select
             v-model="RegionKeyword"
             filterable
@@ -36,7 +36,7 @@
             placeholder="请输入要查找的区域名称"
             :remote-method="remoteRegion"
             :loading="searchRegionloading"
-            style=" width: 150px;margin-left: 10px"
+            style="width: 150px; margin-left: 10px"
             @change="searchRegionLists"
           >
             <el-option
@@ -60,7 +60,7 @@
           icon="vxe-icon-download"
           style="margin-right: 10px"
           @click="downloadExcel"
-          >下载模板</vxe-button
+          >{{ t("download") }}</vxe-button
         >
         <el-upload
           class="upload-demo"
@@ -81,7 +81,7 @@
           status="danger"
           style="margin-right: 10px"
           @click="removeSelectRowEvent"
-          >批量删除</vxe-button
+          >{{ t("batchDelete") }}</vxe-button
         >
       </template>
     </vxe-toolbar>
@@ -103,6 +103,7 @@
         width="100"
         show-header-overflow
         title="所属水司"
+        fixed="left"
         sortable
       >
         <template #header>
@@ -114,6 +115,7 @@
         width="100"
         show-header-overflow
         title="区域名称"
+        fixed="left"
         sortable
       >
         <template #header>
@@ -126,6 +128,7 @@
         show-header-overflow
         sortable
         title="小区名称"
+        fixed="left"
       >
         <template #header>
           {{ t("communityname") }}
@@ -348,7 +351,7 @@
               </el-select>
               <el-button
                 type="primary"
-                style=" margin-bottom: 2px;margin-left: 10px"
+                style="margin-bottom: 2px; margin-left: 10px"
                 @click="openright('village')"
                 >新增</el-button
               >
@@ -359,7 +362,6 @@
               {{ t("areaname") }}
             </template>
             <template #default="{ data }">
-              <!-- <vxe-input v-model="data.region" placeholder="请输入区域名称" /> -->
               <el-select
                 v-model="data.region"
                 placeholder="请选择区域名称"
@@ -374,7 +376,7 @@
               </el-select>
               <el-button
                 type="primary"
-                style=" margin-bottom: 2px;margin-left: 10px"
+                style="margin-bottom: 2px; margin-left: 10px"
                 @click="openright('region')"
                 >新增</el-button
               >
@@ -429,7 +431,11 @@
               {{ t("communityarea") }}
             </template>
             <template #default="{ data }">
-              <vxe-input v-model="data.area" placeholder="请输入小区面积" />
+              <vxe-input v-model="data.area" placeholder="请输入小区面积">
+                <template #suffix>
+                  <span>m2</span>
+                </template>
+              </vxe-input>
             </template>
           </vxe-form-item>
           <vxe-form-item field="zipcode" :span="12" :item-render="{}">
@@ -580,41 +586,17 @@
         >
           <vxe-column type="checkbox" width="45" />
           <vxe-column type="seq" width="40" />
-          <vxe-column
-            field="name"
-            title="Name"
-            sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
-          >
+          <vxe-column field="name" title="所属自来水公司" width="140" sortable>
             <template #edit="{ row }">
               <vxe-input v-model="row.name" type="text" />
             </template>
           </vxe-column>
-          <vxe-column
-            field="phone"
-            title="phone"
-            sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
-          >
+          <vxe-column field="phone" title="联系电话" width="130" sortable>
             <template #edit="{ row }">
               <vxe-input v-model="row.phone" type="text" />
             </template>
           </vxe-column>
-          <vxe-column
-            field="address"
-            title="address"
-            sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
-          >
+          <vxe-column field="address" title="水司地址" sortable>
             <template #edit="{ row }">
               <vxe-input v-model="row.address" type="text" />
             </template>
@@ -1146,7 +1128,7 @@ const radio1 = ref("1");
 // ]);
 onMounted(() => {
   geteffortlist();
-  getallCompany();
+  // getallCompany();
 });
 
 const rgcompany = ref("");
@@ -1220,18 +1202,22 @@ const loading = ref(false); // 搜索加载状态
 const options = ref<ListItem[]>([]); // 列表数据
 // 获取全部水司信息，在不做任何输入时显示
 const getallCompany = () => {
+  // debugger;
+  console.log("点击下拉框就展示所有水司数据");
+  remoteCompany("");
   const data = {
     company: "",
     region: ""
   };
   getcompany(data).then(res => {
     if (res.retcode == 200) {
-      loading.value = true;
+      // debugger;
+      // loading.value = true;
       companys.value = res.data.data;
       searchCompanysList.value = companys.value.map(item => {
         return { value: item._id, label: item.name };
       });
-      loading.value = false;
+      // loading.value = false;
     }
   });
 };
@@ -1315,7 +1301,7 @@ const openright = menu => {
   if (menu == "village") {
     table.value = true;
     const data = {
-      companyname: ""
+      company: ""
     };
     getcompany(data).then(res => {
       if (res.retcode == 200) {
@@ -1414,7 +1400,7 @@ const saveEvent = () => {
             if (res.retcode == 200) {
               ElMessage.success(`${res.message}`);
               const data = {
-                companyname: ""
+                company: ""
               };
               getcompany(data).then(res => {
                 if (res.retcode == 200) {
@@ -1438,7 +1424,7 @@ const saveEvent = () => {
         if (res.retcode == 200) {
           ElMessage.success(`${res.message}`);
           const data = {
-            companyname: ""
+            company: ""
           };
           getcompany(data).then(res => {
             if (res.retcode == 200) {
@@ -1456,7 +1442,7 @@ const saveEvent = () => {
         if (res.retcode == 200) {
           ElMessage.success(`${res.message}`);
           const data = {
-            companyname: ""
+            company: ""
           };
           getcompany(data).then(res => {
             if (res.retcode == 200) {
@@ -1537,7 +1523,7 @@ const saveRegion = () => {
         if (res.retcode == 200) {
           ElMessage.success(`${res.message}`);
           const data = {
-            companyname: ""
+            company: ""
           };
           getcompany(data).then(res => {
             if (res.retcode == 200) {
@@ -1578,7 +1564,7 @@ const lookupvillage = () => {
 };
 
 // 新增/搜索页面查询水司
-const fromRegions = ref("");
+const fromRegions = ref([]);
 const searchRegion = val => {
   formData.value.region = "";
   const data = {
@@ -1638,7 +1624,9 @@ const { t } = useI18n({
       tips: "The size of the jpg/png file is less than 500KB.",
       submit: "submit",
       reset: "reset",
-      batchimport: "batchimport"
+      batchimport: "batchimport",
+      download: "Download",
+      batchDelete: "BatchDelete"
     },
     zh: {
       company: "所属水司",
@@ -1667,7 +1655,9 @@ const { t } = useI18n({
       tips: "jpg/png文件,大小小于500KB",
       sumit: "提交",
       reset: "重置",
-      batchimport: "批量导入"
+      batchimport: "批量导入",
+      download: "下载模板",
+      batchDelete: "批量删除"
     }
   }
 });

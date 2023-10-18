@@ -54,3 +54,5 @@ login:
   passwordRuleReg: The password format should be any combination of 8-18 digits
 table:
   tablename: English
+maintitle:
+  title: Metersystem

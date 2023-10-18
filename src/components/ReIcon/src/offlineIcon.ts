@@ -8,11 +8,11 @@ import { addIcon } from "@iconify/vue/dist/offline";
 import HomeFilled from "@iconify-icons/ep/home-filled";
 import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
-// import alarmIcon from "@iconify-icons/icon-park-twotone/alarm";
-// import tagPriceLinear from "@iconify-icons/solar/tag-price-linear";
+import alarmIcon from "@iconify-icons/icon-park-twotone/alarm";
+import tagPriceLinear from "@iconify-icons/solar/tag-price-linear";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
 addIcon("lollipop", Lollipop);
-// addIcon("alarmIcon", alarmIcon);
-// addIcon("tagPriceLinear", tagPriceLinear);
+addIcon("alarmIcon", alarmIcon);
+addIcon("tagPriceLinear", tagPriceLinear);

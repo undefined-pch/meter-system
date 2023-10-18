@@ -62,3 +62,5 @@ login:
   passwordRuleReg: 密码格式应为8-18位数字、字母、符号的任意两种组合
 table:
   tablename: 区域名称
+maintitle:
+  title: 智能水表管理系统
