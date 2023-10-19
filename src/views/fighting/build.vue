@@ -1,481 +1,754 @@
 <template>
   <div class="table-main">
-    <div class="table-main">
-      <vxe-toolbar custom ref="toolbarRef">
-        <template #buttons>
-          <div style="line-height: 50px">
-            水司名称:
-            <el-select
-              v-model="CompanyKeyword"
-              filterable
-              clearable
-              remote
-              reserve-keyword
-              placeholder="请输入要查找的水司名称"
-              :remote-method="remoteCompany"
-              :loading="loading"
-              @change="searchEffortList"
-              style=" width: 150px;margin-left: 10px"
-            >
-              <el-option
-                v-for="item in searchCompanyoptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.label"
-              />
-            </el-select>
-            区域名称:
-            <el-select
-              v-model="RegionKeyword"
-              filterable
-              clearable
-              remote
-              reserve-keyword
-              placeholder="请输入要查找的区域名称"
-              :remote-method="query => remoteRegion(query, 'false')"
-              :loading="searchRegionloading"
-              style=" width: 150px;margin-left: 10px"
-              @change="searchRegionLists"
-            >
-              <el-option
-                v-for="item in searchRegionoptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.label"
-              />
-            </el-select>
-            小区名称:
-            <el-select
-              v-model="VillageKeyword"
-              filterable
-              clearable
-              remote
-              reserve-keyword
-              placeholder="请输入要查找的小区名称"
-              :remote-method="query => remoteVillage(query, 'false')"
-              :loading="searchVillageloading"
-              style=" width: 150px;margin-left: 10px"
-              @change="searchVillageLists"
-            >
-              <el-option
-                v-for="item in searchVillageoptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.label"
-              />
-            </el-select>
-            <vxe-button
-              type="primary"
-              icon="vxe-icon-square-plus"
-              @click="addBuild"
-              style="margin-left: 10px"
-              >新增</vxe-button
-            >
-          </div>
+    <vxe-toolbar custom ref="toolbarRef">
+      <template #buttons>
+        <div style="margin-left: 6px">
+          {{ t("company") }}:
+          <vxe-select
+            v-model="companyKey"
+            placeholder="请输入要查找的水司"
+            :options="companyKeyList"
+            clearable
+            filterable
+            @focus="searchCompanyList"
+            @change="geteffortlist()"
+            @clear="clearCompanyKey()"
+          />
+        </div>
+        <div style="margin-left: 10px">
+          {{ t("areaname") }}:
+          <vxe-select
+            v-model="regionKey"
+            placeholder="请输入要查找的区域"
+            :options="regionKeyList"
+            clearable
+            filterable
+            @focus="searchRegionList(true)"
+            @change="geteffortlist()"
+            @clear="clearRegionKey()"
+          />
+        </div>
+        <div style="margin-left: 10px">
+          {{ t("communityname") }}:
+          <vxe-select
+            v-model="CommunityKey"
+            placeholder="请输入要查找的小区"
+            :options="communityKeyList"
+            clearable
+            filterable
+            @focus="searchCommunityList(true)"
+            @change="geteffortlist()"
+            @clear="clearCommunityKey()"
+          />
+        </div>
+
+        <vxe-button
+          icon="vxe-icon-square-plus"
+          style="margin-left: 10px"
+          @click="insertEvent()"
+          >{{ t("add") }}</vxe-button
+        >
+      </template>
+      <template #tools>
+        <vxe-button
+          status="danger"
+          style="margin-right: 10px"
+          @click="removeSelectRowEvent"
+          >{{ t("batchDelete") }}</vxe-button
+        >
+      </template>
+    </vxe-toolbar>
+    <vxe-table
+      border
+      show-overflow
+      ref="xTable"
+      height="564"
+      id="toolbar_demo3"
+      :custom-config="{ storage: true }"
+      :column-config="{ resizable: true }"
+      :row-config="{ isCurrent: true, keyField: 'id' }"
+      :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
+      :data="tableData"
+      @cell-dblclick="cellDBLClickEvent"
+    >
+      <vxe-column type="checkbox" width="50" fixed="left" />
+      <vxe-column type="seq" title="序号" width="50" fixed="left" />
+      <vxe-column
+        field="company"
+        width="100"
+        show-header-overflow
+        title="所属水司"
+        fixed="left"
+        sortable
+      >
+        <template #header>
+          {{ t("company") }}
         </template>
-        <template #tools>
-          <vxe-button
-            icon="vxe-icon-download"
-            style="margin-right: 10px"
-            @click="downloadExcel"
-            >下载模板</vxe-button
-          >
-          <el-upload
-            v-model:file-list="fileList"
-            class="upload-demo"
-            style="overflow: hidden"
-            :show-file-list="false"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :before-remove="beforeRemove"
-            :limit="1"
-            :on-exceed="handleExceed"
-            ref="uploadRef"
-          >
-            <vxe-button status="primary" style="margin-right: 10px"
-              >批量导入</vxe-button
-            >
-          </el-upload>
-          <vxe-button
-            status="danger"
-            style="margin-right: 10px"
-            @click="removeSelectRowEvent"
-            >批量删除</vxe-button
-          >
+      </vxe-column>
+      <vxe-column
+        field="region"
+        width="100"
+        show-header-overflow
+        title="区域名称"
+        fixed="left"
+        sortable
+      >
+        <template #header>
+          {{ t("areaname") }}
         </template>
-      </vxe-toolbar>
-      <vxe-table
-        border
+      </vxe-column>
+      <vxe-column
+        field="village"
+        width="100"
+        show-header-overflow
+        sortable
+        title="小区名称"
+        fixed="left"
+      >
+        <template #header>
+          {{ t("communityname") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="buildnumber"
+        width="100"
+        show-header-overflow
+        sortable
+        title="楼栋编号"
+      >
+        <template #header>
+          {{ t("buildnumber") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="level"
+        width="100"
+        show-header-overflow
+        sortable
+        title="楼层数"
         show-overflow
-        ref="xTable"
-        height="564"
-        :column-config="{ resizable: true }"
-        :row-config="{ isHover: true }"
-        :data="tableData"
-        @cell-dblclick="cellDBLClickEvent"
       >
-        <vxe-column type="checkbox" width="50" fixed="left" />
-        <vxe-column type="seq" title="序号" width="60" fixed="left" />
-        <vxe-column field="company" sortable title="所属水司" width="100" />
-        <vxe-column field="region" sortable title="区域" width="80" />
-        <vxe-column field="village" sortable title="小区名称" width="100" />
-        <vxe-column field="buildnumber" sortable title="楼栋编号" width="100" />
-        <vxe-column field="level" sortable title="楼层数" width="100" />
-        <vxe-column
-          field="households"
-          sortable
-          title="户数"
-          width="80"
-          show-overflow
-        />
-        <vxe-column
-          field="types"
-          sortable
-          title="楼栋类型"
-          width="100"
-          show-header-overflow
-        />
-        <vxe-column
-          field="founder"
-          sortable
-          title="创建人"
-          width="100"
-          show-header-overflow
-        />
-        <vxe-column
-          field="creationtime"
-          sortable
-          title="创建时间"
-          width="100"
-          show-header-overflow
-        />
-        <vxe-column
-          field="updated"
-          sortable
-          title="最近更新人"
-          width="100"
-          show-header-overflow
-        />
-        <vxe-column
-          field="updatedtime"
-          sortable
-          title="最近时间"
-          width="100"
-          show-header-overflow
-        />
-        <vxe-column field="notes" title="备注" width="100" />
-        <vxe-column title="操作" width="100" fixed="right" show-overflow>
-          <template #default="{ row }">
-            <vxe-button
-              type="text"
-              icon="vxe-icon-edit"
-              style="color: #409eff"
-              @click="editEvent(row)"
-            />
-            <vxe-button
-              type="text"
-              icon="vxe-icon-delete"
-              style="color: #f23c3c"
-              @click="removeEvent(row)"
-            />
-          </template>
-        </vxe-column>
-      </vxe-table>
-      <div>
-        <vxe-pager
-          v-model:current-page="pageVO2.currentPage"
-          :total="pageVO2.total"
-          :page-size="10"
-          @page-change="getallbuild"
-          :layouts="[
-            'PrevJump',
-            'PrevPage',
-            'Number',
-            'NextPage',
-            'NextJump',
-            'FullJump',
-            'Total'
-          ]"
-        />
-      </div>
-      <vxe-modal
-        v-model="showEdit"
-        :title="selectRow ? '编辑&保存' : '新增&保存'"
-        width="800"
-        height="88%"
-        min-width="600"
-        min-height="300"
-        :loading="submitLoading"
-        resize
-        destroy-on-close
-      >
-        <template #default>
-          <vxe-form
-            :data="formData"
-            :rules="formRules"
-            title-align="right"
-            title-width="100"
-            @submit="submitEvent"
-          >
-            <vxe-form-item
-              field="company"
-              title="所属水司"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <el-select
-                  v-model="data.company"
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的水司名称"
-                  :remote-method="remoteCompany"
-                  :loading="loading"
-                  @change="searchEffortList"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="item in searchCompanyoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="region"
-              title="区域名称"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <el-select
-                  v-model="data.region"
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的区域名称"
-                  :remote-method="query => remoteRegion(query, 'true')"
-                  :loading="searchRegionloading"
-                  style="width: 100%"
-                  @change="searchRegionLists"
-                >
-                  <el-option
-                    v-for="item in searchRegionoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="village"
-              title="小区名称"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <!-- <vxe-input
-                  v-model="data.village"
-                  placeholder="请输入小区名称"
-                /> -->
-                <el-select
-                  v-model="data.village"
-                  filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的小区名称"
-                  :remote-method="query => remoteVillage(query, 'true')"
-                  :loading="searchVillageloading"
-                  style="width: 100%"
-                  @change="searchVillageLists"
-                >
-                  <el-option
-                    v-for="item in searchVillageoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="buildnumber"
-              title="楼栋编号"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.buildnumber"
-                  placeholder="请输入楼栋编号"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="level"
-              title="楼层数"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.level"
-                  type="integer"
-                  placeholder="请输入楼层数"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="households"
-              title="户数"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.households"
-                  type="integer"
-                  placeholder="请输入户数"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="types"
-              title="楼栋类型"
-              :span="12"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <!-- <vxe-input v-model="data.types" placeholder="请输入楼栋类型" /> -->
-                <el-radio-group v-model="data.types" class="ml-4">
-                  <el-radio label="居民" size="large">居民</el-radio>
-                  <el-radio label="非居民" size="large">非居民</el-radio>
-                </el-radio-group>
-              </template>
-            </vxe-form-item>
-            <vxe-form-item field="jd" title="经度" :span="12" :item-render="{}">
-              <template #default="{ data }">
-                <vxe-input v-model="data.jd" placeholder="请输入经度" />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item field="wd" title="纬度" :span="12" :item-render="{}">
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.wd"
-                  placeholder="请输入纬度"
-                  transfer
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="pitture"
-              title="小区图片"
-              :span="24"
-              :item-render="{}"
-            >
-              <el-radio-group v-model="radio1" class="ml-4">
-                <el-radio label="1" size="large">默认icon</el-radio>
-                <el-radio label="2" size="large">自定义icon</el-radio>
-              </el-radio-group>
-              <el-upload
-                class="upload-demo"
-                v-model:file-list="fileList"
-                :show-file-list="true"
-                :on-change="fileChange"
-                :before-remove="beforeRemove"
-                :limit="1"
-                :on-exceed="handleExceed"
-                :http-request:void="uploadIon"
-                ref="formRef"
-                v-if="Number(radio1) == 2"
-              >
-                <el-button type="primary">小区图片</el-button>
-                <template #tip>
-                  <div class="el-upload__tip">jpg/png文件,大小小于500KB</div>
-                </template>
-              </el-upload>
-            </vxe-form-item>
-            <vxe-form-item :span="24">
-              <div class="map">
-                <!-- <div class="city">请输入城市</div> -->
-                <!-- <el-input class="city" v-model="city" placeholder="请输入城市"></el-input> -->
-                <!-- <el-input class="keyword" v-model="keyword" clearable placeholder="请输入关键字"></el-input> -->
-                <baidu-map
-                  class="baidu-map"
-                  :center="center"
-                  :zoom="zoom"
-                  @ready="handler"
-                  @click="getpoint"
-                  :scroll-wheel-zoom="true"
-                >
-                  <bm-local-search :auto-viewport="true" />
-                  <bm-marker
-                    :position="points"
-                    :dragging="true"
-                    @dragend="dragend"
-                    :icon="{
-                      url: 'http://developer.baidu.com/map/jsdemo/img/fox.gif',
-                      size: { width: 300, height: 157 }
-                    }"
-                  />
-                </baidu-map>
-              </div>
-            </vxe-form-item>
-            <vxe-form-item align="center" title-align="left" :span="24">
-              <template #default>
-                <vxe-button type="submit">提交</vxe-button>
-                <vxe-button type="reset">重置</vxe-button>
-              </template>
-            </vxe-form-item>
-          </vxe-form>
+        <template #header>
+          {{ t("level") }}
         </template>
-      </vxe-modal>
+      </vxe-column>
+      <vxe-column
+        field="households"
+        width="100"
+        show-header-overflow
+        sortable
+        title="户数"
+      >
+        <template #header>
+          {{ t("households") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="types"
+        width="100"
+        show-header-overflow
+        sortable
+        title="楼栋类型"
+      >
+        <template #header>
+          {{ t("types") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="founder"
+        width="100"
+        show-header-overflow
+        sortable
+        title="创建人"
+      >
+        <template #header>
+          {{ t("founder") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="creationtime"
+        width="100"
+        show-header-overflow
+        sortable
+        title="创建时间"
+      >
+        <template #header>
+          {{ t("creationtime") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="updater"
+        width="100"
+        show-header-overflow
+        sortable
+        title="最近更新人"
+      >
+        <template #header>
+          {{ t("lastupdater") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="updatetime"
+        width="100"
+        show-header-overflow
+        sortable
+        title="最近更新时间"
+      >
+        <template #header>
+          {{ t("lastupdated") }}
+        </template>
+      </vxe-column>
+      <vxe-column title="操作" width="100" fixed="right" show-overflow>
+        <template #header>
+          {{ t("operate") }}
+        </template>
+        <template #default="{ row }">
+          <vxe-button
+            type="text"
+            icon="vxe-icon-edit"
+            style="color: #409eff"
+            @click="editEvent(row)"
+          />
+          <vxe-button
+            type="text"
+            icon="vxe-icon-delete"
+            style="color: #f23c3c"
+            @click="removeEvent(row)"
+          />
+        </template>
+      </vxe-column>
+    </vxe-table>
+    <!-- 分页 -->
+    <div>
+      <vxe-pager
+        v-model:current-page="pageVO2.currentPage"
+        :total="pageVO2.total"
+        :page-size="10"
+        @page-change="geteffortlist"
+        :layouts="[
+          'PrevJump',
+          'PrevPage',
+          'Number',
+          'NextPage',
+          'NextJump',
+          'FullJump',
+          'Total'
+        ]"
+      />
     </div>
-    <!-- <rightlist @villageTree="getVillage" /> -->
+    <!-- 新增/修改表单 -->
+    <vxe-modal
+      v-model="showEdit"
+      width="800"
+      height="90%"
+      min-width="600"
+      min-height="300"
+      :loading="submitLoading"
+      @close="closeForm"
+      resize
+      destroy-on-close
+    >
+      <template #title>
+        <span v-if="selectRow">{{ t("editsave") }}</span>
+        <span v-else>{{ t("addsave") }}</span>
+      </template>
+      <template #default>
+        <vxe-form
+          :data="formData"
+          :rules="formRules"
+          title-align="right"
+          title-width="100"
+          ref="formRef"
+          @submit="submitEvent"
+        >
+          <vxe-form-item field="company" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("company") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-select
+                v-model="data.company"
+                placeholder="请选择水司"
+                :options="companyKeyList"
+                clearable
+                filterable
+                @focus="searchCompanyList"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="region" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("areaname") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-select
+                v-model="data.region"
+                placeholder="请选择区域"
+                :options="regionKeyList"
+                clearable
+                filterable
+                @focus="searchRegionList(false)"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="village" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("communityname") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-select
+                v-model="data.village"
+                placeholder="请选择小区"
+                :options="communityKeyList"
+                clearable
+                filterable
+                @focus="searchCommunityList"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="buildnumber" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("buildnumber") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.buildnumber"
+                placeholder="请输入楼栋编号"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="level" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("level") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.level"
+                type="integer"
+                min="0"
+                placeholder="请输入楼层数"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="households" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("households") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.households"
+                type="integer"
+                min="0"
+                placeholder="请输入楼栋户数"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="types" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("types") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.zipcode"
+                type="text"
+                placeholder="请输入楼栋类型"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="notes" :span="24" :item-render="{}">
+            <template #title>
+              {{ t("notes") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-textarea v-model="data.address" placeholder="请填写备注" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="jd" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("jd") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input v-model="data.jd" placeholder="请输入经度" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="wd" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("wd") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input v-model="data.wd" placeholder="请输入纬度" transfer />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item
+            field="pitture"
+            title="小区图片"
+            :span="24"
+            :item-render="{}"
+          >
+            <template #title>
+              {{ t("pitture") }}
+            </template>
+            <el-radio-group v-model="radio1" class="ml-4">
+              <el-radio label="1" size="large">默认icon</el-radio>
+              <el-radio label="2" size="large">自定义icon</el-radio>
+            </el-radio-group>
+            <el-upload
+              class="upload-demo"
+              v-model:file-list="fileList"
+              :show-file-list="true"
+              :on-change="fileChange"
+              :before-remove="beforeRemove"
+              :limit="1"
+              :on-exceed="handleExceed"
+              :http-request:void="uploadIon"
+              :on-remove="removefile"
+              ref="uploadRef"
+              v-if="Number(radio1) == 2"
+            >
+              <el-button type="primary">{{ t("pitture") }}</el-button>
+              <template #tip>
+                <div class="el-upload__tip">{{ t("tips") }}</div>
+              </template>
+            </el-upload>
+          </vxe-form-item>
+          <vxe-form-item :span="24">
+            <div class="map">
+              <baidu-map
+                class="baidu-map"
+                :center="center"
+                :zoom="zoom"
+                @click="getpoint"
+                :scroll-wheel-zoom="true"
+              >
+                <bm-local-search
+                  :keyword="villagekeyword"
+                  :auto-viewport="true"
+                />
+                <bm-marker
+                  :position="points"
+                  :dragging="true"
+                  @dragend="dragend"
+                />
+              </baidu-map>
+            </div>
+          </vxe-form-item>
+          <vxe-form-item align="center" :span="24">
+            <template #default>
+              <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
+              <vxe-button type="reset">{{ t("reset") }}</vxe-button>
+            </template>
+          </vxe-form-item>
+        </vxe-form>
+      </template>
+    </vxe-modal>
+    <!-- 右侧水司信息 -->
     <rightlist />
+    <!-- 右侧区域信息 -->
   </div>
 </template>
-<script setup lang="ts">
-import { useRouter, useRoute } from "vue-router"; // 导入路由模块
-import { ref, reactive, onActivated, onMounted, nextTick } from "vue";
+
+<script lang="ts" setup>
+import { reactive, ref, onMounted, nextTick, computed } from "vue";
+// import type { Ref } from "vue";
+// import { storeToRefs } from "pinia";
 import {
   VXETable,
-  VxeFormPropTypes,
   VxeTableInstance,
+  VxeFormPropTypes,
+  VxeFormInstance,
   VxeToolbarInstance
 } from "vxe-table";
+import { ElMessage, ElMessageBox, UploadUserFile } from "element-plus";
 import type { UploadProps } from "element-plus";
-import { ElMessageBox, ElMessage } from "element-plus";
-import { useDebounceFn } from "@vueuse/core";
-import rightlist from "@/components/rightlist/rightlist.vue";
-// import { getvillage } from "@/api/build"; // 获取所有小区信息
-// import { getlist } from "@/api/effort";
+import { useI18n } from "vue-i18n"; // 表头翻译
+// import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
+import { useRouter } from "vue-router"; // 导入路由模块
+import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
 import {
-  buildadd,
-  getbuild,
-  buildfix,
-  builddelete,
-  lookupregion
-} from "@/api/build";
-import { getregion, getcompany, getlist } from "@/api/effort";
+  getlist,
+  addlist,
+  fixlist,
+  deletelist,
+  getregion,
+  getcompany
+} from "@/api/effort";
+import { getbuild } from "@/api/build";
+import rightlist from "@/components/rightlist/rightlist.vue";
+
+const area = useArea();
+const { savearea } = area;
 // 使用路由
-const route: any = useRoute();
 const router = useRouter();
-// 下拉框当前小区楼栋数据
-// const lddata = ref([]);
-const value1 = ref("222"); // 选中的下拉框选项
-// const value2 = ref(""); // 楼栋下拉框
-// 选择是否自定义上传icon
-const radio1 = ref("1");
-const formRef = ref(null); // 表单ref
+
+const companyKey = ref(""); // 所属水司搜索词
+const companyKeyList = ref([]); // 所属水司搜索列表
+// 查询水司列表信息
+const searchCompanyList = () => {
+  const data = {
+    company: ""
+  };
+  getcompany(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      companyKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除查询水司关键词
+const clearCompanyKey = () => {
+  companyKey.value = "";
+  regionKey.value = "";
+  CommunityKey.value = "";
+  geteffortlist();
+};
+
+const regionKey = ref(""); // 区域搜索词
+const regionKeyList = ref([]); // 区域搜索列表
+// 查询区域列表信息
+const searchRegionList = type => {
+  // true为表格筛选，false为表单筛选
+  console.log(formData.value, "表单选择的水司");
+  const data = {
+    company: type === true ? companyKey.value : formData.value.company,
+    region: ""
+  };
+  getregion(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      regionKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除区域关键词
+const clearRegionKey = () => {
+  regionKey.value = "";
+  CommunityKey.value = "";
+  geteffortlist();
+};
+
+const CommunityKey = ref(""); // 小区搜索词
+const communityKeyList = ref([]); // 小区搜索列表
+// 查询小区列表信息
+const searchCommunityList = type => {
+  // true为表格筛选，false为表单筛选
+  console.log(formData.value, "表单选择的小区");
+  const data = {
+    company: type === true ? companyKey.value : formData.value.company,
+    region: type === true ? regionKey.value : formData.value.region,
+    village: ""
+  };
+  getlist(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      communityKeyList.value = res.data.data.map(item => {
+        return { value: item.village, label: item.village };
+      });
+    }
+  });
+};
+// 清除小区关键词
+const clearCommunityKey = () => {
+  CommunityKey.value = "";
+  geteffortlist();
+};
+
+const selectList = ref([]);
+const selectRowsId = computed(() => {
+  return selectList.value.map(item => item.id);
+});
+// 上传文件
+// const fileList = ref<UploadUserFile[]>([]);
+const handleExceed: UploadProps["onExceed"] = files => {
+  ElMessage.warning(`限制文件为1个, 这次你选择了${files.length}个文件`);
+  // 限制为1，您这次选择了个文件。长度文件，加起来为个文件。上传长度文件。总共长度
+};
+
+const beforeRemove: UploadProps["beforeRemove"] = uploadFile => {
+  return ElMessageBox.confirm(`是否删除${uploadFile.name} ?`).then(
+    () => true,
+    () => false
+  );
+};
+
+const center = ref({ lng: 0, lat: 0 });
+const zoom = ref(3);
+
+// const handler = ({ BMap, map }: any) => {
+//   console.log(BMap, map, "bmmap");
+//   center.value.lng = 116.404;
+//   center.value.lat = 39.915;
+//   zoom.value = 17;
+// };
+// 绘制点
+const getpoint = ({ point }: any) => {
+  const jd = point.lng;
+  const wd = point.lat;
+  points.value.lng = point.lng;
+  points.value.lat = point.lat;
+  formData.value.jd = jd;
+  formData.value.wd = wd;
+};
+// 拖拽结束将坐标更新
+const dragend = ({ point }) => {
+  const jd = point.lng;
+  const wd = point.lat;
+  points.value.lng = point.lng;
+  points.value.lat = point.lat;
+  formData.value.jd = jd;
+  formData.value.wd = wd;
+};
+interface RowVO {
+  id: number;
+  company: string;
+  region: string;
+  village: string;
+  buildnumber: string;
+  level: string;
+  households: string;
+  types: string;
+  jd: string;
+  wd: string;
+}
+
+const xTable = ref<VxeTableInstance<RowVO>>();
+interface FormDataVO {
+  company: string;
+  region: string;
+  village: string;
+  buildnumber: string;
+  level: number;
+  households: number;
+  types: string;
+  jd: number;
+  wd: number;
+}
+const formData = ref<FormDataVO>({
+  company: "",
+  region: "",
+  village: "",
+  buildnumber: "",
+  level: 1,
+  households: 1,
+  types: "",
+  jd: 0,
+  wd: 0
+});
+
+const submitLoading = ref(false);
+const showEdit = ref(false);
+const selectRow = ref<RowVO | null>();
+const tableData = ref([]);
+const formRef = ref<VxeFormInstance>(); // from表单校验
+const formRules = reactive<VxeFormPropTypes.Rules>({
+  region: [{ required: true, message: "请输入区域名称" }],
+  village: [{ required: true, message: "请输入小区名称" }],
+  build: [{ required: true, message: "请输入楼栋数" }],
+  households: [{ required: true, message: "请输入户数" }],
+  area: [{ required: true, message: "请输入小区面积" }],
+  zipcode: [{ required: true, message: "请输入邮编" }],
+  property: [{ required: true, message: "请输入所属物业" }],
+  company: [{ required: true, message: "请输入所属自来水公司" }],
+  address: [{ required: true, message: "请输入地址" }],
+  jd: [{ required: true, message: "点击坐标输入经度" }],
+  wd: [{ required: true, message: "点击坐标输入纬度" }]
+});
+
+const insertEvent = () => {
+  Object.assign(formData, {
+    company: "",
+    region: "",
+    village: "",
+    buildnumber: "",
+    level: 1,
+    households: 1,
+    types: ""
+  });
+  formData.value = {
+    company: "",
+    region: "",
+    village: "",
+    buildnumber: "",
+    level: 1,
+    households: 1,
+    types: "",
+    jd: 0,
+    wd: 0
+  };
+  // 设置默认地址
+  center.value.lng = 116.404;
+  center.value.lat = 39.915;
+  zoom.value = 8;
+  selectRow.value = null;
+  showEdit.value = true;
+  getallCompany(); // 点击水司获取所有水司信息
+  getallRegion(); //  点击水司获取所有区域信息
+};
+
+const fixedid = ref("");
+const points = ref({ lng: 0, lat: 0 }); // 小区定位点icon
+// 未修改之前的对象
+const editEvent = (row: RowVO) => {
+  center.value.lng = Number(row.jd);
+  center.value.lat = Number(row.wd);
+  zoom.value = 16;
+  // 上面为在编辑界面展示已保存的坐标点
+  points.value.lng = Number(row.jd);
+  points.value.lat = Number(row.wd);
+  // 弹框关闭时把points清空，然后在下一次点击编辑弹框时再push
+  const a = Object.assign({}, row);
+  (formData.value as any) = a;
+  selectRow.value = row;
+  showEdit.value = true;
+  (fixedid.value as any) = row.id;
+};
+//表单取消事件
+const closeForm = () => {
+  console.log("关闭事件");
+  (points.value as any) = {};
+};
+
+const cellDBLClickEvent = ({ row, rowIndex }) => {
+  // editEvent(row)
+  console.log(row, rowIndex, "row");
+  // let rows = row.toString()
+  router.push({
+    path: "/fighting/build",
+    query: { data: JSON.stringify(row) }
+  });
+  // 将点击的小区行数据暂存
+  savearea(JSON.stringify(row));
+};
+
+const removeEvent = async (row: RowVO) => {
+  // console.log(row.id, "行信息");
+  const params = (row as any)._id;
+  const type = await VXETable.modal.confirm(
+    "该操作会删除该小区下所有楼栋、住户,您确定要删除该数据?"
+  );
+  if (type === "confirm") {
+    const $table = xTable.value;
+    if ($table) {
+      // $table.remove(row);
+      deletelist(params).then(res => {
+        if (res.retcode == 200) {
+          VXETable.modal.message({
+            content: `${res.message}`,
+            status: "success"
+          });
+        }
+        geteffortlist();
+      });
+    }
+  }
+};
+
+const uploadRef = ref(null); //上传icon的ref
+// 上传图片列表
+const fileList = ref<UploadUserFile[]>([]);
 // 对上传的文件进行校验
 const fileChange = file => {
   // debugger;
@@ -513,351 +786,17 @@ const uploadIon = data => {
   formdd.value.append("file", data.file);
   // 调用保存接口 将form的值全都传过去
 };
-// 判断是否来自区域页面
-const selectXq: any = ref("");
-const isformArea = () => {
-  if (route.query.data !== undefined) {
-    // 如果是从区域跳转
-    selectXq.value = JSON.parse(route.query.data);
-    console.log(selectXq.value, "selectXq.value");
-    isadd.value = false;
-    // village
-    // if (selectXq.value.village == "福鼎家园") {
-    //   console.log("请求福鼎家园的楼栋数据");
-    // }
-    // changeArea(selectXq.value.village);
-    value1.value = selectXq.value.village;
-  } else {
-    // 如果单独点击小区楼栋菜单
-    value1.value = "";
-    // area.value = options.value[0].value; // 默认选中第一个小区
-    console.log("请求第一个小区的数据");
-  }
-};
-const options = ref([]);
-onMounted(() => {
-  getallCompany();
-  getallbuild();
-  getallvillage();
-});
-// 搜索关键词
-// const searchName = ref("");
-// 分页
-const pageVO2 = reactive({
-  currentPage: 1,
-  total: 0
-});
-const getallbuild = () => {
-  const data = {
-    page: pageVO2.currentPage,
-    pageSize: 10,
-    company: rgcompany.value,
-    region: rgregion.value,
-    village: rgvillage.value
-  };
-  getbuild(data).then(res => {
-    if (res.retcode == 200) {
-      tableData.value = res.data.data;
-      pageVO2.total = res.data.total;
-    }
-  });
-};
-const getallvillage = () => {
-  const data = {
-    page: 1,
-    pageSize: 1000,
-    company: "",
-    region: "",
-    village: ""
-  };
-  getlist(data).then(res => {
-    if (res.retcode == 200) {
-      const newArr = [];
-      // const tableData = res.data.data;
-      res.data.data.forEach(item => {
-        newArr.push({ value: item.village, label: item.village });
-      });
-      options.value = newArr;
-      console.log(options.value, "options.value ");
-      isformArea();
-    }
-  });
+// 移除文件
+const removefile = () => {
+  // formRules.pitture[0].required = true;
 };
 
-onActivated(() => {
-  selectXq.value = JSON.parse(route.query.data);
-});
-
-const points = ref({ lng: 0, lat: 0 }); // 小区定位点icon
-// 拖拽结束将坐标更新
-const dragend = ({ point }) => {
-  const jd = point.lng;
-  const wd = point.lat;
-  points.value.lng = point.lng;
-  points.value.lat = point.lat;
-  formData.jd = jd;
-  formData.wd = wd;
-};
-
-const CompanyKeyword = ref(""); // 搜索水司关键词
-const RegionKeyword = ref(""); // 搜索区域关键词
-const VillageKeyword = ref(""); // 搜索小区关键词
-
-// 获取全部区域信息
-// const regions = ref([]);
-const searchRegionList = ref<ListItem[]>([]);
-const searchRegionloading = ref(false); // 搜索加载状态
-const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入区域方法
-const remoteRegion = useDebounceFn((query: string, isform) => {
-  // console.log(isform, "第2个参数");
-  if (query) {
-    searchRegionloading.value = true;
-    const data = {
-      company: isform == "true" ? formData.company : CompanyKeyword.value,
-      region: query
-    };
-    getregion(data).then(res => {
-      if (res.retcode == 200) {
-        searchRegionloading.value = false;
-        searchRegionoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      } else {
-        searchRegionoptions.value = searchRegionList.value;
-      }
-    });
-  }
-}, 500);
-
-// 获取全部水司信息
-const companys = ref([]);
-interface ListItem {
-  value: string;
-  label: string;
-}
-const searchCompanysList = ref<ListItem[]>([]);
-const loading = ref(false); // 搜索加载状态
-const searchCompanyoptions = ref<ListItem[]>([]); // 列表数据
-
-// 获取全部水司信息，在不做任何输入时显示
-const getallCompany = () => {
-  const data = {
-    company: "",
-    region: ""
-  };
-  getcompany(data).then(res => {
-    if (res.retcode == 200) {
-      companys.value = res.data.data;
-      searchCompanysList.value = companys.value.map(item => {
-        return { value: item._id, label: item.name };
-      });
-    }
-  });
-};
-
-// 输入水司方法
-const remoteCompany = useDebounceFn((query: string) => {
-  if (query) {
-    loading.value = true;
-    console.log(query, "搜索水司名称入参");
-    // 调用查询接口
-    const data = {
-      company: query
-    };
-    getcompany(data).then(res => {
-      if (res.retcode == 200) {
-        loading.value = false;
-        searchCompanyoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      }
-    });
-  } else {
-    searchCompanyoptions.value = searchCompanysList.value;
-  }
-}, 500);
-
-// 获取全部小区信息
-// const village = ref([]);
-const searchVillageList = ref<ListItem[]>([]);
-const searchVillageloading = ref(false); // 搜索加载状态
-const searchVillageoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入小区方法
-const remoteVillage = useDebounceFn((query: string, isform) => {
-  if (query) {
-    searchVillageloading.value = true;
-    const data = {
-      page: 1,
-      pageSize: 1000,
-      company: isform == "true" ? formData.company : CompanyKeyword.value,
-      region: isform == "true" ? formData.region : RegionKeyword.value,
-      village: query
-    };
-    getlist(data).then(res => {
-      if (res.retcode == 200) {
-        searchVillageloading.value = false;
-        searchVillageoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.village };
-        });
-      } else {
-        searchVillageoptions.value = searchVillageList.value;
-      }
-    });
-  }
-}, 500);
-
-const rgcompany = ref(""); // 查询楼栋入参水司
-const rgregion = ref(""); // 查询楼栋入参区域
-const rgvillage = ref(""); // 查询楼栋入参小区
-// 根据水司查询小区信息
-const searchEffortList = val => {
-  // console.log(val, "水司关键词");
-  // 入参水司，请求楼栋数据
-  rgcompany.value = val;
-  getallbuild();
-};
-
-// 根据水司-区域查询小区信息
-const searchRegionLists = val => {
-  rgregion.value = val;
-  getallbuild();
-};
-
-// 根据水司-区域-小区模糊搜索查询小区信息
-const searchVillageLists = val => {
-  rgvillage.value = val;
-  getallbuild();
-};
-
-// 新增小区楼栋
-const addBuild = () => {
-  // console.log("新增楼栋表单");
-  Object.assign(formData, {
-    company: "",
-    region: "",
-    village: "",
-    buildnumber: "",
-    level: "",
-    households: "",
-    types: "居民",
-    jd: "",
-    wd: ""
-  });
-  // 获取小区的经纬度
-  points.value = { lng: 0, lat: 0 };
-  formData.village = value1.value;
-  const data = {
-    village: value1.value
-  };
-  lookupregion(data).then(res => {
-    if (res.retcode == 200) {
-      center.value.lng = res.data[0].jd;
-      center.value.lat = res.data[0].wd;
-      zoom.value = 18;
-      selectRow.value = null;
-      showEdit.value = true;
-    }
-  });
-};
-
-// 下载模板文件
-const downloadExcel = () => {
-  const a = document.createElement("a");
-  a.href = "../../../public/static/表格模板.xls";
-  a.download = "文件模板.xlsx";
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-};
-
-// 表格字段
-interface RowVO {
-  id: number;
-  company: string;
-  region: string;
-  village: string;
-  buildnumber: string;
-  level: string;
-  households: number;
-  types: string;
-  founder: number;
-  foundertime: number;
-  updated: string;
-  updatedtime: string;
-  notes: string;
-  jd: number;
-  wd: number;
-}
-const formData = reactive({
-  company: "",
-  region: "",
-  village: "",
-  buildnumber: "",
-  level: "",
-  households: "",
-  types: 1,
-  jd: 0,
-  wd: 0
-});
-
-const tableData = ref<RowVO[]>([]);
-const showEdit = ref(false); // 展示编辑框
-const selectRow = ref<RowVO | null>();
-const submitLoading = ref(false);
-// 点击行回调
-const cellDBLClickEvent = ({ row }) => {
-  // 前往户表信息
-  router.push({
-    path: "/fighting/household",
-    query: { data: JSON.stringify(row) }
-  });
-  // 将点击的楼栋行数据暂存
-};
-
-// 编辑事件
-const editEvent = (row: RowVO) => {
-  Object.assign(formData, row);
-  center.value.lng = row.jd;
-  center.value.lat = row.wd;
-  zoom.value = 18;
-  selectRow.value = row;
-  showEdit.value = true;
-  points.value.lng = row.jd;
-  points.value.lat = row.wd;
-};
-
-// 删除事件
-const removeEvent = async (row: RowVO) => {
-  const params = (row as any)._id;
-  const type = await VXETable.modal.confirm(
-    "该操作会删除该楼栋下所有住户,您确定要删除该数据?"
-  );
-  if (type === "confirm") {
-    const $table = xTable.value;
-    if ($table) {
-      // $table.remove(row);
-      builddelete(params).then(res => {
-        if (res.retcode == 200) {
-          VXETable.modal.message({
-            content: `${res.message}`,
-            status: "success"
-          });
-        }
-        getallbuild();
-      });
-    }
-  }
-};
-
-// 批量删除选中楼栋
+// 批量删除选中区域
 const removeSelectRowEvent = async () => {
   const type = await VXETable.modal.confirm(
-    "该操作会删除该楼栋下所有住户,您确定要批量删除吗？"
+    "该操作会删除该小区下所有楼栋、住户,您确定要批量删除吗？"
   );
+  // VXETable.modal.message({ content: `点击了 ${type}` });
   if (type == "confirm") {
     const $table = xTable.value;
     if ($table) {
@@ -872,13 +811,13 @@ const removeSelectRowEvent = async () => {
           return ElMessage.error("至少选中一项进行操作！");
         }
         const ids = deleteDatas.toString();
-        builddelete(ids).then(res => {
+        deletelist(ids).then(res => {
           if (res.retcode == 200) {
             ElMessage({
               message: `${res.message}`,
               type: "success"
             });
-            getallbuild();
+            geteffortlist();
           }
         });
       });
@@ -888,114 +827,135 @@ const removeSelectRowEvent = async () => {
   }
 };
 
-// 表单规则
-const formRules = reactive<VxeFormPropTypes.Rules>({
-  company: [{ required: true, message: "请输入所属水司" }],
-  region: [{ required: true, message: "请输入所属区域" }],
-  village: [{ required: true, message: "请输入名称" }],
-  buildnumber: [{ required: true, message: "请输入楼栋编号" }],
-  level: [{ required: true, message: "请输入楼层数" }],
-  households: [{ required: true, message: "请输入户数" }],
-  types: [{ required: true, message: "请输入楼栋类型" }],
-  jd: [{ required: true, message: "请输入经度" }],
-  wd: [{ required: true, message: "请输入纬度" }]
-});
-
-// 提交楼栋信息
 const submitEvent = () => {
+  // debugger;
   submitLoading.value = true;
-  // showbaidumap.value = false
   setTimeout(() => {
     const $table = xTable.value;
+    console.log(fileList.value.length);
     if ($table) {
       submitLoading.value = false;
       showEdit.value = false;
       if (selectRow.value) {
-        // 修改楼栋信息
-        buildfix((selectRow.value as any)._id, formData).then(res => {
+        fixlist((selectRow.value as any)._id, formData.value).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "保存成功", status: "success" });
-            getallbuild();
+            geteffortlist();
           }
         });
         // Object.assign(selectRow.value, formData);
       } else {
-        // console.log(formData, "表单数据");
-        const data = formData;
-        buildadd(data).then(res => {
+        if (radio1.value == "1") {
+          formdd.value = new FormData();
+        }
+        Object.entries(formData.value).forEach(([key, value]) => {
+          // console.log(`Key: ${key}, Value: ${value}`);
+          formdd.value.append(`${key}`, `${value}`);
+        });
+        addlist(formdd.value).then(res => {
           if (res.retcode == 200) {
-            VXETable.modal.message({
-              content: `${res.message}`,
-              status: "success"
-            });
+            VXETable.modal.message({ content: "新增成功", status: "success" });
+            geteffortlist();
           }
         });
-        // 获取新的表格数据
-        $table.insert({ ...formData });
       }
     }
   }, 500);
 };
-const xTable = ref<VxeTableInstance<RowVO>>();
-// 上传文件相关钩子
-const handleRemove: UploadProps["onRemove"] = (file, uploadFiles) => {
-  console.log(file, uploadFiles);
-};
-const handlePreview: UploadProps["onPreview"] = uploadFile => {
-  console.log(uploadFile);
-};
-const beforeRemove: UploadProps["beforeRemove"] = uploadFile => {
-  return ElMessageBox.confirm(`是否删除${uploadFile.name} ?`).then(
-    () => true,
-    () => false
-  );
-};
-const handleExceed: UploadProps["onExceed"] = files => {
-  ElMessage.warning(`限制文件为1个, 这次你选择了${files.length}个文件`);
-  // 限制为1，您这次选择了个文件。长度文件，加起来为个文件。上传长度文件。总共长度
+
+// 选择框
+const radio1 = ref("1");
+onMounted(() => {
+  geteffortlist();
+});
+
+const geteffortlist = () => {
+  const data = {
+    page: pageVO2.currentPage,
+    pageSize: 10,
+    company: companyKey.value,
+    region: regionKey.value,
+    village: CommunityKey.value,
+    buildnumber: ""
+  };
+  getbuild(data).then(res => {
+    if (res.retcode == 200) {
+      (tableData.value as any) = res.data.data;
+      pageVO2.total = res.data.total;
+    }
+  });
 };
 
-const center = ref({ lng: 0, lat: 0 });
-const zoom = ref(3);
-// 设置百度地图坐标的前置钩子
-const handler = ({ BMap, map }: any) => {
-  console.log(BMap, map, "bmmap");
-  center.value.lng = selectXq.value.jd;
-  center.value.lat = selectXq.value.wd;
-  zoom.value = 18;
-};
-// 新增地图上的点坐标
-const getpoint = ({ point }: any) => {
-  formData.jd = point.lng;
-  formData.wd = point.lat;
-  points.value.lng = point.lng;
-  points.value.lat = point.lat;
+// 分页
+const pageVO2 = reactive({
+  currentPage: 1,
+  total: 0
+});
+
+// 获取全部水司信息
+const companys = ref([]);
+interface ListItem {
+  value: string;
+  label: string;
+}
+const searchCompanysList = ref<ListItem[]>([]);
+// 获取全部水司信息，在不做任何输入时显示
+const getallCompany = () => {
+  // debugger;
+  console.log("点击下拉框就展示所有水司数据");
+  // remoteCompany("");
+  const data = {
+    company: "",
+    region: ""
+  };
+  getcompany(data).then(res => {
+    if (res.retcode == 200) {
+      // debugger;
+      // loading.value = true;
+      companys.value = res.data.data;
+      searchCompanysList.value = companys.value.map(item => {
+        return { value: item._id, label: item.name };
+      });
+      // loading.value = false;
+    }
+  });
 };
 
-// 改变小区
-// const selectedArea = ref("");
-// const changeArea = val => {
-//   selectedArea.value = val;
-//   const data = {
-//     page: 1,
-//     pageSize: 10,
-//     keyword: val,
-//     buildnumber: ""
-//   };
-//   getbuild(data).then(res => {
-//     if (res.retcode == 200) {
-//       tableData.value = res.data.data;
-//       // lddata.value = res.data.data;
-//       pageVO2.total = res.data.total;
-//     }
-//   });
-//   getLdData(val);
+// 打开右侧抽屉，请求全部水司数据
+// const openright = menu => {
+//   if (menu == "village") {
+//     table.value = true;
+//     const data = {
+//       company: ""
+//     };
+//     getcompany(data).then(res => {
+//       if (res.retcode == 200) {
+//         companyData.value = res.data.data;
+//       }
+//     });
+//   } else if (menu == "region") {
+//     const data = {
+//       company: "",
+//       region: ""
+//     };
+//     getregion(data).then(res => {
+//       if (res.retcode == 200) {
+//         regionData.value = res.data.data;
+//       }
+//     });
+//     regiontable.value = true;
+//   }
 // };
 
-// 获取到tree组件的值
-// const getVillage = value => {
-//   value1.value = value.name;
-//   changeArea(value.name);
+const getallRegion = () => {
+  console.log("获取所有区域信息");
+};
+
+// 地图定位小区信息
+// const villagekeyword = ref("");
+// const lookupvillage = () => {
+//   villagekeyword.value = formData.value.village;
+//   console.log(villagekeyword.value, "小区名称");
 // };
 
 const toolbarRef = ref<VxeToolbarInstance>();
@@ -1008,22 +968,162 @@ nextTick(() => {
   }
 });
 
-// 上传列表
-const fileList = ref([]);
+// 翻译词典
+const { t } = useI18n({
+  locale: "en",
+  messages: {
+    en: {
+      company: "company",
+      areaname: "areaname",
+      communityname: "community",
+      buildnumber: "buildnumber",
+      level: "level",
+      households: "households",
+      types: "type",
+      notes: "notes",
+      address: "adress",
+      postcode: "postcode",
+      communityarea: "communityarea",
+      buildings: "buildings",
+      founder: "founder",
+      creationtime: "creationtime",
+      lastupdater: "lastupdateer",
+      lastupdated: "last updated by",
+      operate: "operate",
+      search: "search",
+      add: "add",
+      editsave: "edit&save",
+      addsave: "add&save",
+      jd: "longitude",
+      wd: "latitude",
+      pitture: "icon",
+      tipbutton: "Upload icon",
+      tips: "The size of the jpg/png file is less than 500KB.",
+      submit: "submit",
+      reset: "reset",
+      batchimport: "batchimport",
+      download: "Download",
+      batchDelete: "BatchDelete"
+    },
+    zh: {
+      company: "所属水司",
+      areaname: "区域名称",
+      communityname: "小区名称",
+      buildnumber: "楼栋编号",
+      level: "楼层数",
+      households: "户数",
+      types: "楼栋类型",
+      notes: "备注",
+      address: "地址",
+      postcode: "邮编",
+      communityarea: "小区面积",
+      buildings: "楼栋数",
+      founder: "创建人",
+      creationtime: "创建时间",
+      lastupdater: "最近更新人",
+      lastupdated: "最近更新时间",
+      operate: "操作",
+      search: "搜索",
+      add: "新增",
+      editsave: "编辑&保存",
+      addsave: "新增&保存",
+      jd: "经度",
+      wd: "纬度",
+      pitture: "小区图片",
+      tipbutton: "上传小区图片",
+      tips: "jpg/png文件,大小小于500KB",
+      sumit: "提交",
+      reset: "重置",
+      batchimport: "批量导入",
+      download: "下载模板",
+      batchDelete: "批量删除"
+    }
+  }
+});
 </script>
 <style lang="scss" scoped>
-.baidu-map {
+.table-main {
+  width: 100%;
+  // margin: auto;
+  // margin-left: 50px;
+}
+
+.map {
+  position: relative;
   width: 100%;
   height: 240px;
-  overflow: hidden;
+
+  // background-color: pink;
+  .baidu-map {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+  }
+
+  .keyword {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 999;
+    width: 200px;
+    font-size: 14px;
+    color: black;
+  }
+
+  .clear-line {
+    position: absolute;
+    top: 6px;
+    left: 210px;
+    z-index: 999;
+    font-size: 14px;
+    // width: 200px;
+    color: black;
+  }
 }
 
-.vxe-toolbar {
-  padding: 0;
+.bm-view {
+  width: 100%;
+  height: 200px;
 }
 
-:deep .vxe-toolbar .vxe-custom--wrapper {
+// 提示框
+.vxe-modal--wrapper {
+  z-index: 9999 !important;
+}
+
+// 隐藏上传列表
+.file-list {
+  display: none;
+}
+
+// 表格图片边框
+::v-deep .vxe-table--render-default .vxe-tree-cell {
+  padding-left: 0 !important;
+}
+
+::v-deep .el-drawer__header {
+  margin-bottom: 0;
+}
+
+// :deep .vxe-select--panel {
+//   position: fixed !important;
+//   right: 10%;
+//   left: 75%;
+// }
+
+::v-deep .vxe-toolbar .vxe-custom--wrapper {
   margin-right: 10px !important;
   margin-left: 0 !important;
+}
+
+::v-deep .vxe-form--item-content {
+  display: flex;
+}
+::v-deep .vxe-form--item-valid {
+  margin-top: 34px;
+}
+
+::v-deep .vxe-form .vxe-form--item-inner > .align--center {
+  justify-content: center;
 }
 </style>

@@ -769,7 +769,7 @@ const clearCompanyKey = () => {
 
 const regionKey = ref(""); // 区域搜索词
 const regionKeyList = ref([]); // 区域搜索列表
-// 查询水司列表信息
+// 查询区域列表信息
 const searchRegionList = type => {
   // true为表格筛选，false为表单筛选
   console.log(formData.value, "表单选择的水司");
@@ -1140,12 +1140,8 @@ const successupload = () => {
 const radio1 = ref("1");
 onMounted(() => {
   geteffortlist();
-  // getallCompany();
 });
 
-// const rgcompany = ref("");
-// const rgregion = ref("");
-// const rgvillage = ref("");
 const geteffortlist = () => {
   const data = {
     page: pageVO2.currentPage,
@@ -1505,21 +1501,6 @@ const lookupvillage = () => {
   console.log(villagekeyword.value, "小区名称");
 };
 
-// 新增/搜索页面查询水司
-// const fromRegions = ref([]);
-// const searchRegion = val => {
-//   formData.value.region = "";
-//   const data = {
-//     company: val,
-//     region: ""
-//   };
-//   getregion(data).then(res => {
-//     if (res.retcode == 200) {
-//       fromRegions.value = res.data.data;
-//     }
-//   });
-// };
-
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
   // 将表格和工具栏进行关联
@@ -1529,11 +1510,6 @@ nextTick(() => {
     $table.connect($toolbar);
   }
 });
-
-// 获取可视列信息
-// const getColumns = arr => {
-//   console.log(arr, "arr");
-// };
 
 // 翻译词典
 const { t } = useI18n({

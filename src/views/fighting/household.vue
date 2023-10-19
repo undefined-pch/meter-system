@@ -29,7 +29,7 @@
             :remote-method="remoteCompany"
             :loading="loading"
             @change="searchEffortList"
-            style=" width: 150px;margin-right: 10px"
+            style="width: 150px; margin-right: 10px"
           >
             <el-option
               v-for="item in searchCompanyoptions"
@@ -48,7 +48,7 @@
             placeholder="请输入要查找的区域名称"
             :remote-method="query => remoteRegion(query, 'false')"
             :loading="searchRegionloading"
-            style=" width: 150px;margin-right: 10px"
+            style="width: 150px; margin-right: 10px"
             @change="searchRegionLists"
           >
             <el-option
@@ -68,7 +68,7 @@
             placeholder="请输入要查找的小区名称"
             :remote-method="query => remoteVillage(query, 'false')"
             :loading="searchVillageloading"
-            style=" width: 150px;margin-right: 10px"
+            style="width: 150px; margin-right: 10px"
             @change="searchVillageLists"
           >
             <el-option
@@ -96,7 +96,7 @@
             placeholder="请输入要查找的楼栋名称"
             :remote-method="query => remoteBuild(query, 'false')"
             :loading="searchBuildloading"
-            style=" width: 150px;margin-right: 10px"
+            style="width: 150px; margin-right: 10px"
             @change="searchBuildLists"
           >
             <el-option
