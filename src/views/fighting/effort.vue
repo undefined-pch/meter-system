@@ -2,7 +2,7 @@
   <div class="table-main">
     <vxe-toolbar custom ref="toolbarRef">
       <template #buttons>
-        <div>
+        <div style="margin-left: 6px">
           {{ t("company") }}:
           <vxe-select
             v-model="companyKey"
@@ -19,11 +19,11 @@
           {{ t("areaname") }}:
           <vxe-select
             v-model="regionKey"
-            placeholder="请输入要查找的水司"
+            placeholder="请输入要查找的区域"
             :options="regionKeyList"
             clearable
             filterable
-            @focus="searchRegionList"
+            @focus="searchRegionList(true)"
             @change="geteffortlist()"
             @clear="clearRegionKey()"
           />
@@ -313,25 +313,14 @@
               {{ t("watercompany") }}
             </template>
             <template #default="{ data }">
-              <!-- <vxe-input
-                v-model="data.company"
-                placeholder="请选择自来水公司"
-                transfer
-                style="width: 72%"
-              /> -->
-              <el-select
+              <vxe-select
                 v-model="data.company"
                 placeholder="请选择水司"
-                style="width: 72%"
-                @change="searchRegion"
-              >
-                <el-option
-                  v-for="item in companys"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.name"
-                />
-              </el-select>
+                :options="companyKeyList"
+                clearable
+                filterable
+                @focus="searchCompanyList"
+              />
               <el-button
                 type="primary"
                 style="margin-bottom: 2px; margin-left: 10px"
@@ -345,18 +334,14 @@
               {{ t("areaname") }}
             </template>
             <template #default="{ data }">
-              <el-select
+              <vxe-select
                 v-model="data.region"
-                placeholder="请选择区域名称"
-                style="width: 72%"
-              >
-                <el-option
-                  v-for="item in fromRegions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.name"
-                />
-              </el-select>
+                placeholder="请选择水司"
+                :options="regionKeyList"
+                clearable
+                filterable
+                @focus="searchRegionList(false)"
+              />
               <el-button
                 type="primary"
                 style="margin-bottom: 2px; margin-left: 10px"
@@ -521,7 +506,7 @@
               </baidu-map>
             </div>
           </vxe-form-item>
-          <vxe-form-item align="center" title-align="center" :span="24">
+          <vxe-form-item align="center" :span="24">
             <template #default>
               <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
               <vxe-button type="reset">{{ t("reset") }}</vxe-button>
@@ -565,21 +550,42 @@
           max-height="620"
           style="margin-top: 4px"
           :data="companyData"
-          :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true }"
+          :edit-config="{
+            trigger: 'click',
+            mode: 'cell',
+            showStatus: true
+          }"
         >
           <vxe-column type="checkbox" width="45" />
           <vxe-column type="seq" width="40" />
-          <vxe-column field="name" title="所属自来水公司" width="140" sortable>
+          <vxe-column
+            field="name"
+            title="所属自来水公司"
+            width="160"
+            :edit-render="{}"
+            sortable
+          >
             <template #edit="{ row }">
               <vxe-input v-model="row.name" type="text" />
             </template>
           </vxe-column>
-          <vxe-column field="phone" title="联系电话" width="130" sortable>
+          <vxe-column
+            field="phone"
+            title="联系电话"
+            width="130"
+            :edit-render="{}"
+            sortable
+          >
             <template #edit="{ row }">
               <vxe-input v-model="row.phone" type="text" />
             </template>
           </vxe-column>
-          <vxe-column field="address" title="水司地址" sortable>
+          <vxe-column
+            field="address"
+            title="水司地址"
+            :edit-render="{}"
+            sortable
+          >
             <template #edit="{ row }">
               <vxe-input v-model="row.address" type="text" />
             </template>
@@ -764,10 +770,11 @@ const clearCompanyKey = () => {
 const regionKey = ref(""); // 区域搜索词
 const regionKeyList = ref([]); // 区域搜索列表
 // 查询水司列表信息
-const searchRegionList = () => {
-  // console.log(val, "水司关键词");
+const searchRegionList = type => {
+  // true为表格筛选，false为表单筛选
+  console.log(formData.value, "表单选择的水司");
   const data = {
-    company: companyKey.value,
+    company: type === true ? companyKey.value : formData.value.company,
     region: ""
   };
   getregion(data).then(res => {
@@ -851,6 +858,7 @@ interface RowVO {
 
 const xTable = ref<VxeTableInstance<RowVO>>();
 interface FormDataVO {
+  company: string;
   region: string;
   village: string;
   build: string;
@@ -863,6 +871,7 @@ interface FormDataVO {
   wd: number;
 }
 const formData = ref<FormDataVO>({
+  company: "",
   region: "",
   village: "",
   build: "1",
@@ -910,6 +919,7 @@ const insertEvent = () => {
     pitture: ""
   });
   formData.value = {
+    company: "",
     region: "",
     village: "",
     build: "1",
@@ -1417,11 +1427,14 @@ const saveRegion = () => {
     let count = 0;
     if (insert.length > 0) {
       insert.forEach(item => {
+        // console.log(item);
         count++;
         if (item.name == "默认区域") {
           return ElMessage.error("请修改默认区域名称!");
         } else if (item.name.length == 0) {
           return ElMessage.error("区域名称不能为空!");
+        } else if (item.company == null) {
+          return ElMessage.error("所属水司不能为空!");
         } else if (count === insert.length) {
           regionadd(insert).then(res => {
             if (res.retcode == 200) {
@@ -1493,19 +1506,19 @@ const lookupvillage = () => {
 };
 
 // 新增/搜索页面查询水司
-const fromRegions = ref([]);
-const searchRegion = val => {
-  formData.value.region = "";
-  const data = {
-    company: val,
-    region: ""
-  };
-  getregion(data).then(res => {
-    if (res.retcode == 200) {
-      fromRegions.value = res.data.data;
-    }
-  });
-};
+// const fromRegions = ref([]);
+// const searchRegion = val => {
+//   formData.value.region = "";
+//   const data = {
+//     company: val,
+//     region: ""
+//   };
+//   getregion(data).then(res => {
+//     if (res.retcode == 200) {
+//       fromRegions.value = res.data.data;
+//     }
+//   });
+// };
 
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
@@ -1647,11 +1660,11 @@ const { t } = useI18n({
 }
 
 // 表格图片边框
-:deep .vxe-table--render-default .vxe-tree-cell {
+::v-deep .vxe-table--render-default .vxe-tree-cell {
   padding-left: 0 !important;
 }
 
-:deep .el-drawer__header {
+::v-deep .el-drawer__header {
   margin-bottom: 0;
 }
 
@@ -1661,8 +1674,19 @@ const { t } = useI18n({
 //   left: 75%;
 // }
 
-:deep .vxe-toolbar .vxe-custom--wrapper {
+::v-deep .vxe-toolbar .vxe-custom--wrapper {
   margin-right: 10px !important;
   margin-left: 0 !important;
+}
+
+::v-deep .vxe-form--item-content {
+  display: flex;
+}
+::v-deep .vxe-form--item-valid {
+  margin-top: 34px;
+}
+
+::v-deep .vxe-form .vxe-form--item-inner > .align--center {
+  justify-content: center;
 }
 </style>
