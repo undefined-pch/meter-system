@@ -4,48 +4,29 @@
       <template #buttons>
         <div>
           {{ t("company") }}:
-          <el-select
-            v-model="CompanyKeyword"
-            filterable
+          <vxe-select
+            v-model="companyKey"
+            placeholder="请输入要查找的水司"
+            :options="companyKeyList"
             clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的水司名称"
-            :remote-method="remoteCompany"
-            :loading="loading"
-            @change="searchEffortList"
-            @focus="getallCompany"
-            style="width: 150px; margin-left: 10px"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
-            />
-          </el-select>
+            filterable
+            @focus="searchCompanyList"
+            @change="geteffortlist()"
+            @clear="clearCompanyKey()"
+          />
         </div>
         <div style="margin-left: 10px">
           {{ t("areaname") }}:
-          <el-select
-            v-model="RegionKeyword"
-            filterable
+          <vxe-select
+            v-model="regionKey"
+            placeholder="请输入要查找的水司"
+            :options="regionKeyList"
             clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的区域名称"
-            :remote-method="remoteRegion"
-            :loading="searchRegionloading"
-            style="width: 150px; margin-left: 10px"
-            @change="searchRegionLists"
-          >
-            <el-option
-              v-for="item in searchRegionoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
-            />
-          </el-select>
+            filterable
+            @focus="searchRegionList"
+            @change="geteffortlist()"
+            @clear="clearRegionKey()"
+          />
         </div>
 
         <vxe-button
@@ -90,6 +71,8 @@
       show-overflow
       ref="xTable"
       height="564"
+      id="toolbar_demo3"
+      :custom-config="{ storage: true }"
       :column-config="{ resizable: true }"
       :row-config="{ isCurrent: true, keyField: 'id' }"
       :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
@@ -731,7 +714,7 @@ import type { UploadProps } from "element-plus";
 import { useI18n } from "vue-i18n"; // 表头翻译
 // import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
 import { useRouter } from "vue-router"; // 导入路由模块
-import { useDebounceFn } from "@vueuse/core";
+// import { useDebounceFn } from "@vueuse/core";
 import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
 // import allarea from "@/assets/data/allarea.json";
 import {
@@ -754,25 +737,58 @@ const area = useArea();
 const { savearea } = area;
 // 使用路由
 const router = useRouter();
-const CompanyKeyword = ref(""); // 搜索水司关键词
-const RegionKeyword = ref(""); // 搜索区域关键词
+
+const companyKey = ref(""); // 所属水司搜索词
+const companyKeyList = ref([]); // 所属水司搜索列表
+// 查询水司列表信息
+const searchCompanyList = () => {
+  const data = {
+    company: ""
+  };
+  getcompany(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      companyKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除查询水司关键词
+const clearCompanyKey = () => {
+  companyKey.value = "";
+  regionKey.value = "";
+  geteffortlist();
+};
+
+const regionKey = ref(""); // 区域搜索词
+const regionKeyList = ref([]); // 区域搜索列表
+// 查询水司列表信息
+const searchRegionList = () => {
+  // console.log(val, "水司关键词");
+  const data = {
+    company: companyKey.value,
+    region: ""
+  };
+  getregion(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      regionKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除区域关键词
+const clearRegionKey = () => {
+  regionKey.value = "";
+  geteffortlist();
+};
 
 const selectList = ref([]);
 const selectRowsId = computed(() => {
   return selectList.value.map(item => item.id);
 });
-// const search = useDebounceFn(async () => {
-//   const data = {
-//     page: pageVO2.currentPage,
-//     pageSize: 10,
-//     keyword: searchName.value
-//   };
-//   const res = await getlist(data);
-//   if (res.retcode == 200) {
-//     (tableData.value as any) = res.data.data;
-//     pageVO2.total = res.data.total;
-//   }
-// }, 500);
 // 上传文件
 // const fileList = ref<UploadUserFile[]>([]);
 const handleExceed: UploadProps["onExceed"] = files => {
@@ -1112,35 +1128,21 @@ const successupload = () => {
 
 // 选择框
 const radio1 = ref("1");
-// const opts2 = ref([
-//   { value: 1001, label: "table" },
-//   { value: 1002, label: "grid" },
-//   { value: 1003, label: "button" },
-//   { value: 1004, label: "toolbar" },
-//   { value: 1005, label: "tooltip" },
-//   { value: 1006, label: "pager" },
-//   { value: 1007, label: "print" },
-//   { value: 1008, label: "export" },
-//   { value: 1009, label: "import" },
-//   { value: 1010, label: "select" },
-//   { value: 1012, label: "checkbox" },
-//   { value: 1013, label: "group" }
-// ]);
 onMounted(() => {
   geteffortlist();
   // getallCompany();
 });
 
-const rgcompany = ref("");
-const rgregion = ref("");
-const rgvillage = ref("");
+// const rgcompany = ref("");
+// const rgregion = ref("");
+// const rgvillage = ref("");
 const geteffortlist = () => {
   const data = {
     page: pageVO2.currentPage,
     pageSize: 10,
-    company: rgcompany.value,
-    region: rgregion.value,
-    village: rgvillage.value
+    company: companyKey.value,
+    region: regionKey.value,
+    village: ""
   };
   getlist(data).then(res => {
     if (res.retcode == 200) {
@@ -1198,13 +1200,11 @@ interface ListItem {
   label: string;
 }
 const searchCompanysList = ref<ListItem[]>([]);
-const loading = ref(false); // 搜索加载状态
-const options = ref<ListItem[]>([]); // 列表数据
 // 获取全部水司信息，在不做任何输入时显示
 const getallCompany = () => {
   // debugger;
   console.log("点击下拉框就展示所有水司数据");
-  remoteCompany("");
+  // remoteCompany("");
   const data = {
     company: "",
     region: ""
@@ -1221,80 +1221,6 @@ const getallCompany = () => {
     }
   });
 };
-// 输入水司方法
-const remoteCompany = useDebounceFn((query: string) => {
-  if (query) {
-    loading.value = true;
-    console.log(query, "搜索水司名称入参");
-    // 调用查询接口
-    const data = {
-      company: query
-    };
-    getcompany(data).then(res => {
-      if (res.retcode == 200) {
-        loading.value = false;
-        options.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      }
-    });
-  } else {
-    options.value = searchCompanysList.value;
-  }
-}, 500);
-
-// 根据水司查询小区信息
-const searchEffortList = val => {
-  console.log(val, "水司关键词");
-  rgcompany.value = val;
-  geteffortlist();
-};
-
-// 根据区域查询小区信息
-const searchRegionLists = val => {
-  rgregion.value = val;
-  geteffortlist();
-};
-
-// 获取全部区域信息
-const regions = ref([]);
-const searchRegionList = ref<ListItem[]>([]);
-const searchRegionloading = ref(false); // 搜索加载状态
-const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
-const getallRegion = () => {
-  const data = {
-    company: "",
-    region: ""
-  };
-  getregion(data).then(res => {
-    if (res.retcode == 200) {
-      regions.value = res.data.data;
-      searchRegionList.value = regions.value.map(item => {
-        return { value: item._id, label: item.name };
-      });
-    }
-  });
-};
-// 输入区域方法
-const remoteRegion = useDebounceFn((query: string) => {
-  if (query) {
-    searchRegionloading.value = true;
-    const data = {
-      company: CompanyKeyword.value,
-      region: query
-    };
-    getregion(data).then(res => {
-      if (res.retcode == 200) {
-        searchRegionloading.value = false;
-        searchRegionoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      } else {
-        searchRegionoptions.value = searchRegionList.value;
-      }
-    });
-  }
-}, 500);
 
 // 打开右侧抽屉，请求全部水司数据
 const openright = menu => {
@@ -1461,6 +1387,9 @@ const closeCompany = () => {
   getallRegion();
 };
 
+const getallRegion = () => {
+  console.log("获取所有区域信息");
+};
 // 新增区域
 const insertRegion = async (row?: RowRegion | number) => {
   const $table = rTable.value;
@@ -1726,11 +1655,11 @@ const { t } = useI18n({
   margin-bottom: 0;
 }
 
-:deep .vxe-select--panel {
-  position: fixed !important;
-  right: 10%;
-  left: 75%;
-}
+// :deep .vxe-select--panel {
+//   position: fixed !important;
+//   right: 10%;
+//   left: 75%;
+// }
 
 :deep .vxe-toolbar .vxe-custom--wrapper {
   margin-right: 10px !important;
