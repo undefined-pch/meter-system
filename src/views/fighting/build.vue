@@ -432,10 +432,6 @@
                 @click="getpoint"
                 :scroll-wheel-zoom="true"
               >
-                <bm-local-search
-                  :keyword="villagekeyword"
-                  :auto-viewport="true"
-                />
                 <bm-marker
                   :position="points"
                   :dragging="true"
@@ -672,13 +668,12 @@ const formRef = ref<VxeFormInstance>(); // from表单校验
 const formRules = reactive<VxeFormPropTypes.Rules>({
   region: [{ required: true, message: "请输入区域名称" }],
   village: [{ required: true, message: "请输入小区名称" }],
-  build: [{ required: true, message: "请输入楼栋数" }],
+  buildnumber: [{ required: true, message: "请输入楼栋编号" }],
+  level: [{ required: true, message: "请输入楼层数" }],
   households: [{ required: true, message: "请输入户数" }],
-  area: [{ required: true, message: "请输入小区面积" }],
+  types: [{ required: true, message: "请输入楼栋类型" }],
   zipcode: [{ required: true, message: "请输入邮编" }],
-  property: [{ required: true, message: "请输入所属物业" }],
   company: [{ required: true, message: "请输入所属自来水公司" }],
-  address: [{ required: true, message: "请输入地址" }],
   jd: [{ required: true, message: "点击坐标输入经度" }],
   wd: [{ required: true, message: "点击坐标输入纬度" }]
 });

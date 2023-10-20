@@ -1,6 +1,6 @@
 <template>
   <div class="right-content">
-    <div class="main" v-if="isopentip">
+    <div class="main" v-if="isshow">
       <el-card class="box-card">
         <div v-show="istree">
           <el-input
@@ -34,7 +34,7 @@
         alt=""
         style="width: 100%; height: 100%"
         @click="changewidth('close')"
-        v-if="isopentip"
+        v-if="isshow"
       />
       <img
         src="~@/assets/tipopen.png"
@@ -56,6 +56,14 @@ import { getbuild } from "@/api/build";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import { getcollector } from "@/api/collector";
 import { getlargemeter } from "@/api/largemeter";
+// pinia获取右侧栏展开状态
+import { useStore } from "@/store/rightlist/state";
+import { storeToRefs } from "pinia";
+// 创建实例
+const Text = useStore();
+const { isshow } = storeToRefs(Text); //解构出来的值变为ref对象
+console.log(isshow.value, "进入页面右侧栏展开状态");
+
 interface Tree {
   name: string;
   leaf?: boolean;
@@ -183,27 +191,6 @@ const loadNode = (node: Node, resolve) => {
         // return resolve(newhouseholdArr);
       }
     });
-    // const data2 = {
-    //   page: 1,
-    //   pageSize: 10,
-    //   company: node.parent.parent.parent.label,
-    //   region: node.parent.parent.label,
-    //   village: node.parent.label,
-    //   buildingnumber: node.label,
-    //   collector: ""
-    // };
-    // getlargemeter(data2).then(res => {
-    //   if (res.retcode == 200) {
-    //     const newhouseholdArr = [];
-    //     res.data.data.forEach(item => {
-    //       newhouseholdArr.push({
-    //         name: item.collectroId + `-采集器`,
-    //         leaf: true
-    //       });
-    //     });
-    //     return resolve(newhouseholdArr);
-    //   }
-    // });
   }
 };
 
@@ -211,16 +198,20 @@ const loadNode = (node: Node, resolve) => {
 const isshowbottom = ref(false);
 
 // 展示右侧地址栏
-const isopentip = ref(false);
+// const isopentip = ref(false);
 
 // 动态宽度
 const tipright = ref("240px");
 const changewidth = item => {
   if (item == "close") {
-    isopentip.value = false;
+    // isopentip.value = false;
+    isshow.value = false;
+    console.log(isshow.value);
     tipright.value = "0px";
   } else {
-    isopentip.value = true;
+    // isopentip.value = true;
+    isshow.value = true;
+    console.log(isshow.value);
     tipright.value = "240px";
   }
 };
@@ -259,7 +250,8 @@ const getallvillage = () => {
       res.data.data.forEach(item => {
         newArr.value.push({ name: item.village });
       });
-      isopentip.value = true;
+      // isopentip.value = true;
+      // isshow.value = true;
     }
   });
 };
@@ -274,9 +266,18 @@ const select = village => {
   emit("villageTree", village);
 };
 
-// const getallbuild = () => {};
+// 设置右侧栏宽度
+const setwidth = () => {
+  if (isshow.value == true) {
+    changewidth("open");
+  } else {
+    changewidth("close");
+  }
+};
+
 onMounted(() => {
   getallvillage(); // 获取小区信息
+  setwidth();
 });
 </script>
 <style lang="scss" scoped>
