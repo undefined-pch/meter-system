@@ -3,118 +3,67 @@
     <div class="table-main">
       <vxe-toolbar custom ref="toolbarRef">
         <template #buttons>
-          水司：
-          <!-- <el-select
-            v-model="companyed"
-            class="m-2"
-            @change="changeCompany"
-            @clear="clearCompany"
-            placeholder="请选择水司"
-            clearable
-          >
-            <el-option
-              v-for="item in selectCompany"
-              :key="item._id"
-              :label="item.name"
-              :value="item.name"
+          <div style="margin-left: 6px">
+            水司：
+            <vxe-select
+              v-model="companyKey"
+              placeholder="请输入要查找的水司"
+              :options="companyKeyList"
+              clearable
+              filterable
+              @focus="searchCompanyList"
+              @change="gethouseholdList()"
+              @clear="clearCompanyKey()"
             />
-          </el-select> -->
-          <el-select
-            v-model="CompanyKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的水司名称"
-            :remote-method="remoteCompany"
-            :loading="loading"
-            @change="searchEffortList"
-            style="width: 150px; margin-right: 10px"
-          >
-            <el-option
-              v-for="item in searchCompanyoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+            区域名称：
+            <vxe-select
+              v-model="regionKey"
+              placeholder="请输入要查找的区域"
+              :options="regionKeyList"
+              clearable
+              filterable
+              @focus="searchRegionList(true)"
+              @change="gethouseholdList()"
+              @clear="clearRegionKey()"
             />
-          </el-select>
-          区域名称：
-          <el-select
-            v-model="RegionKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的区域名称"
-            :remote-method="query => remoteRegion(query, 'false')"
-            :loading="searchRegionloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchRegionLists"
-          >
-            <el-option
-              v-for="item in searchRegionoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+            小区名称：
+            <vxe-select
+              v-model="CommunityKey"
+              placeholder="请输入要查找的小区"
+              :options="communityKeyList"
+              clearable
+              filterable
+              @focus="searchCommunityList(true)"
+              @change="gethouseholdList()"
+              @clear="clearCommunityKey()"
             />
-          </el-select>
-          小区名称：
-          <el-select
-            v-model="VillageKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的小区名称"
-            :remote-method="query => remoteVillage(query, 'false')"
-            :loading="searchVillageloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchVillageLists"
-          >
-            <el-option
-              v-for="item in searchVillageoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+            楼栋号：
+            <vxe-select
+              v-model="buildKey"
+              placeholder="请输入要查找的楼栋号"
+              :options="buildKeyList"
+              clearable
+              filterable
+              @focus="searchBuildList(true)"
+              @change="gethouseholdList()"
+              @clear="clearBuildKey()"
             />
-          </el-select>
-          楼栋号：
-          <!-- <el-select v-model="builded" class="m-2" placeholder="请选择楼栋号">
-            <el-option
-              v-for="item in selectBuild"
-              :key="item._id"
-              :label="item.buildnumber"
-              :value="item.buildnumber"
-            />
-          </el-select> -->
-          <el-select
-            v-model="BuildKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的楼栋名称"
-            :remote-method="query => remoteBuild(query, 'false')"
-            :loading="searchBuildloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchBuildLists"
-          >
-            <el-option
-              v-for="item in searchBuildoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
-            />
-          </el-select>
+          </div>
         </template>
         <template #tools>
           <el-button type="primary" @click="addBuild" style="margin-left: 10px"
             >新增</el-button
           >
-          <el-button type="danger" @click="addBuild" style="margin-left: 10px"
+          <el-button
+            type="danger"
+            @click="removeSelectRowEvent"
+            style="margin-left: 10px"
             >批量删除</el-button
           >
-          <el-button type="success" @click="addBuild" style="margin-left: 10px"
+          <el-button
+            type="success"
+            @click="openAccount"
+            style="margin-left: 10px"
             >开户</el-button
           >
         </template>
@@ -124,8 +73,11 @@
         show-overflow
         ref="xTable"
         height="550"
+        id="toolbar_demo6"
+        :custom-config="{ storage: true }"
         :column-config="{ resizable: true, useKey: true }"
-        :row-config="{ isHover: true, useKey: true }"
+        :row-config="{ isCurrent: true, keyField: 'id', useKey: true }"
+        :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
         :data="tableData"
         @cell-dblclick="cellDBLClickEvent"
       >
@@ -177,20 +129,22 @@
           field="executionprice"
           width="100"
           title="价格编号"
+          type="html"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="userID"
+          field="userid"
           width="100"
           title="用户编号"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="userStatus"
+          field="residentstatus"
           width="100"
           title="住户状态"
+          type="html"
           sortable
           show-header-overflow
         />
@@ -202,28 +156,28 @@
           show-header-overflow
         />
         <vxe-column
-          field="members"
+          field="householdperson"
           width="100"
           title="成员个数"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="area"
+          field="householdsize"
           width="100"
           title="住户面积"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="pipelineLocation"
+          field="pipelocation"
           width="100"
           title="管道位置"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="residentLocation"
+          field="location"
           width="100"
           title="住户方位"
           sortable
@@ -329,7 +283,7 @@
           v-model:current-page="pageVO2.currentPage"
           :total="pageVO2.total"
           :page-size="10"
-          @page-change="getallbuild"
+          @page-change="gethousehold"
           :layouts="[
             'PrevJump',
             'PrevPage',
@@ -367,40 +321,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <!-- <el-select
+                <vxe-select
                   v-model="data.company"
-                  @change="changeCompany()"
-                  @clear="clearAddFrom()"
-                  class="m-3"
+                  placeholder="请输入要查找的水司"
+                  :options="companyKeyList"
                   clearable
-                  placeholder="请选择水司名称"
-                >
-                  <el-option
-                    v-for="item in selectCompany"
-                    :key="item._id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select> -->
-                <el-select
-                  v-model="data.company"
                   filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的水司名称"
-                  :remote-method="remoteCompany"
-                  :loading="loading"
-                  @change="searchEffortList"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="item in searchCompanyoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  @focus="searchCompanyList"
+                  @change="gethouseholdList()"
+                  @clear="clearCompanyKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -410,39 +340,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <!-- <el-select
+                <vxe-select
                   v-model="data.region"
-                  @change="changeRegion"
-                  class="m-3"
+                  placeholder="请输入要查找的区域"
+                  :options="regionKeyList"
                   clearable
-                  placeholder="请先选择水司名称"
-                >
-                  <el-option
-                    v-for="item in selectRegion"
-                    :key="item._id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select> -->
-                <el-select
-                  v-model="data.region"
                   filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的区域名称"
-                  :remote-method="query => remoteRegion(query, 'true')"
-                  :loading="searchRegionloading"
-                  style="width: 100%"
-                  @change="searchRegionLists"
-                >
-                  <el-option
-                    v-for="item in searchRegionoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  @focus="searchRegionList(false)"
+                  @change="gethouseholdList()"
+                  @clear="clearRegionKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -452,39 +359,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <!-- <el-select
+                <vxe-select
                   v-model="data.village"
-                  @change="changeVillage"
-                  class="m-3"
+                  placeholder="请输入要查找的小区"
+                  :options="communityKeyList"
                   clearable
-                  placeholder="请先选择区域名称"
-                >
-                  <el-option
-                    v-for="item in selectVillage"
-                    :key="item._id"
-                    :label="item.village"
-                    :value="item.village"
-                  />
-                </el-select> -->
-                <el-select
-                  v-model="data.village"
                   filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的小区名称"
-                  :remote-method="query => remoteVillage(query, 'false')"
-                  :loading="searchVillageloading"
-                  style="width: 100%"
-                  @change="searchVillageLists"
-                >
-                  <el-option
-                    v-for="item in searchVillageoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  @focus="searchCommunityList(false)"
+                  @change="gethouseholdList()"
+                  @clear="clearCommunityKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -494,38 +378,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <!-- <el-select
+                <vxe-select
                   v-model="data.buildingnumber"
-                  class="m-3"
+                  placeholder="请输入要查找的楼栋号"
+                  :options="buildKeyList"
                   clearable
-                  placeholder="请选择楼栋号"
-                >
-                  <el-option
-                    v-for="item in selectBuild"
-                    :key="item._id"
-                    :label="item.buildnumber"
-                    :value="item.buildnumber"
-                  />
-                </el-select> -->
-                <el-select
-                  v-model="data.buildingnumber"
                   filterable
-                  clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的楼栋名称"
-                  :remote-method="query => remoteBuild(query, 'false')"
-                  :loading="searchBuildloading"
-                  style="width: 100%"
-                  @change="searchBuildLists"
-                >
-                  <el-option
-                    v-for="item in searchBuildoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  @focus="searchBuildList(false)"
+                  @change="gethouseholdList()"
+                  @clear="clearBuildKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -927,7 +789,7 @@
               v-model:current-page="pageVO2.currentPage"
               :total="pageVO2.total"
               :page-size="10"
-              @page-change="getallbuild"
+              @page-change="gethousehold"
               :layouts="[
                 'PrevJump',
                 'PrevPage',
@@ -975,7 +837,7 @@
 </template>
 <script setup lang="ts">
 // import { useRouter, useRoute } from "vue-router"; // 导入路由模块
-import { ref, reactive, onActivated, onMounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import {
   VXETable,
   VxeFormPropTypes,
@@ -987,10 +849,10 @@ import { useStore } from "@/store/modules/build"; // 从pinia中导入到村的�
 // import fdData from "@/assets/data/fd.json"; // 导入福鼎家园楼栋数据
 import { getcompany, getregion, getlist } from "@/api/effort";
 import { getbuild } from "@/api/build";
-import { gethousehold, householdadd } from "@/api/household";
+import { gethousehold, householdadd, householddelete } from "@/api/household";
 import { getpriceset } from "@/api/price";
 import rightlist from "@/components/rightlist/rightlist.vue";
-import { useDebounceFn } from "@vueuse/core";
+import { ElMessage, ElMessage, ElMessageBox } from "element-plus";
 const store = useStore();
 const { change } = store;
 
@@ -1033,9 +895,15 @@ const residentstatusList = [
 onMounted(() => {
   // isformArea();
   // getregion();
-  getallCompany();
+  // getallCompany();
   // getcompanyed();
   gethouseholdList(); // 获取住户信息
+});
+
+// 文件列表小工具
+const selectList = ref([]);
+const selectRowsId = computed(() => {
+  return selectList.value.map(item => item.id);
 });
 
 // const serchcompany = ref("");
@@ -1043,22 +911,35 @@ const gethouseholdList = () => {
   const data = {
     page: 1,
     pageSize: 10,
-    company: rgcompany.value,
-    region: rgregion.value,
-    village: rgvillage.value,
-    buildingnumber: rgbuild.value
+    company: companyKey.value,
+    region: regionKey.value,
+    village: CommunityKey.value,
+    buildingnumber: buildKey.value
   };
   gethousehold(data).then(res => {
     if (res.retcode == 200) {
+      // tableData.value = res.data.data;
+      res.data.data.forEach(item => {
+        // 对开户和未开户进行颜色高亮显示
+        if (item.residentstatus == "开户") {
+          item.residentstatus = `<span style="color:green">开户<span>`;
+        } else if (item.residentstatus == "未开户") {
+          item.residentstatus = `<span style="color:red">未开户<span>`;
+        }
+        // 对价格编号进行跳转
+        if (item.executionprice) {
+          item.executionprice = `<a href="#/price/priceset" style="text-decoration:underline;color:rgb(64, 158, 255);">${item.executionprice}<a>`;
+        }
+      });
       tableData.value = res.data.data;
       pageVO2.total = res.data.total;
     }
   });
 };
 
-onActivated(() => {
-  selectXq.value = JSON.parse(route.query.data);
-});
+// onActivated(() => {
+//   selectXq.value = JSON.parse(route.query.data);
+// });
 
 // 新增小区楼栋
 const addBuild = () => {
@@ -1336,12 +1217,14 @@ const pageVO2 = reactive({
 
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
-  // 将表格和工具栏进行关联
-  const $table = xTable.value;
-  const $toolbar = toolbarRef.value;
-  if ($table && $toolbar) {
-    $table.connect($toolbar);
-  }
+  setTimeout(() => {
+    // 将表格和工具栏进行关联
+    const $table = xTable.value;
+    const $toolbar = toolbarRef.value;
+    if ($table && $toolbar) {
+      $table.connect($toolbar);
+    }
+  }, 1000);
 });
 
 const showPrice = ref(false); // 展示价格弹框
@@ -1352,175 +1235,314 @@ const lookupPrice = () => {
   getprice();
 };
 
-const CompanyKeyword = ref(""); // 搜索水司关键词
-const RegionKeyword = ref(""); // 搜索区域关键词
-const VillageKeyword = ref(""); // 搜索小区关键词
-const BuildKeyword = ref(""); // 搜索楼栋关键词
-
-// 获取全部水司信息
-const companys = ref([]);
-interface ListItem {
-  value: string;
-  label: string;
-}
-const searchCompanysList = ref<ListItem[]>([]);
-const loading = ref(false); // 搜索加载状态
-const searchCompanyoptions = ref<ListItem[]>([]); // 列表数据
-
-// 获取全部水司信息，在不做任何输入时显示
-const getallCompany = () => {
+// 搜索水司关键词
+const companyKey = ref(""); // 所属水司搜索词
+const companyKeyList = ref([]); // 所属水司搜索列表
+// 查询水司列表信息
+const searchCompanyList = () => {
   const data = {
-    company: "",
-    region: ""
+    company: ""
   };
   getcompany(data).then(res => {
     if (res.retcode == 200) {
-      companys.value = res.data.data;
-      searchCompanysList.value = companys.value.map(item => {
-        return { value: item._id, label: item.name };
+      // loading.value = false;
+      companyKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
       });
     }
   });
 };
+// 清除查询水司关键词
+const clearCompanyKey = () => {
+  companyKey.value = "";
+  regionKey.value = "";
+  CommunityKey.value = "";
+  buildKey.value = "";
+  gethouseholdList();
+};
+
+const regionKey = ref(""); // 区域搜索词
+const regionKeyList = ref([]); // 区域搜索列表
+// 查询区域列表信息
+const searchRegionList = type => {
+  // true为表格筛选，false为表单筛选
+  // console.log(householdData.value, "表单选择的水司");
+  const data = {
+    company: type === true ? companyKey.value : householdData.company,
+    region: ""
+  };
+  getregion(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      regionKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除区域关键词
+const clearRegionKey = () => {
+  regionKey.value = "";
+  CommunityKey.value = "";
+  buildKey.value = "";
+  gethouseholdList();
+};
+
+const CommunityKey = ref(""); // 小区搜索词
+const communityKeyList = ref([]); // 小区搜索列表
+// 查询小区列表信息
+const searchCommunityList = type => {
+  // true为表格筛选，false为表单筛选
+  console.log(householdData, "表单选择的小区");
+  const data = {
+    company: type === true ? companyKey.value : householdData.company,
+    region: type === true ? regionKey.value : householdData.region,
+    village: ""
+  };
+  getlist(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      communityKeyList.value = res.data.data.map(item => {
+        return { value: item.village, label: item.village };
+      });
+    }
+  });
+};
+// 清除小区关键词
+const clearCommunityKey = () => {
+  CommunityKey.value = "";
+  buildKey.value = "";
+  gethouseholdList();
+};
+
+const buildKey = ref(""); // 楼栋搜索词
+const buildKeyList = ref([]); // 楼栋搜索列表
+// 查询楼栋列表信息
+const searchBuildList = type => {
+  // true为表格筛选，false为表单筛选
+  console.log(householdData, "表单选择的小区");
+  const data = {
+    company: type === true ? companyKey.value : householdData.company,
+    region: type === true ? regionKey.value : householdData.region,
+    village: type === true ? CommunityKey.value : householdData.village,
+    buildnumber: type === true ? buildKey.value : householdData.buildingnumber
+  };
+  getbuild(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      buildKeyList.value = res.data.data.map(item => {
+        return { value: item.buildnumber, label: item.buildnumber };
+      });
+    }
+  });
+};
+// 清除小区关键词
+const clearBuildKey = () => {
+  buildKey.value = "";
+  gethouseholdList();
+};
+
+// 批量删除
+// 批量删除选中区域
+const removeSelectRowEvent = async () => {
+  const type = await VXETable.modal.confirm(
+    "该操作会删除该住户下所有信息,您确定要批量删除吗？"
+  );
+  // VXETable.modal.message({ content: `点击了 ${type}` });
+  if (type == "confirm") {
+    const $table = xTable.value;
+    if ($table) {
+      $table.removeCheckboxRow().then(res => {
+        // console.log(res.rows.length); // 将删除的数组保存给后端
+        const data = JSON.parse(JSON.stringify(res.rows));
+        const deleteDatas = [];
+        data.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        if (deleteDatas.length == 0) {
+          return ElMessage.error("至少选中一项进行操作！");
+        }
+        const ids = deleteDatas.toString();
+        householddelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage({
+              message: `${res.message}`,
+              type: "success"
+            });
+            gethouseholdList();
+          }
+        });
+      });
+    }
+  } else {
+    return;
+  }
+};
+
+// 开户
+const openAccount = () => {
+  const $table = xTable.value;
+  if ($table) {
+    const selectRecords = $table.getCheckboxRecords();
+    console.log(selectRecords, "选中的数据");
+    if (selectRecords.length == 0) {
+      return ElMessage.error("至少选中一项进行操作！");
+    }
+  }
+  ElMessageBox.confirm("您已选中？条住户信息，是否确认开户？", {
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
+    type: "warning"
+  })
+    .then(() => {
+      // 调用开户的借口
+      ElMessage({
+        type: "success",
+        message: "Delete completed"
+      });
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "您取消了开户"
+      });
+    });
+};
+
+// 获取全部水司信息
+// const companys = ref([]);
+// interface ListItem {
+//   value: string;
+//   label: string;
+// }
+// const searchCompanysList = ref<ListItem[]>([]);
+// const loading = ref(false); // 搜索加载状态
+// const searchCompanyoptions = ref<ListItem[]>([]); // 列表数据
+
+// // 获取全部水司信息，在不做任何输入时显示
+// const getallCompany = () => {
+//   const data = {
+//     company: "",
+//     region: ""
+//   };
+//   getcompany(data).then(res => {
+//     if (res.retcode == 200) {
+//       companys.value = res.data.data;
+//       searchCompanysList.value = companys.value.map(item => {
+//         return { value: item._id, label: item.name };
+//       });
+//     }
+//   });
+// };
 
 // 输入水司方法
-const remoteCompany = useDebounceFn((query: string) => {
-  if (query) {
-    loading.value = true;
-    console.log(query, "搜索水司名称入参");
-    // 调用查询接口
-    const data = {
-      company: query
-    };
-    getcompany(data).then(res => {
-      if (res.retcode == 200) {
-        loading.value = false;
-        searchCompanyoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      }
-    });
-  } else {
-    searchCompanyoptions.value = searchCompanysList.value;
-  }
-}, 500);
+// const remoteCompany = useDebounceFn((query: string) => {
+//   if (query) {
+//     loading.value = true;
+//     console.log(query, "搜索水司名称入参");
+//     // 调用查询接口
+//     const data = {
+//       company: query
+//     };
+//     getcompany(data).then(res => {
+//       if (res.retcode == 200) {
+//         loading.value = false;
+//         searchCompanyoptions.value = res.data.data.map(item => {
+//           return { value: item._id, label: item.name };
+//         });
+//       }
+//     });
+//   } else {
+//     searchCompanyoptions.value = searchCompanysList.value;
+//   }
+// }, 500);
 
 // 获取全部区域信息
 // const regions = ref([]);
-const searchRegionList = ref<ListItem[]>([]);
-const searchRegionloading = ref(false); // 搜索加载状态
-const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
+// const searchRegionList = ref<ListItem[]>([]);
+// const searchRegionloading = ref(false); // 搜索加载状态
+// const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
 
 // 输入区域方法
-const remoteRegion = useDebounceFn((query: string, isform) => {
-  console.log(query, "参数");
-  if (query) {
-    searchRegionloading.value = true;
-    const data = {
-      company: isform == "true" ? householdData.company : CompanyKeyword.value,
-      region: query
-    };
-    getregion(data).then(res => {
-      if (res.retcode == 200) {
-        searchRegionloading.value = false;
-        searchRegionoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.name };
-        });
-      } else {
-        searchRegionoptions.value = searchRegionList.value;
-      }
-    });
-  }
-}, 500);
+// const remoteRegion = useDebounceFn((query: string, isform) => {
+//   console.log(query, "参数");
+//   if (query) {
+//     searchRegionloading.value = true;
+//     const data = {
+//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
+//       region: query
+//     };
+//     getregion(data).then(res => {
+//       if (res.retcode == 200) {
+//         searchRegionloading.value = false;
+//         searchRegionoptions.value = res.data.data.map(item => {
+//           return { value: item._id, label: item.name };
+//         });
+//       } else {
+//         searchRegionoptions.value = searchRegionList.value;
+//       }
+//     });
+//   }
+// }, 500);
 
 // 获取全部小区信息
 // const village = ref([]);
-const searchVillageList = ref<ListItem[]>([]);
-const searchVillageloading = ref(false); // 搜索加载状态
-const searchVillageoptions = ref<ListItem[]>([]); // 列表数据
+// const searchVillageList = ref<ListItem[]>([]);
+// const searchVillageloading = ref(false); // 搜索加载状态
+// const searchVillageoptions = ref<ListItem[]>([]); // 列表数据
 
 // 输入小区方法
-const remoteVillage = useDebounceFn((query: string, isform) => {
-  if (query) {
-    searchVillageloading.value = true;
-    const data = {
-      page: 1,
-      pageSize: 1000,
-      company: isform == "true" ? householdData.company : CompanyKeyword.value,
-      region: isform == "true" ? householdData.region : RegionKeyword.value,
-      village: query
-    };
-    getlist(data).then(res => {
-      if (res.retcode == 200) {
-        searchVillageloading.value = false;
-        searchVillageoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.village };
-        });
-      } else {
-        searchVillageoptions.value = searchVillageList.value;
-      }
-    });
-  }
-}, 500);
+// const remoteVillage = useDebounceFn((query: string, isform) => {
+//   if (query) {
+//     searchVillageloading.value = true;
+//     const data = {
+//       page: 1,
+//       pageSize: 1000,
+//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
+//       region: isform == "true" ? householdData.region : RegionKeyword.value,
+//       village: query
+//     };
+//     getlist(data).then(res => {
+//       if (res.retcode == 200) {
+//         searchVillageloading.value = false;
+//         searchVillageoptions.value = res.data.data.map(item => {
+//           return { value: item._id, label: item.village };
+//         });
+//       } else {
+//         searchVillageoptions.value = searchVillageList.value;
+//       }
+//     });
+//   }
+// }, 500);
 
 // 获取全部楼栋信息
-const searchBuildList = ref<ListItem[]>([]);
-const searchBuildloading = ref(false); // 搜索加载状态
-const searchBuildoptions = ref<ListItem[]>([]); // 列表数据
+// const searchBuildList = ref<ListItem[]>([]);
+// const searchBuildloading = ref(false); // 搜索加载状态
+// const searchBuildoptions = ref<ListItem[]>([]); // 列表数据
 // 输入楼栋方法
-const remoteBuild = useDebounceFn((query: string, isform) => {
-  if (query) {
-    searchBuildloading.value = true;
-    const data = {
-      page: 1,
-      pageSize: 1000,
-      company: isform == "true" ? householdData.company : CompanyKeyword.value,
-      region: isform == "true" ? householdData.region : RegionKeyword.value,
-      village: isform == "true" ? householdData.village : VillageKeyword.value,
-      buildnumber: query
-    };
-    getbuild(data).then(res => {
-      if (res.retcode == 200) {
-        searchBuildloading.value = false;
-        searchBuildoptions.value = res.data.data.map(item => {
-          return { value: item._id, label: item.buildnumber };
-        });
-      } else {
-        searchBuildoptions.value = searchBuildList.value;
-      }
-    });
-  }
-}, 500);
-
-const rgcompany = ref(""); // 查询楼栋入参水司
-const rgregion = ref(""); // 查询楼栋入参区域
-const rgvillage = ref(""); // 查询楼栋入参小区
-const rgbuild = ref(""); // 查询楼栋入参小区
-// 根据水司查询小区信息
-const searchEffortList = val => {
-  // console.log(val, "水司关键词");
-  // 入参水司，请求楼栋数据
-  rgcompany.value = val;
-  gethouseholdList();
-};
-
-// 根据水司-区域查询小区信息
-const searchRegionLists = val => {
-  rgregion.value = val;
-  gethouseholdList();
-};
-
-// 根据水司-区域-小区模糊搜索查询小区信息
-const searchVillageLists = val => {
-  rgvillage.value = val;
-  gethouseholdList();
-};
-
-// 根据水司-区域-小区-楼栋号模糊搜索查询小区信息
-const searchBuildLists = val => {
-  rgbuild.value = val;
-  gethouseholdList();
-};
+// const remoteBuild = useDebounceFn((query: string, isform) => {
+//   if (query) {
+//     searchBuildloading.value = true;
+//     const data = {
+//       page: 1,
+//       pageSize: 1000,
+//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
+//       region: isform == "true" ? householdData.region : RegionKeyword.value,
+//       village: isform == "true" ? householdData.village : VillageKeyword.value,
+//       buildnumber: query
+//     };
+//     getbuild(data).then(res => {
+//       if (res.retcode == 200) {
+//         searchBuildloading.value = false;
+//         searchBuildoptions.value = res.data.data.map(item => {
+//           return { value: item._id, label: item.buildnumber };
+//         });
+//       } else {
+//         searchBuildoptions.value = searchBuildList.value;
+//       }
+//     });
+//   }
+// }, 500);
 
 const priceData = ref([]); // 获取价格设置信息
 const pricepage = reactive({
@@ -1576,5 +1598,9 @@ const selectPrice = () => {
 
 .icon-price:hover {
   fill: #53a7ff;
+}
+
+::v-deep .vxe-select {
+  width: 160px;
 }
 </style>

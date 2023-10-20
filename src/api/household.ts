@@ -15,6 +15,14 @@ export const householdadd = data => {
   });
 };
 
+//删除住户
+export const householddelete = id => {
+  return httplocal.request<RefreshTokenResult>(
+    "delete",
+    "/api/householddelete/" + id
+  );
+};
+
 export type RefreshTokenResult = {
   retcode: number;
   data: any;

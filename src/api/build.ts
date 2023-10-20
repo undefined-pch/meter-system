@@ -24,7 +24,10 @@ export const buildfix = (id, data) => {
 
 // 删除楼栋信息
 export const builddelete = id => {
-  return httplocal.request<RefreshTokenResult>("delete", "/api/buildfix/" + id);
+  return httplocal.request<RefreshTokenResult>(
+    "delete",
+    "/api/builddelete/" + id
+  );
 };
 
 // 根据小区去查找小区坐标信息

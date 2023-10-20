@@ -185,7 +185,7 @@
           {{ t("Ownedproperty") }}
         </template>
       </vxe-column>
-      <vxe-column
+      <!-- <vxe-column
         field="company"
         width="100"
         show-header-overflow
@@ -195,7 +195,7 @@
         <template #header>
           {{ t("watercompany") }}
         </template>
-      </vxe-column>
+      </vxe-column> -->
       <vxe-column field="attr3" title="icon" width="60" tree-node>
         <template #default>
           <img src="@/assets/iconfont/mapicon.png" height="40" width="40" />
@@ -841,19 +841,17 @@ interface RowVO {
   id: number;
   region: string;
   village: string;
-  address: string;
-  zipcode: string;
-  area: string;
   build: string;
   households: number;
+  area: string;
+  zipcode: string;
   property: string;
   company: string;
-  person: string;
-  time: string;
-  nearperson: string;
-  neartime: string;
+  address: string;
   jd: string;
   wd: string;
+  founder: string;
+  creationtime: string;
 }
 
 const xTable = ref<VxeTableInstance<RowVO>>();
@@ -1501,14 +1499,17 @@ const lookupvillage = () => {
   console.log(villagekeyword.value, "小区名称");
 };
 
+// const tableRef = ref<VxeTableInstance<RowVO>>();
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
-  // 将表格和工具栏进行关联
-  const $table = xTable.value;
-  const $toolbar = toolbarRef.value;
-  if ($table && $toolbar) {
-    $table.connect($toolbar);
-  }
+  setTimeout(() => {
+    // 将表格和工具栏进行关联
+    const $table = xTable.value;
+    const $toolbar = toolbarRef.value;
+    if ($table && $toolbar) {
+      $table.connect($toolbar);
+    }
+  }, 1000);
 });
 
 // 翻译词典

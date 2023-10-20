@@ -63,7 +63,7 @@
       show-overflow
       ref="xTable"
       height="564"
-      id="toolbar_demo3"
+      id="toolbar_demo4"
       :custom-config="{ storage: true }"
       :column-config="{ resizable: true }"
       :row-config="{ isCurrent: true, keyField: 'id' }"
@@ -748,7 +748,7 @@ const removeEvent = async (row: RowVO) => {
   // console.log(row.id, "行信息");
   const params = (row as any)._id;
   const type = await VXETable.modal.confirm(
-    "该操作会删除该小区下所有楼栋、住户,您确定要删除该数据?"
+    "该操作会删除该楼栋下所有住户信息,您确定要删除该数据?"
   );
   if (type === "confirm") {
     const $table = xTable.value;
@@ -972,21 +972,16 @@ const getallRegion = () => {
   console.log("获取所有区域信息");
 };
 
-// 地图定位小区信息
-// const villagekeyword = ref("");
-// const lookupvillage = () => {
-//   villagekeyword.value = formData.value.village;
-//   console.log(villagekeyword.value, "小区名称");
-// };
-
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
-  // 将表格和工具栏进行关联
-  const $table = xTable.value;
-  const $toolbar = toolbarRef.value;
-  if ($table && $toolbar) {
-    $table.connect($toolbar);
-  }
+  setTimeout(() => {
+    // 将表格和工具栏进行关联
+    const $table = xTable.value;
+    const $toolbar = toolbarRef.value;
+    if ($table && $toolbar) {
+      $table.connect($toolbar);
+    }
+  }, 1000);
 });
 
 // 翻译词典
