@@ -27,7 +27,7 @@ export const builddelete = id => {
   return httplocal.request<RefreshTokenResult>("delete", "/api/buildfix/" + id);
 };
 
-// 根据小区去查找曲序信息
+// 根据小区去查找小区坐标信息
 export const lookupregion = data => {
   return httplocal.request<RefreshTokenResult>("post", "/api/lookupregion", {
     data

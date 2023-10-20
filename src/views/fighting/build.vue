@@ -198,6 +198,17 @@
           {{ t("lastupdated") }}
         </template>
       </vxe-column>
+      <vxe-column
+        field="notes"
+        width="100"
+        show-header-overflow
+        sortable
+        title="备注"
+      >
+        <template #header>
+          {{ t("notes") }}
+        </template>
+      </vxe-column>
       <vxe-column title="操作" width="100" fixed="right" show-overflow>
         <template #header>
           {{ t("operate") }}
@@ -303,6 +314,7 @@
                 clearable
                 filterable
                 @focus="searchCommunityList"
+                @change="changeMappoint"
               />
             </template>
           </vxe-form-item>
@@ -349,7 +361,7 @@
             </template>
             <template #default="{ data }">
               <vxe-input
-                v-model="data.zipcode"
+                v-model="data.types"
                 type="text"
                 placeholder="请输入楼栋类型"
               />
@@ -360,7 +372,7 @@
               {{ t("notes") }}
             </template>
             <template #default="{ data }">
-              <vxe-textarea v-model="data.address" placeholder="请填写备注" />
+              <vxe-textarea v-model="data.notes" placeholder="请填写备注" />
             </template>
           </vxe-form-item>
           <vxe-form-item field="jd" :span="12" :item-render="{}">
@@ -381,7 +393,7 @@
           </vxe-form-item>
           <vxe-form-item
             field="pitture"
-            title="小区图片"
+            title="楼栋图片"
             :span="24"
             :item-render="{}"
           >
@@ -464,15 +476,14 @@ import { useI18n } from "vue-i18n"; // 表头翻译
 // import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
 import { useRouter } from "vue-router"; // 导入路由模块
 import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
+import { getlist, getregion, getcompany } from "@/api/effort";
 import {
-  getlist,
-  addlist,
-  fixlist,
-  deletelist,
-  getregion,
-  getcompany
-} from "@/api/effort";
-import { getbuild } from "@/api/build";
+  getbuild,
+  buildadd,
+  lookupregion,
+  buildfix,
+  builddelete
+} from "@/api/build";
 import rightlist from "@/components/rightlist/rightlist.vue";
 
 const area = useArea();
@@ -556,6 +567,22 @@ const clearCommunityKey = () => {
   geteffortlist();
 };
 
+const center = ref({ lng: 0, lat: 0 }); // 百度地图坐标
+// 新增表单中选择小区地图定位到指定位置
+const changeMappoint = val => {
+  console.log(val.value, "改变小区位置");
+  // 获取该小区的经纬度
+  const data = {
+    village: val.value
+  };
+  lookupregion(data).then(res => {
+    // console.log(res.data[0].jd);
+    center.value.lng = res.data[0].jd;
+    center.value.lat = res.data[0].wd;
+    zoom.value = 16;
+  });
+};
+
 const selectList = ref([]);
 const selectRowsId = computed(() => {
   return selectList.value.map(item => item.id);
@@ -574,7 +601,6 @@ const beforeRemove: UploadProps["beforeRemove"] = uploadFile => {
   );
 };
 
-const center = ref({ lng: 0, lat: 0 });
 const zoom = ref(3);
 
 // const handler = ({ BMap, map }: any) => {
@@ -733,7 +759,7 @@ const removeEvent = async (row: RowVO) => {
     const $table = xTable.value;
     if ($table) {
       // $table.remove(row);
-      deletelist(params).then(res => {
+      builddelete(params).then(res => {
         if (res.retcode == 200) {
           VXETable.modal.message({
             content: `${res.message}`,
@@ -811,7 +837,7 @@ const removeSelectRowEvent = async () => {
           return ElMessage.error("至少选中一项进行操作！");
         }
         const ids = deleteDatas.toString();
-        deletelist(ids).then(res => {
+        builddelete(ids).then(res => {
           if (res.retcode == 200) {
             ElMessage({
               message: `${res.message}`,
@@ -837,7 +863,7 @@ const submitEvent = () => {
       submitLoading.value = false;
       showEdit.value = false;
       if (selectRow.value) {
-        fixlist((selectRow.value as any)._id, formData.value).then(res => {
+        buildfix((selectRow.value as any)._id, formData.value).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "保存成功", status: "success" });
             geteffortlist();
@@ -852,7 +878,7 @@ const submitEvent = () => {
           // console.log(`Key: ${key}, Value: ${value}`);
           formdd.value.append(`${key}`, `${value}`);
         });
-        addlist(formdd.value).then(res => {
+        buildadd(formdd.value).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "新增成功", status: "success" });
             geteffortlist();
