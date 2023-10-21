@@ -849,10 +849,15 @@ import { useStore } from "@/store/modules/build"; // 从pinia中导入到村的�
 // import fdData from "@/assets/data/fd.json"; // 导入福鼎家园楼栋数据
 import { getcompany, getregion, getlist } from "@/api/effort";
 import { getbuild } from "@/api/build";
-import { gethousehold, householdadd, householddelete } from "@/api/household";
+import {
+  gethousehold,
+  householdadd,
+  householddelete,
+  householdFixStatus
+} from "@/api/household";
 import { getpriceset } from "@/api/price";
 import rightlist from "@/components/rightlist/rightlist.vue";
-import { ElMessage, ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 const store = useStore();
 const { change } = store;
 
@@ -1384,165 +1389,51 @@ const openAccount = () => {
   const $table = xTable.value;
   if ($table) {
     const selectRecords = $table.getCheckboxRecords();
-    console.log(selectRecords, "选中的数据");
     if (selectRecords.length == 0) {
       return ElMessage.error("至少选中一项进行操作！");
     }
-  }
-  ElMessageBox.confirm("您已选中？条住户信息，是否确认开户？", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "warning"
-  })
-    .then(() => {
-      // 调用开户的借口
-      ElMessage({
-        type: "success",
-        message: "Delete completed"
-      });
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "您取消了开户"
-      });
+    console.log(selectRecords, "选中的数据");
+    const shiftdata = JSON.parse(JSON.stringify(selectRecords));
+    console.log(shiftdata, "转换后的shiftdata");
+    const fixDatas = [];
+    shiftdata.forEach(item => {
+      fixDatas.push(item._id);
     });
+    ElMessageBox.confirm(
+      `您已选中${$table.getCheckboxRecords().length}条住户信息，是否确认开户？`,
+      {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning"
+      }
+    )
+      .then(() => {
+        // 调用开户的借口
+        // const data =
+        const ids = fixDatas.toString();
+        householdFixStatus(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage({
+              type: "success",
+              message: res.message
+            });
+            gethouseholdList();
+          } else {
+            ElMessage({
+              type: "danger",
+              message: "开户失败"
+            });
+          }
+        });
+      })
+      .catch(() => {
+        ElMessage({
+          type: "info",
+          message: "您取消了开户"
+        });
+      });
+  }
 };
-
-// 获取全部水司信息
-// const companys = ref([]);
-// interface ListItem {
-//   value: string;
-//   label: string;
-// }
-// const searchCompanysList = ref<ListItem[]>([]);
-// const loading = ref(false); // 搜索加载状态
-// const searchCompanyoptions = ref<ListItem[]>([]); // 列表数据
-
-// // 获取全部水司信息，在不做任何输入时显示
-// const getallCompany = () => {
-//   const data = {
-//     company: "",
-//     region: ""
-//   };
-//   getcompany(data).then(res => {
-//     if (res.retcode == 200) {
-//       companys.value = res.data.data;
-//       searchCompanysList.value = companys.value.map(item => {
-//         return { value: item._id, label: item.name };
-//       });
-//     }
-//   });
-// };
-
-// 输入水司方法
-// const remoteCompany = useDebounceFn((query: string) => {
-//   if (query) {
-//     loading.value = true;
-//     console.log(query, "搜索水司名称入参");
-//     // 调用查询接口
-//     const data = {
-//       company: query
-//     };
-//     getcompany(data).then(res => {
-//       if (res.retcode == 200) {
-//         loading.value = false;
-//         searchCompanyoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.name };
-//         });
-//       }
-//     });
-//   } else {
-//     searchCompanyoptions.value = searchCompanysList.value;
-//   }
-// }, 500);
-
-// 获取全部区域信息
-// const regions = ref([]);
-// const searchRegionList = ref<ListItem[]>([]);
-// const searchRegionloading = ref(false); // 搜索加载状态
-// const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入区域方法
-// const remoteRegion = useDebounceFn((query: string, isform) => {
-//   console.log(query, "参数");
-//   if (query) {
-//     searchRegionloading.value = true;
-//     const data = {
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: query
-//     };
-//     getregion(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchRegionloading.value = false;
-//         searchRegionoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.name };
-//         });
-//       } else {
-//         searchRegionoptions.value = searchRegionList.value;
-//       }
-//     });
-//   }
-// }, 500);
-
-// 获取全部小区信息
-// const village = ref([]);
-// const searchVillageList = ref<ListItem[]>([]);
-// const searchVillageloading = ref(false); // 搜索加载状态
-// const searchVillageoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入小区方法
-// const remoteVillage = useDebounceFn((query: string, isform) => {
-//   if (query) {
-//     searchVillageloading.value = true;
-//     const data = {
-//       page: 1,
-//       pageSize: 1000,
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: isform == "true" ? householdData.region : RegionKeyword.value,
-//       village: query
-//     };
-//     getlist(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchVillageloading.value = false;
-//         searchVillageoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.village };
-//         });
-//       } else {
-//         searchVillageoptions.value = searchVillageList.value;
-//       }
-//     });
-//   }
-// }, 500);
-
-// 获取全部楼栋信息
-// const searchBuildList = ref<ListItem[]>([]);
-// const searchBuildloading = ref(false); // 搜索加载状态
-// const searchBuildoptions = ref<ListItem[]>([]); // 列表数据
-// 输入楼栋方法
-// const remoteBuild = useDebounceFn((query: string, isform) => {
-//   if (query) {
-//     searchBuildloading.value = true;
-//     const data = {
-//       page: 1,
-//       pageSize: 1000,
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: isform == "true" ? householdData.region : RegionKeyword.value,
-//       village: isform == "true" ? householdData.village : VillageKeyword.value,
-//       buildnumber: query
-//     };
-//     getbuild(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchBuildloading.value = false;
-//         searchBuildoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.buildnumber };
-//         });
-//       } else {
-//         searchBuildoptions.value = searchBuildList.value;
-//       }
-//     });
-//   }
-// }, 500);
 
 const priceData = ref([]); // 获取价格设置信息
 const pricepage = reactive({

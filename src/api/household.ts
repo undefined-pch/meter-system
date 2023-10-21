@@ -23,6 +23,22 @@ export const householddelete = id => {
   );
 };
 
+// 修改住户信息
+export const householdfix = id => {
+  return httplocal.request<RefreshTokenResult>(
+    "patch",
+    "/api/householddelete/" + id
+  );
+};
+
+// 修改住户状态
+export const householdFixStatus = id => {
+  return httplocal.request<RefreshTokenResult>(
+    "patch",
+    "/api/householdFixStatus/" + id
+  );
+};
+
 export type RefreshTokenResult = {
   retcode: number;
   data: any;
