@@ -8,7 +8,7 @@ export const getGaugeValve = data => {
 
 // 新增列表数据
 export const gaugeValveadd = data => {
-  return httplocal.request<RefreshTokenResult>("post", "/api/gaugeValve", {
+  return httplocal.request<RefreshTokenResult>("post", "/api/gaugeValveadd", {
     data
   });
 };
@@ -17,7 +17,7 @@ export const gaugeValveadd = data => {
 export const gaugeValvefix = (id, data) => {
   return httplocal.request<RefreshTokenResult>(
     "patch",
-    "/api/gaugeValve/" + id,
+    "/api/gaugeValvefix/" + id,
     {
       data
     }
@@ -28,7 +28,7 @@ export const gaugeValvefix = (id, data) => {
 export const gaugeValvedelete = id => {
   return httplocal.request<RefreshTokenResult>(
     "delete",
-    "/api/gaugeValve/" + id
+    "/api/gaugeValvedelete/" + id
   );
 };
 

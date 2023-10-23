@@ -13,6 +13,7 @@
             @focus="searchCompanyList"
             @change="geteffortlist()"
             @clear="clearCompanyKey()"
+            :loading="searchcompanyKey"
           />
         </div>
         <div style="margin-left: 10px">
@@ -744,16 +745,18 @@ const { savearea } = area;
 // 使用路由
 const router = useRouter();
 
+const searchcompanyKey = ref(false);
 const companyKey = ref(""); // 所属水司搜索词
 const companyKeyList = ref([]); // 所属水司搜索列表
 // 查询水司列表信息
 const searchCompanyList = () => {
+  searchcompanyKey.value = true;
   const data = {
     company: ""
   };
   getcompany(data).then(res => {
     if (res.retcode == 200) {
-      // loading.value = false;
+      searchcompanyKey.value = false;
       companyKeyList.value = res.data.data.map(item => {
         return { value: item.name, label: item.name };
       });

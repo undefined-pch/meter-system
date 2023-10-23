@@ -65,14 +65,14 @@ export default {
       meta: {
         title: $t("menus.meterValve")
       }
-    },
-    {
-      path: "/fighting/protocol",
-      name: "Protocol",
-      component: () => import("@/views/fighting/protocol.vue"),
-      meta: {
-        title: $t("menus.protocol")
-      }
     }
+    // {
+    //   path: "/fighting/protocol",
+    //   name: "Protocol",
+    //   component: () => import("@/views/fighting/protocol.vue"),
+    //   meta: {
+    //     title: $t("menus.protocol")
+    //   }
+    // }
   ]
 };

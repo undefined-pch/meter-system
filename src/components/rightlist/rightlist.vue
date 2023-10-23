@@ -56,6 +56,7 @@ import { getbuild } from "@/api/build";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import { getcollector } from "@/api/collector";
 import { getlargemeter } from "@/api/largemeter";
+import { getGaugeValve } from "@/api/gaugeValve";
 // pinia获取右侧栏展开状态
 import { useStore } from "@/store/rightlist/state";
 import { storeToRefs } from "pinia";
@@ -149,7 +150,7 @@ const loadNode = (node: Node, resolve) => {
     });
   }
   if (node.level === 4) {
-    // 展示采集器，大表，表阀
+    // 展示采集器，大表，表阀(户表)
     const newhouseholdArr = [];
     const data1 = {
       page: 1,
@@ -185,7 +186,29 @@ const loadNode = (node: Node, resolve) => {
                 leaf: true
               });
             });
-            return resolve(newhouseholdArr);
+            const data3 = {
+              company: node.parent.parent.parent.label,
+              region: node.parent.parent.label,
+              village: node.parent.label,
+              buildingnumber: node.label
+            };
+            getGaugeValve(data3).then(res => {
+              if (res.retcode == 200) {
+                res.data.data.forEach(item => {
+                  newhouseholdArr.push({
+                    name:
+                      item.unit +
+                      "-" +
+                      item.houseNumber +
+                      "[" +
+                      item.generalMeter +
+                      "]",
+                    leaf: true
+                  });
+                });
+              }
+              return resolve(newhouseholdArr);
+            });
           }
         });
         // return resolve(newhouseholdArr);

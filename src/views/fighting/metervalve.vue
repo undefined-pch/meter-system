@@ -3,133 +3,78 @@
     <div class="table-main">
       <vxe-toolbar custom ref="toolbarRef">
         <template #buttons>
-          水司：
-          <!-- <el-select
-            v-model="CompanyKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的水司名称"
-            :remote-method="remoteCompany"
-            :loading="loading"
-            @change="searchEffortList"
-            style="width: 150px; margin-right: 10px"
-          >
-            <el-option
-              v-for="item in searchCompanyoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+          <div style="margin-left: 6px">
+            水司：
+            <vxe-select
+              v-model="companyKey"
+              placeholder="请输入要查找的水司"
+              :options="companyKeyList"
+              clearable
+              filterable
+              @focus="searchCompanyList"
+              @change="getGaugeValveList()"
+              @clear="clearCompanyKey()"
             />
-          </el-select> -->
-          <vxe-select
-            v-model="companyKey"
-            placeholder="请输入要查找的水司"
-            :options="companyKeyList"
-            clearable
-            filterable
-            @focus="searchCompanyList"
-            @change="getlargemeterList()"
-            @clear="clearCompanyKey()"
-          />
-          区域名称：
-          <!-- <el-select
-            v-model="RegionKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的区域名称"
-            :remote-method="query => remoteRegion(query, 'false')"
-            :loading="searchRegionloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchRegionLists"
-          >
-            <el-option
-              v-for="item in searchRegionoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+          </div>
+          <div style="margin-left: 6px">
+            区域名称：
+            <vxe-select
+              v-model="regionKey"
+              placeholder="请输入要查找的区域"
+              :options="regionKeyList"
+              clearable
+              filterable
+              @focus="searchRegionList(true)"
+              @change="getGaugeValveList()"
+              @clear="clearRegionKey()"
             />
-          </el-select> -->
-          <vxe-select
-            v-model="regionKey"
-            placeholder="请输入要查找的区域"
-            :options="regionKeyList"
-            clearable
-            filterable
-            @focus="searchRegionList(true)"
-            @change="getlargemeterList()"
-            @clear="clearRegionKey()"
-          />
-          小区名称：
-          <!-- <el-select
-            v-model="VillageKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的小区名称"
-            :remote-method="query => remoteVillage(query, 'false')"
-            :loading="searchVillageloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchVillageLists"
-          >
-            <el-option
-              v-for="item in searchVillageoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+          </div>
+          <div style="margin-left: 6px">
+            小区名称：
+            <vxe-select
+              v-model="CommunityKey"
+              placeholder="请输入要查找的小区"
+              :options="communityKeyList"
+              clearable
+              filterable
+              @focus="searchCommunityList(true)"
+              @change="getGaugeValveList()"
+              @clear="clearCommunityKey()"
             />
-          </el-select> -->
-          <vxe-select
-            v-model="CommunityKey"
-            placeholder="请输入要查找的小区"
-            :options="communityKeyList"
-            clearable
-            filterable
-            @focus="searchCommunityList(true)"
-            @change="getlargemeterList()"
-            @clear="clearCommunityKey()"
-          />
-          楼栋号：
-          <vxe-select
-            v-model="buildKey"
-            placeholder="请输入要查找的楼栋号"
-            :options="buildKeyList"
-            clearable
-            filterable
-            @focus="searchBuildList(true)"
-            @change="getlargemeterList()"
-            @clear="clearBuildKey()"
-          />
-          <!-- <el-select
-            v-model="BuildKeyword"
-            filterable
-            clearable
-            remote
-            reserve-keyword
-            placeholder="请输入要查找的楼栋名称"
-            :remote-method="query => remoteBuild(query, 'false')"
-            :loading="searchBuildloading"
-            style="width: 150px; margin-right: 10px"
-            @change="searchBuildLists"
-          >
-            <el-option
-              v-for="item in searchBuildoptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
+          </div>
+          <div style="margin-left: 6px">
+            楼栋号：
+            <vxe-select
+              v-model="buildKey"
+              placeholder="请输入要查找的楼栋号"
+              :options="buildKeyList"
+              clearable
+              filterable
+              @focus="searchBuildList(true)"
+              @change="getGaugeValveList()"
+              @clear="clearBuildKey()"
             />
-          </el-select> -->
+          </div>
+          <!-- <div style="margin-left: 6px">
+            采集器:
+            <vxe-select
+              v-model="collectorKey"
+              placeholder="请输入要查找的采集器"
+              :options="collectorKeyList"
+              clearable
+              filterable
+              @focus="searchCollectorList(true)"
+              @change="getlargemeterList()"
+              @clear="clearBuildKey()"
+            />
+          </div> -->
         </template>
         <template #tools>
           <el-button type="primary" @click="addBuild" style="margin-left: 10px"
             >新增</el-button
           >
           <el-button type="primary" @click="addBuild" style="margin-left: 10px"
-            >导入excel</el-button
+            >批量导入</el-button
           >
           <el-button type="danger" @click="addBuild" style="margin-left: 10px"
             >批量删除</el-button
@@ -191,6 +136,13 @@
           show-header-overflow
         />
         <vxe-column
+          field="generalMeter"
+          width="100"
+          title="所属总表"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
           field="householdId"
           width="100"
           title="户表编号"
@@ -205,9 +157,51 @@
           show-header-overflow
         />
         <vxe-column
+          field="metertype"
+          width="100"
+          title="表类型"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="checkbit"
+          width="100"
+          title="检验位"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="specification"
+          width="100"
+          title="规格编号"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
           field="manufacturer"
           width="100"
-          title="厂家代码"
+          title="生产厂家"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="dateOfManufacture"
+          width="100"
+          title="出厂日期"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="installationDate"
+          width="100"
+          title="安装日期"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="activationDate"
+          width="100"
+          title="启用日期"
           sortable
           show-header-overflow
         />
@@ -228,7 +222,14 @@
         <vxe-column
           field="checkbit"
           width="100"
-          title="检验位"
+          title="校验位"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="stopbit"
+          width="100"
+          title="停止位"
           sortable
           show-header-overflow
         />
@@ -261,30 +262,16 @@
           show-header-overflow
         />
         <vxe-column
-          field="specification"
+          field="faulttype"
           width="100"
-          title="规格型号"
+          title="故障类型号"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="dateOfManufacture"
+          field="describe"
           width="100"
-          title="出厂日期"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="installationDate"
-          width="100"
-          title="安装日期"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="activationDate"
-          width="100"
-          title="启用日期"
+          title="备注"
           sortable
           show-header-overflow
         />
@@ -317,13 +304,13 @@
           show-header-overflow
         />
         <vxe-column
-          field="faulttype"
+          field="location"
           width="100"
-          title="故障类型号"
+          title="安装位置"
           sortable
           show-header-overflow
         />
-        <vxe-column field="describe" width="160" title="备注" />
+        <vxe-column field="describe" width="160" title="描述信息" />
         <vxe-column title="操作" width="100" fixed="right" show-overflow>
           <template #default="{ row }">
             <vxe-button
@@ -345,7 +332,7 @@
         v-model="showEdit"
         :title="selectRow ? '编辑&保存' : '新增&保存'"
         width="800"
-        height="546px"
+        height="644px"
         min-width="600"
         min-height="300"
         :loading="submitLoading"
@@ -367,25 +354,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-select
                   v-model="data.company"
-                  filterable
+                  placeholder="请输入要查找的水司"
+                  :options="companyKeyList"
                   clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的水司名称"
-                  :remote-method="remoteCompany"
-                  :loading="loading"
-                  @change="searchEffortList"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="item in searchCompanyoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  filterable
+                  @focus="searchCompanyList"
+                  @change="getGaugeValveList()"
+                  @clear="clearCompanyKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -395,25 +373,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-select
                   v-model="data.region"
-                  filterable
+                  placeholder="请输入要查找的区域"
+                  :options="regionKeyList"
                   clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的区域名称"
-                  :remote-method="query => remoteRegion(query, 'true')"
-                  :loading="searchRegionloading"
-                  style="width: 100%"
-                  @change="searchRegionLists"
-                >
-                  <el-option
-                    v-for="item in searchRegionoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  filterable
+                  @focus="searchRegionList(false)"
+                  @change="getGaugeValveList()"
+                  @clear="clearRegionKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -423,25 +392,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-select
                   v-model="data.village"
-                  filterable
+                  placeholder="请输入要查找的小区"
+                  :options="communityKeyList"
                   clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的小区名称"
-                  :remote-method="query => remoteVillage(query, 'false')"
-                  :loading="searchVillageloading"
-                  style="width: 100%"
-                  @change="searchVillageLists"
-                >
-                  <el-option
-                    v-for="item in searchVillageoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  filterable
+                  @focus="searchCommunityList(false)"
+                  @change="getGaugeValveList()"
+                  @clear="clearCommunityKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -451,25 +411,16 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-select
                   v-model="data.buildingnumber"
-                  filterable
+                  placeholder="请输入要查找的楼栋号"
+                  :options="buildKeyList"
                   clearable
-                  remote
-                  reserve-keyword
-                  placeholder="请输入要查找的楼栋名称"
-                  :remote-method="query => remoteBuild(query, 'false')"
-                  :loading="searchBuildloading"
-                  style="width: 100%"
-                  @change="searchBuildLists"
-                >
-                  <el-option
-                    v-for="item in searchBuildoptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.label"
-                  />
-                </el-select>
+                  filterable
+                  @focus="searchBuildList(false)"
+                  @change="getGaugeValveList()"
+                  @clear="clearBuildKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -479,10 +430,14 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input
+                <vxe-select
                   v-model="data.unit"
                   placeholder="请输入所属单元"
-                  style="width: 100%"
+                  :options="unitList"
+                  clearable
+                  filterable
+                  @focus="searchUnitList()"
+                  @clear="clearCommunityKey()"
                 />
               </template>
             </vxe-form-item>
@@ -493,18 +448,15 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-select
                   v-model="data.houseNumber"
-                  class="m-3"
                   placeholder="请选择门牌号"
-                >
-                  <el-option
-                    v-for="item in workModeList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select>
+                  :options="houseNumberList"
+                  clearable
+                  filterable
+                  @focus="searchHouseNumberList()"
+                  @clear="clearHouseNumber()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -514,18 +466,20 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <vxe-input
                   v-model="data.generalMeter"
-                  class="m-3"
                   placeholder="请选择所属总表"
-                >
-                  <el-option
-                    v-for="item in addressTypeList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select>
+                  style="width: 100%"
+                /> -->
+                <vxe-select
+                  v-model="data.generalMeter"
+                  placeholder="请选择所属总表"
+                  :options="largemeterList"
+                  clearable
+                  filterable
+                  @focus="searchLargemeterList()"
+                  @clear="clearLargemeter()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -535,39 +489,11 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <vxe-input
                   v-model="data.householdId"
-                  class="m-3"
                   placeholder="请输入户表编号"
-                >
-                  <el-option
-                    v-for="item in contentTypeList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select>
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="householdAddress"
-              title="户表地址"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <el-select
-                  v-model="data.householdAddress"
-                  class="m-3"
-                  placeholder="请输入户表地址"
-                >
-                  <el-option
-                    v-for="item in residentstatusList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select>
+                  style="width: 100%"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -577,36 +503,70 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input
-                  v-model="data.serverAddress"
+                <!-- <vxe-input
+                  v-model="data.metertype"
                   placeholder="请输入表类型"
+                /> -->
+                <vxe-select
+                  v-model="data.metertype"
+                  placeholder="请选择表类型"
+                  :options="metertypeList"
+                  clearable
+                  filterable
+                />
+              </template>
+            </vxe-form-item>
+            <vxe-form-item
+              field="householdAddress"
+              title="户表地址"
+              :span="16"
+              :item-render="{}"
+            >
+              <template #default="{ data }">
+                <vxe-input
+                  v-model="data.householdAddress"
+                  placeholder="请输入户表地址"
                 />
               </template>
             </vxe-form-item>
             <vxe-form-item
               field="specification"
-              title="规格编号"
+              title="规格型号"
               :span="8"
               :item-render="{}"
             >
               <template #default="{ data }">
                 <vxe-input
                   v-model="data.specification"
-                  placeholder="请输入规格编号"
+                  placeholder="请输入规格型号"
                 />
               </template>
             </vxe-form-item>
             <vxe-form-item
               field="manufacturer"
               title="生产厂家"
-              :span="8"
+              :span="16"
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input
-                  v-model="data.middlewareAddress"
-                  placeholder="请输入生产厂家"
-                />
+                <div style="display: flex">
+                  <div style="flex: 1">
+                    <vxe-select
+                      v-model="data.manufacturer"
+                      placeholder="请选择生产厂家"
+                      :options="manufacturerList"
+                      clearable
+                      filterable
+                      @focus="searchManufactureList"
+                      style="padding-right: 10px"
+                    />
+                  </div>
+                  <vxe-button
+                    status="primary"
+                    content="新增"
+                    @click="openright()"
+                  />
+                </div>
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -633,7 +593,7 @@
               <template #default="{ data }">
                 <vxe-input
                   v-model="data.installationDate"
-                  placeholder="请输入安装日期"
+                  placeholder="请选择安装日期"
                   type="date"
                   :transfer="true"
                 />
@@ -676,12 +636,12 @@
             </vxe-form-item>
             <vxe-form-item
               field="checkbit"
-              title="检验位"
+              title="校验位"
               :span="8"
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input v-model="data.databit" placeholder="请输入检验位" />
+                <vxe-input v-model="data.checkbit" placeholder="请输入校验位" />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -691,7 +651,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input v-model="data.databit" placeholder="请输入停止位" />
+                <vxe-input v-model="data.stopbit" placeholder="请输入停止位" />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -748,14 +708,14 @@
             </vxe-form-item>
             <vxe-form-item
               field="describe"
-              title="描述信息"
+              title="备注"
               :span="24"
               :item-render="{}"
             >
               <template #default="{ data }">
                 <vxe-textarea
                   v-model="data.describe"
-                  placeholder="请输入描述信息"
+                  placeholder="请输入备注"
                 />
               </template>
             </vxe-form-item>
@@ -768,151 +728,86 @@
           </vxe-form>
         </template>
       </vxe-modal>
-      <vxe-modal
-        v-model="showPrice"
-        title="价格选择"
-        width="860"
-        height="460px"
-        min-width="600"
-        min-height="300"
-        resize
-        destroy-on-close
+      <el-drawer
+        v-model="table"
+        @close="closeRightList"
+        title="全部协议信息"
+        direction="rtl"
+        size="40%"
+        :z-index="1100"
       >
-        <template #default>
+        <div style="height: 100%">
+          <vxe-toolbar>
+            <template #tools>
+              <vxe-button status="primary" @click="insertAgreement()"
+                >新增</vxe-button
+              >
+              <el-popconfirm
+                title="该操作会删除该区域下所有小区、楼栋、住户,您确定要删除吗？"
+                width="220"
+              >
+                <template #reference>
+                  <vxe-button status="danger">删除选中</vxe-button>
+                </template>
+              </el-popconfirm>
+              <vxe-button status="success" @click="saveEvent()"
+                >保存</vxe-button
+              >
+            </template>
+          </vxe-toolbar>
           <vxe-table
             border
-            ref="pTable"
-            height="300"
-            :data="priceData"
-            :radio-config="{ highlight: true, useKey: true }"
-            :column-config="{ resizable: true, useKey: true }"
-            :row-config="{ isHover: true, useKey: true }"
-            @cell-click="priceCellClick"
-            @radio-change="priceradioChange"
+            show-overflow
+            keep-source
+            ref="cTable"
+            max-height="620"
+            style="margin-top: 4px"
+            :data="agreementData"
+            :edit-config="{
+              trigger: 'click',
+              mode: 'cell',
+              showStatus: true
+            }"
           >
-            <vxe-column type="radio" width="60">
-              <template #header>
-                <vxe-button
-                  type="text"
-                  @click="clearRadioRowEevnt"
-                  :disabled="!selectRow"
-                  >取消</vxe-button
-                >
+            <vxe-column type="checkbox" width="45" />
+            <vxe-column type="seq" width="40" />
+            <vxe-column
+              field="manufacturerName"
+              title="厂家名称"
+              width="160"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.manufacturerName" type="text" />
               </template>
             </vxe-column>
             <vxe-column
-              field="number"
-              title="价格编号"
-              width="100"
-              show-overflow
-            />
-            <vxe-column
-              field="type"
-              title="价格类型"
-              width="100"
-              show-overflow
-            />
-            <vxe-column
-              type="html"
-              field="stepnumber"
-              title="阶梯价格编号"
-              width="110"
-            />
-            <vxe-column
-              field="name"
-              title="价格名称"
-              width="100"
-              show-overflow
-            />
-            <vxe-column field="waterUnitprice" title="水费单价" width="90" />
-            <vxe-column
-              field="waterUnitpricePer"
-              title="水费标准单价百分比"
-              width="150"
-            />
-            <vxe-column
-              field="pollutioUnitprice"
-              title="排污费单价"
-              width="90"
-            />
-            <vxe-column
-              field="pollutioUnitpricePer"
-              title="排污费单价百分比"
-              width="140"
-            />
-            <vxe-column
-              field="pressureUnitprice"
-              title="二次加压费用单价"
-              width="140"
-            />
-            <vxe-column
-              field="pressureUnitpricePre"
-              title="二次加压费用百分比"
-              width="150"
-            />
-            <vxe-column
-              field="otherExpensesName"
-              title="其他费用名称"
-              width="110"
-            />
-            <vxe-column field="otherExpenses" title="其他费用" width="90" />
-            <vxe-column
-              field="otherExpensesPre"
-              title="其他费用百分比"
-              width="120"
-            />
-            <vxe-column field="founder" title="创建人" width="100" />
-            <vxe-column
-              field="creationtime"
-              title="创建时间"
-              width="125"
-              show-overflow
-            />
-            <vxe-column field="updater" title="更新人" width="100" />
-            <vxe-column field="updatedtime" title="更新时间" width="100" />
-            <vxe-column
-              field="describeinformation"
-              title="描述信息"
-              width="100"
-            />
+              field="encode"
+              title="协议编码"
+              width="130"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.encode" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column field="type" title="类型" :edit-render="{}" sortable>
+              <template #edit="{ row }">
+                <vxe-input v-model="row.type" type="text" />
+              </template>
+            </vxe-column>
           </vxe-table>
-          <div style="margin-top: 10px">
-            <vxe-pager
-              v-model:current-page="pageVO2.currentPage"
-              :total="pageVO2.total"
-              :page-size="10"
-              @page-change="getallbuild"
-              :layouts="[
-                'PrevJump',
-                'PrevPage',
-                'Number',
-                'NextPage',
-                'NextJump',
-                'FullJump',
-                'Total'
-              ]"
-            />
-          </div>
-          <div
-            style="
-              display: flex;
-              align-items: center; /* 垂直交叉轴居中 */
-              justify-content: center; /* 水平主轴居中 */
-            "
-          >
-            <vxe-button @click="selectPrice()">确认</vxe-button>
-            <vxe-button @click="showPrice = false">取消</vxe-button>
-          </div>
-        </template>
-        <!-- <template #footer> 1 </template> -->
-      </vxe-modal>
+        </div>
+      </el-drawer>
     </div>
     <div>
       <vxe-pager
         v-model:current-page="pageVO2.currentPage"
         :total="pageVO2.total"
         :page-size="10"
-        @page-change="getallbuild"
+        @page-change="getGaugeValveList"
         :layouts="[
           'PrevJump',
           'PrevPage',
@@ -929,99 +824,56 @@
 </template>
 <script setup lang="ts">
 // import { useRouter, useRoute } from "vue-router"; // 导入路由模块
-import { ref, reactive, onActivated, onMounted, nextTick } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import {
   VXETable,
   VxeFormPropTypes,
   VxeTableInstance,
   VxeToolbarInstance
 } from "vxe-table";
-// import { ElMessageBox, ElMessage } from "element-plus";
-// import fdData from "@/assets/data/fd.json"; // 导入福鼎家园楼栋数据
-import { getcompany, getregion, getlist } from "@/api/effort";
-import { getbuild } from "@/api/build";
-// import { gethousehold, householdadd } from "@/api/household";
-import {
-  getcollector,
-  collectorfix,
-  collectordelete,
-  collectoradd
-} from "@/api/collector";
 import rightlist from "@/components/rightlist/rightlist.vue";
-
-// const regioned = ref("");
-// const area = ref("");
-// 住户状态
-const residentstatusList = [
-  {
-    id: 1,
-    name: "1"
-  },
-  {
-    id: 2,
-    name: "2"
-  },
-  {
-    id: 3,
-    name: "3"
-  },
-  {
-    id: 4,
-    name: "4"
-  },
-  {
-    id: 5,
-    name: "6"
-  },
-  {
-    id: 6,
-    name: "8"
-  },
-  {
-    id: 7,
-    name: "12"
-  },
-  {
-    id: 8,
-    name: "24"
-  }
-];
-
-// 工作模式
-const workModeList = [{ id: 1, name: "水表法" }];
-
-// 地址类型
-const addressTypeList = [
-  { id: 1, name: "ip地址" },
-  { id: 2, name: "域名" }
-];
-
-// 总表连接方式
-const contentTypeList = [
-  { id: 1, name: "独立" },
-  { id: 2, name: "并联" },
-  { id: 3, name: "串联" }
-];
+import { getcompany, getregion, getlist } from "@/api/effort";
+import { gethousehold } from "@/api/household";
+import {
+  getGaugeValve,
+  gaugeValveadd,
+  gaugeValvefix,
+  gaugeValvedelete
+} from "@/api/gaugeValve";
+import { getbuild } from "@/api/build";
+import { getlargemeter } from "@/api/largemeter";
+import {
+  getagreement,
+  agreementadd,
+  agreementfix,
+  agreementdelete
+} from "@/api/agreement";
+import { ElMessage } from "element-plus";
+// import { getcollector } from "@/api/collector";
+// 表类型
+const metertypeList = ref([
+  { value: 1, label: "远传水表" },
+  { value: 2, label: "普通水表" },
+  { value: 3, label: "预付水表" },
+  { value: 4, label: "热量表" },
+  { value: 5, label: "阀门" }
+]);
 
 onMounted(() => {
-  // isformArea();
-  // getregion();
-  getallCompany();
-  // getcompanyed();
-  getcollectorList(); // 获取全部采集器信息
+  getGaugeValveList(); // 获取全部大表信息
 });
 
 // const serchcompany = ref("");
-const getcollectorList = () => {
+const getGaugeValveList = () => {
   const data = {
     page: 1,
     pageSize: 10,
-    company: rgcompany.value,
-    region: rgregion.value,
-    village: rgvillage.value,
-    buildingnumber: rgbuild.value
+    company: companyKey.value,
+    region: regionKey.value,
+    village: CommunityKey.value,
+    buildingnumber: buildKey.value
   };
-  getcollector(data).then(res => {
+  getGaugeValve(data).then(res => {
     if (res.retcode == 200) {
       tableData.value = res.data.data;
       pageVO2.total = res.data.total;
@@ -1029,9 +881,9 @@ const getcollectorList = () => {
   });
 };
 
-onActivated(() => {
-  selectXq.value = JSON.parse(route.query.data);
-});
+// onActivated(() => {
+//   selectXq.value = JSON.parse(route.query.data);
+// });
 
 // 新增小区楼栋
 const addBuild = () => {
@@ -1041,32 +893,32 @@ const addBuild = () => {
     region: "",
     village: "",
     buildingnumber: "",
-    collectroId: "", // 采集器编号
-    workMode: "", // 工作模式
-    serverAddress: "", // 服务器地址
-    serverPort: "", // 服务器端口
-    middlewareAddress: "", // 中间件地址
-    middlewarePort: "", // 中间件端口
-    specification: "", // 规格型号
+    unit: "", // 所属单元
+    houseNumber: "", // 门牌号
+    generalMeter: "", // 所属总表
+    householdId: "", // 户表编号
+    householdAddress: "", // 户表地址
+    metertype: "", // 表类型
+    specification: "", // 规格编号
+    manufacturer: "", // 生产厂家
     dateOfManufacture: "", // 出厂日期
     installationDate: "", // 安装日期
     activationDate: "", // 启用日期
-    SIMcard: "", // SIM卡号
-    startTime: "", // 开始时间
-    endTime: "", // 结束时间
-    collectionCycle: "", // 采集周期
+    bandrate: "", // 波特率
+    databit: "", // 数据位
+    checkbit: "", //检验位
+    stopbit: "", // 停止位
+    initialFlowrate: "", // 初始流量
+    correctionFactor: "", // 修正系数
+    correctedMassflow: "", // 修正流量
+    faulttype: "", // 故障类型号
+    describe: "", // 备注
     founder: "", // 创建人
     creationtime: "", // 创建时间
     updater: "", // 更新人
-    updatedtime: "", // 更新时间
-    location: "", // 安装位置
-    describe: "" // 描述信息
+    updatedtime: "" // 更新时间
   });
   selectRow.value = null;
-  // 如果在表格筛选选择了水司/区域/小区/楼栋等，那就传递给表单组件
-  // if (companyed.value.length > 0) {
-  //   householdData.company = companyed.value;
-  // }
   showEdit.value = true;
 };
 
@@ -1080,52 +932,61 @@ interface RowVO {
   region: string;
   village: string;
   buildingnumber: string;
-  collectroId: string; // 采集器编号
-  workMode: string; // 工作模式
-  serverAddress: string; // 服务器地址
-  serverPort: string; // 服务器端口
-  middlewareAddress: string; // 中间件地址
-  middlewarePort: string; // 中间件端口
-  specification: string; // 规格型号
-  dateOfManufacture: string; // 出厂日期
-  installationDate: string; // 安装日期
-  activationDate: string; // 启用日期
-  SIMcard: string; // SIM卡号
-  startTime: string; // 开始时间
-  endTime: string; // 结束时间
-  collectionCycle: string; // 采集周期
-  founder: string; // 创建人
-  creationtime: string; // 创建时间
-  updater: string; // 更新人
-  updatedtime: string; // 更新时间
-  location: string; // 安装位置
-  describe: string; // 描述信息
+  unit: string;
+  houseNumber: string;
+  generalMeter: string;
+  householdId: string;
+  householdAddress: string;
+  metertype: string;
+  specification: string;
+  manufacturer: string;
+  dateOfManufacture: string;
+  installationDate: string;
+  activationDate: string;
+  bandrate: string;
+  databit: string;
+  checkbit: string;
+  stopbit: string;
+  initialFlowrate: string;
+  correctionFactor: string;
+  correctedMassflow: string;
+  faulttype: string;
+  describe: string;
+  founder: string;
+  creationtime: string;
+  updater: string;
+  updatedtime: string;
 }
 const householdData = reactive({
   company: "",
   region: "",
   village: "",
   buildingnumber: "",
-  collectroId: "", // 采集器编号
-  workMode: "", // 工作模式
-  serverAddress: "", // 服务器地址
-  serverPort: "", // 服务器端口
-  middlewareAddress: "", // 中间件地址
-  middlewarePort: "", // 中间件端口
-  specification: "", // 规格型号
+  unit: "", // 所属单元
+  houseNumber: "", // 门牌号
+  generalMeter: "", // 所属总表
+  householdId: "", // 户表编号
+  householdAddress: "", // 户表地址
+  metertype: "", // 表类型
+  specification: "", // 规格编号
+  manufacturer: "", // 生产厂家
   dateOfManufacture: "", // 出厂日期
   installationDate: "", // 安装日期
   activationDate: "", // 启用日期
-  SIMcard: "", // SIM卡号
-  startTime: "", // 开始时间
-  endTime: "", // 结束时间
-  collectionCycle: "", // 采集周期
+  bandrate: "", // 波特率
+  databit: "", // 数据位
+  checkbit: "", //检验位
+  stopbit: "", // 停止位
+  initialFlowrate: "", // 初始流量
+  correctionFactor: "", // 修正系数
+  correctedMassflow: "", // 修正流量
+  faulttype: "", // 故障类型号
+  describe: "", // 备注
   founder: "", // 创建人
   creationtime: "", // 创建时间
   updater: "", // 更新人
   updatedtime: "", // 更新时间
-  location: "", // 安装位置
-  describe: "" // 描述信息
+  location: "" // 安装位置
 });
 const tableData = ref<RowVO[]>([]);
 const showEdit = ref(false); // 展示编辑框
@@ -1135,7 +996,7 @@ const submitLoading = ref(false);
 const cellDBLClickEvent = (row: any) => {
   // 前往户表信息
   console.log(row.data, "row");
-  router.push({ path: "/basicInformation/build" });
+  // router.push({ path: "/basicInformation/build" });
 };
 
 // 编辑事件
@@ -1154,14 +1015,14 @@ const removeEvent = async (row: RowVO) => {
     if ($table) {
       // $table.remove(row);
       // 删除接口
-      collectordelete(params).then(res => {
+      gaugeValvedelete(params).then(res => {
         // console.log(res.data);
         if (res.retcode == 200) {
           VXETable.modal.message({
             content: `${res.message}`,
             status: "success"
           });
-          getcollector();
+          getGaugeValveList();
         }
       });
     }
@@ -1174,25 +1035,28 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   region: [{ required: true, message: "请输入区域名称" }],
   village: [{ required: true, message: "请输入小区名称" }],
   buildingnumber: [{ required: true, message: "请输入楼栋编号" }],
-  collectroId: [{ required: true, message: "请输入采集器编号" }],
-  workMode: [{ required: true, message: "请输入工作模式" }],
-  serverAddress: [{ required: true, message: "请输入服务器地址" }],
-  serverPort: [{ required: true, message: "请输入服务器端口" }],
-  middlewareAddress: [{ required: true, message: "请输入中间件地址" }],
-  middlewarePort: [{ required: true, message: "请输入中间件端口" }],
-  specification: [{ required: true, message: "请输入规格型号" }],
-  dateOfManufacture: [{ required: true, message: "请选择出厂日期" }],
-  installationDate: [{ required: true, message: "请选择安装日期" }],
-  activationDate: [{ required: true, message: "请选择启用日期" }],
-  SIMcard: [{ required: true, message: "请输入SIM卡号" }],
-  startTime: [{ required: true, message: "请输入开始日期" }],
-  endTime: [{ required: true, message: "请输入结束日期" }],
-  collectionCycle: [{ required: true, message: "请输入采集周期" }],
-  location: [{ required: true, message: "请输入安装位置" }],
-  describe: [{ required: true, message: "请输入描述信息" }]
+  unit: [{ required: true, message: "请输入所属单元" }],
+  houseNumber: [{ required: true, message: "请输入门牌号" }],
+  generalMeter: [{ required: true, message: "请选择所属总表" }],
+  householdId: [{ required: true, message: "请输入户表编号" }],
+  householdAddress: [{ required: true, message: "请输入户表地址" }],
+  metertype: [{ required: true, message: "请选择表类型" }],
+  specification: [{ required: true, message: "请输入规格编号" }],
+  manufacturer: [{ required: true, message: "请输入生产厂家" }],
+  bandrate: [{ required: true, message: "请输入波特率" }],
+  databit: [{ required: true, message: "请输入数据位" }],
+  checkbit: [{ required: true, message: "请输入检验位" }],
+  stopbit: [{ required: true, message: "请输入停止位" }],
+  dateOfManufacture: [{ required: true, message: "请输入出厂日期" }],
+  installationDate: [{ required: true, message: "请输入安装日期" }],
+  activationDate: [{ required: true, message: "请输入启用日期" }],
+  initialFlowrate: [{ required: true, message: "请输入初始流量" }],
+  correctionFactor: [{ required: true, message: "请输入修正系数" }],
+  correctedMassflow: [{ required: true, message: "请输入修正流量" }],
+  faulttype: [{ required: true, message: "请输入故障类型号" }]
 });
 
-// 提交楼栋信息
+// 提交户表信息
 const submitEvent = () => {
   submitLoading.value = true;
   // showbaidumap.value = false
@@ -1202,145 +1066,33 @@ const submitEvent = () => {
       submitLoading.value = false;
       showEdit.value = false;
       if (selectRow.value) {
-        console.log(householdData, "编辑表单数据");
-        collectorfix((selectRow.value as any)._id, householdData).then(res => {
+        // console.log(householdData, "编辑表单数据");
+        gaugeValvefix((selectRow.value as any)._id, householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "保存成功", status: "success" });
             // Object.assign(selectRow.value, householdData);
-            getcollectorList();
+            getGaugeValveList();
           }
         });
       } else {
-        collectoradd(householdData).then(res => {
-          // console.log(res.data, "新增接口");
+        // collectoradd(householdData).then(res => {
+        //   if (res.retcode == 200) {
+        //     VXETable.modal.message({ content: "新增成功", status: "success" });
+        //     // getcollectorList();
+        //   }
+        // });
+        // $table.insert({ ...householdData });
+        gaugeValveadd(householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "新增成功", status: "success" });
-            // getcollectorList();
           }
         });
         $table.insert({ ...householdData });
-        // 将楼栋信息保存到pinia
-        // change(householdData);
-        // 将表单信息保存
-        // saveBuild(householdData);
-        // 加载完成后要立即刷新地图组件
-        // 根据高度展示不同广告牌
-        // homePage.value.interbuild();
-        // homePage.value.addregion("setbuild");
       }
     }
   }, 500);
 };
 const xTable = ref<VxeTableInstance<RowVO>>();
-
-// 改变小区
-// const changeArea = val => {
-//   console.log(val, "选中的小区");
-//   if (val == "福鼎家园") {
-//     // (tableData as any).value = fdData;
-//   } else {
-//     // (tableData as any).value = [];
-//   }
-// };
-
-// 获取区域信息
-// const selectRegion = ref([]);
-// const getregion = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000
-//   };
-//   getlist(data).then(res => {
-//     console.log(res.data, "区域数据");
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data.data;
-//     }
-//   });
-// };
-
-// 获取全部水司信息
-// const companyed = ref("");
-// const selectCompany = ref([]);
-// const getcompanyed = () => {
-//   getcompany().then(res => {
-//     if (res.retcode == 200) {
-//       // console.log(res.data, "res.data");
-//       selectCompany.value = res.data;
-//     }
-//   });
-// };
-
-// 修改水司查询区域信息
-// const selectRegion = ref([]);
-// const changeCompany = () => {
-//   let params = "";
-//   showEdit.value == true
-//     ? (params = householdData.company)
-//     : (params = companyed.value);
-//   getregion(params).then(res => {
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data;
-//       if (showEdit.value == false) {
-//         gethouseholdList();
-//       }
-//     }
-//   });
-// };
-// 筛选表格清除
-// const clearCompany = () => {
-//   console.log("清空表单");
-//   regioned.value = "";
-//   area.value = "";
-//   selectVillage.value = [];
-//   builded.value = "";
-//   selectBuild.value = [];
-// };
-// 筛选表单清除
-// const clearAddFrom = () => {
-//   householdData.company = "";
-//   householdData.region = "";
-//   householdData.village = "";
-//   householdData.buildingnumber = "";
-//   selectRegion.value = [];
-//   selectVillage.value = [];
-//   selectBuild.value = [];
-// };
-
-// 修改区域信息查询小区信息
-// const selectVillage = ref([]);
-// const changeRegion = () => {
-//   const data = { region: "" };
-//   showEdit.value == true
-//     ? (data.region = householdData.region)
-//     : (data.region = regioned.value);
-//   // const data = {
-//   //   village: regioned.value
-//   // };
-//   getvillage(data).then(res => {
-//     selectVillage.value = res.data;
-//     // console.log(selectVillage.value, "小区下拉菜单");
-//   });
-// };
-
-// 修改小区查询楼栋信息
-// const selectBuild = ref([]);
-// const changeVillage = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000,
-//     keyword: ""
-//   };
-//   showEdit.value == true
-//     ? (data.keyword = householdData.village)
-//     : (data.keyword = area.value);
-
-//   getbuild(data).then(res => {
-//     selectBuild.value = res.data.data;
-//   });
-// };
-
-// 楼栋信息
-// const builded = ref("");
 
 // 分页
 const pageVO2 = reactive({
@@ -1350,13 +1102,18 @@ const pageVO2 = reactive({
 
 const toolbarRef = ref<VxeToolbarInstance>();
 nextTick(() => {
-  // 将表格和工具栏进行关联
-  const $table = xTable.value;
-  const $toolbar = toolbarRef.value;
-  if ($table && $toolbar) {
-    $table.connect($toolbar);
-  }
+  setTimeout(() => {
+    // 将表格和工具栏进行关联
+    const $table = xTable.value;
+    const $toolbar = toolbarRef.value;
+    if ($table && $toolbar) {
+      $table.connect($toolbar);
+    }
+  }, 1000);
 });
+
+// 获取所属采集器信息
+// const searchCollectorOptions = ref([]);
 
 // 搜索水司关键词
 const companyKey = ref(""); // 所属水司搜索词
@@ -1381,7 +1138,7 @@ const clearCompanyKey = () => {
   regionKey.value = "";
   CommunityKey.value = "";
   buildKey.value = "";
-  getlargemeterList();
+  getGaugeValveList();
 };
 
 const regionKey = ref(""); // 区域搜索词
@@ -1408,7 +1165,7 @@ const clearRegionKey = () => {
   regionKey.value = "";
   CommunityKey.value = "";
   buildKey.value = "";
-  getlargemeterList();
+  getGaugeValveList();
 };
 
 const CommunityKey = ref(""); // 小区搜索词
@@ -1435,7 +1192,7 @@ const searchCommunityList = type => {
 const clearCommunityKey = () => {
   CommunityKey.value = "";
   buildKey.value = "";
-  getlargemeterList();
+  getGaugeValveList();
 };
 
 const buildKey = ref(""); // 楼栋搜索词
@@ -1443,7 +1200,7 @@ const buildKeyList = ref([]); // 楼栋搜索列表
 // 查询楼栋列表信息
 const searchBuildList = type => {
   // true为表格筛选，false为表单筛选
-  console.log(householdData, "表单选择的小区");
+  // console.log(householdData, "表单选择的小区");
   const data = {
     company: type === true ? companyKey.value : householdData.company,
     region: type === true ? regionKey.value : householdData.region,
@@ -1462,7 +1219,215 @@ const searchBuildList = type => {
 // 清除楼栋关键词
 const clearBuildKey = () => {
   buildKey.value = "";
-  getlargemeterList();
+  getGaugeValveList();
+};
+
+const unitList = ref([]); // 单元号搜索列表
+const searchUnitList = () => {
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    company: householdData.company,
+    region: householdData.region,
+    village: householdData.village,
+    buildnumber: householdData.buildingnumber
+  };
+  gethousehold(data).then(res => {
+    unitList.value = res.data.data.map(item => {
+      return { value: item.unit, label: item.unit };
+    });
+  });
+};
+
+const houseNumberList = ref([]); // 门牌号搜索列表
+const searchHouseNumberList = () => {
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    company: householdData.company,
+    region: householdData.region,
+    village: householdData.village,
+    buildnumber: householdData.buildingnumber
+  };
+  gethousehold(data).then(res => {
+    houseNumberList.value = res.data.data.map(item => {
+      return { value: item.housenumber, label: item.housenumber };
+    });
+  });
+};
+// 清除门牌号关键词
+const clearHouseNumber = () => {
+  householdData.houseNumber = "";
+};
+
+const largemeterList = ref([]); // 所属总表搜索列表
+const searchLargemeterList = () => {
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    company: "",
+    region: "",
+    village: "",
+    buildingnumber: "",
+    collectorBelong: ""
+  };
+  getlargemeter(data).then(res => {
+    largemeterList.value = res.data.data.map(item => {
+      return { value: item.largeMeterId, label: item.largeMeterId };
+    });
+  });
+};
+// 清除所属总表关键词
+const clearLargemeter = () => {
+  householdData.generalMeter = "";
+};
+
+// 生产厂家
+const manufacturerList = ref([]);
+// 搜索生产厂家列表
+const searchManufactureList = () => {
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    manufacturerName: ""
+  };
+  getagreement(data).then(res => {
+    if (res.retcode == 200) {
+      manufacturerList.value = res.data.data.map(item => {
+        return { value: item.encode, label: item.encode };
+      });
+    }
+  });
+};
+
+const table = ref(false); // 控制右侧协议列表隐藏展示
+const agreementData = ref([]); // 协议信息列表
+// 打开右侧协议信息
+const openright = () => {
+  table.value = true;
+  // 打开协议信息
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    manufacturerName: ""
+  };
+  getagreement(data).then(res => {
+    if (res.retcode == 200) {
+      agreementData.value = res.data.data;
+    }
+  });
+};
+
+// 关闭列表后对数据进行更新
+const closeRightList = () => {
+  console.log("对协议信息列表进行更新");
+};
+
+interface RowCompany {
+  id: number;
+  manufacturerName: string;
+  encode: number;
+  type: string;
+}
+const cTable = ref<VxeTableInstance<RowCompany>>();
+// 增加协议信息
+const insertAgreement = async (row?: RowCompany | number) => {
+  const $table = cTable.value;
+  if ($table) {
+    const record = {
+      manufacturerName: "默认厂家名称",
+      encode: "默认协议编码",
+      type: "默认类型"
+    };
+    const { row: newRow } = await $table.insertAt(record, row);
+    await $table.setEditCell(newRow, "name");
+  }
+};
+
+// 保存协议表格
+const saveEvent = () => {
+  const $table = cTable.value;
+  if ($table) {
+    const { insertRecords, removeRecords, updateRecords } =
+      $table.getRecordset();
+    // 增加的信息，移除的信息，更新的信息
+    console.log(insertRecords, "insertRecordstype");
+    const insert = JSON.parse(JSON.stringify(insertRecords));
+    const remove = JSON.parse(JSON.stringify(removeRecords));
+    const update = JSON.parse(JSON.stringify(updateRecords));
+    let count = 0;
+    if (insert.length > 0) {
+      insert.forEach(item => {
+        count++;
+        if (item.manufacturerName == "默认厂家名称") {
+          return ElMessage.error("请修改默认厂家名称!");
+        } else if (item.manufacturerName.length == 0) {
+          return ElMessage.error("默认厂家名称不能为空!");
+        } else if (count === insert.length) {
+          // console.log(insert, "insert"); // 数组
+          agreementadd(insert).then(res => {
+            if (res.retcode == 200) {
+              ElMessage.success(`${res.message}`);
+              const data = {
+                page: 1,
+                pageSize: 1000,
+                manufacturerName: ""
+              };
+              getagreement(data).then(res => {
+                if (res.retcode == 200) {
+                  agreementData.value = res.data.data;
+                } else {
+                  ElMessage.error("新增失败，请确认水司名称是否重复！");
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+    if (remove.length > 0) {
+      const deleteDatas = [];
+      remove.forEach(item => {
+        deleteDatas.push(item._id);
+      });
+      const ids = deleteDatas.toString();
+      agreementdelete(ids).then(res => {
+        if (res.retcode == 200) {
+          ElMessage.success(`${res.message}`);
+          const data = {
+            page: 1,
+            pageSize: 1000,
+            manufacturerName: ""
+          };
+          getagreement(data).then(res => {
+            if (res.retcode == 200) {
+              agreementData.value = res.data.data;
+            }
+          });
+        }
+      });
+    }
+    if (update.length > 0) {
+      const data = {
+        name: update
+      };
+      agreementfix(data).then(res => {
+        if (res.retcode == 200) {
+          ElMessage.success(`${res.message}`);
+          const data = {
+            page: 1,
+            pageSize: 1000,
+            manufacturerName: ""
+          };
+          getagreement(data).then(res => {
+            if (res.retcode == 200) {
+              agreementData.value = res.data.data;
+            }
+          });
+        }
+      });
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -1492,6 +1457,6 @@ const clearBuildKey = () => {
 //   z-index: 9999999999999;
 // }
 ::v-deep .vxe-select {
-  width: 150px;
+  width: 140px;
 }
 </style>
