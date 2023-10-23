@@ -428,7 +428,25 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <div style="display: flex">
+                  <div style="flex: 1">
+                    <vxe-select
+                      v-model="data.manufacturer"
+                      placeholder="请选择生产厂家"
+                      :options="manufacturerList"
+                      clearable
+                      filterable
+                      @focus="searchManufactureList"
+                      style="padding-right: 10px"
+                    />
+                  </div>
+                  <vxe-button
+                    status="primary"
+                    content="新增"
+                    @click="openright()"
+                  />
+                </div>
+                <!-- <el-select
                   v-model="data.manufacturer"
                   class="m-3"
                   placeholder="请输入生产厂家"
@@ -439,7 +457,7 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -588,6 +606,79 @@
           </vxe-form>
         </template>
       </vxe-modal>
+      <el-drawer
+        v-model="table"
+        @close="closeRightList"
+        title="全部协议信息"
+        direction="rtl"
+        size="40%"
+        :z-index="1100"
+      >
+        <div style="height: 100%">
+          <vxe-toolbar>
+            <template #tools>
+              <vxe-button status="primary" @click="insertAgreement()"
+                >新增</vxe-button
+              >
+              <el-popconfirm
+                title="该操作会删除该区域下所有小区、楼栋、住户,您确定要删除吗？"
+                width="220"
+              >
+                <template #reference>
+                  <vxe-button status="danger">删除选中</vxe-button>
+                </template>
+              </el-popconfirm>
+              <vxe-button status="success" @click="saveEvent()"
+                >保存</vxe-button
+              >
+            </template>
+          </vxe-toolbar>
+          <vxe-table
+            border
+            show-overflow
+            keep-source
+            ref="cTable"
+            max-height="620"
+            style="margin-top: 4px"
+            :data="agreementData"
+            :edit-config="{
+              trigger: 'click',
+              mode: 'cell',
+              showStatus: true
+            }"
+          >
+            <vxe-column type="checkbox" width="45" />
+            <vxe-column type="seq" width="40" />
+            <vxe-column
+              field="manufacturerName"
+              title="厂家名称"
+              width="160"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.manufacturerName" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="encode"
+              title="协议编码"
+              width="130"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.encode" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column field="type" title="类型" :edit-render="{}" sortable>
+              <template #edit="{ row }">
+                <vxe-input v-model="row.type" type="text" />
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
+      </el-drawer>
     </div>
     <div>
       <vxe-pager
@@ -633,21 +724,15 @@ import {
 // import { getcollector } from "@/api/collector";
 import { getbuild } from "@/api/build";
 import { getcollector } from "@/api/collector";
+import {
+  getagreement,
+  agreementadd,
+  agreementfix,
+  agreementdelete
+} from "@/api/agreement";
+import { ElMessage } from "element-plus";
 // 生产厂家
-const manufacturerList = ref([
-  { id: 1, name: "水表" },
-  { id: 2, name: "NB水表" },
-  { id: 3, name: "NB水表804" },
-  { id: 4, name: "NB水表803" },
-  { id: 5, name: "yy" },
-  { id: 6, name: "NB水表805" },
-  { id: 7, name: "600" },
-  { id: 8, name: "100" },
-  { id: 9, name: "808" },
-  { id: 10, name: "806" },
-  { id: 11, name: "798" },
-  { id: 12, name: "797" }
-]);
+const manufacturerList = ref([]);
 
 onMounted(() => {
   // isformArea();
@@ -1283,6 +1368,147 @@ const searchCollectorList = type => {
   });
 };
 // 清除采集器关键词
+
+const table = ref(false); // 控制右侧协议列表隐藏展示
+const agreementData = ref([]); // 协议信息列表
+// 打开右侧协议信息
+const openright = () => {
+  table.value = true;
+  // 打开协议信息
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    manufacturerName: ""
+  };
+  getagreement(data).then(res => {
+    if (res.retcode == 200) {
+      agreementData.value = res.data.data;
+    }
+  });
+};
+
+// 搜索生产厂家列表
+const searchManufactureList = () => {
+  const data = {
+    page: 1,
+    pageSize: 1000,
+    manufacturerName: ""
+  };
+  getagreement(data).then(res => {
+    if (res.retcode == 200) {
+      manufacturerList.value = res.data.data.map(item => {
+        return { value: item.encode, label: item.encode };
+      });
+    }
+  });
+};
+
+interface RowCompany {
+  id: number;
+  manufacturerName: string;
+  encode: number;
+  type: string;
+}
+const cTable = ref<VxeTableInstance<RowCompany>>();
+// 增加协议信息
+const insertAgreement = async (row?: RowCompany | number) => {
+  const $table = cTable.value;
+  if ($table) {
+    const record = {
+      manufacturerName: "默认厂家名称",
+      encode: "默认协议编码",
+      type: "默认类型"
+    };
+    const { row: newRow } = await $table.insertAt(record, row);
+    await $table.setEditCell(newRow, "name");
+  }
+};
+
+// 保存协议表格
+const saveEvent = () => {
+  const $table = cTable.value;
+  if ($table) {
+    const { insertRecords, removeRecords, updateRecords } =
+      $table.getRecordset();
+    // 增加的信息，移除的信息，更新的信息
+    console.log(insertRecords, "insertRecordstype");
+    const insert = JSON.parse(JSON.stringify(insertRecords));
+    const remove = JSON.parse(JSON.stringify(removeRecords));
+    const update = JSON.parse(JSON.stringify(updateRecords));
+    let count = 0;
+    if (insert.length > 0) {
+      insert.forEach(item => {
+        count++;
+        if (item.manufacturerName == "默认厂家名称") {
+          return ElMessage.error("请修改默认厂家名称!");
+        } else if (item.manufacturerName.length == 0) {
+          return ElMessage.error("默认厂家名称不能为空!");
+        } else if (count === insert.length) {
+          // console.log(insert, "insert"); // 数组
+          agreementadd(insert).then(res => {
+            if (res.retcode == 200) {
+              ElMessage.success(`${res.message}`);
+              const data = {
+                page: 1,
+                pageSize: 1000,
+                manufacturerName: ""
+              };
+              getagreement(data).then(res => {
+                if (res.retcode == 200) {
+                  agreementData.value = res.data.data;
+                } else {
+                  ElMessage.error("新增失败，请确认水司名称是否重复！");
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+    if (remove.length > 0) {
+      const deleteDatas = [];
+      remove.forEach(item => {
+        deleteDatas.push(item._id);
+      });
+      const ids = deleteDatas.toString();
+      agreementdelete(ids).then(res => {
+        if (res.retcode == 200) {
+          ElMessage.success(`${res.message}`);
+          const data = {
+            page: 1,
+            pageSize: 1000,
+            manufacturerName: ""
+          };
+          getagreement(data).then(res => {
+            if (res.retcode == 200) {
+              agreementData.value = res.data.data;
+            }
+          });
+        }
+      });
+    }
+    if (update.length > 0) {
+      const data = {
+        name: update
+      };
+      agreementfix(data).then(res => {
+        if (res.retcode == 200) {
+          ElMessage.success(`${res.message}`);
+          const data = {
+            page: 1,
+            pageSize: 1000,
+            manufacturerName: ""
+          };
+          getagreement(data).then(res => {
+            if (res.retcode == 200) {
+              agreementData.value = res.data.data;
+            }
+          });
+        }
+      });
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
 .table-main {

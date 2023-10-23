@@ -432,7 +432,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.workMode"
                   class="m-3"
                   placeholder="请选择工作模式"
@@ -443,7 +443,14 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.workMode"
+                  placeholder="请选择工作模式"
+                  :options="workModeList"
+                  clearable
+                  filterable
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -453,7 +460,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.addressType"
                   class="m-3"
                   placeholder="请选择地址类型"
@@ -464,7 +471,14 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.addressType"
+                  placeholder="请选择地址类型"
+                  :options="addressTypeList"
+                  clearable
+                  filterable
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -474,7 +488,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.contentType"
                   class="m-3"
                   placeholder="请选择总表连接方式"
@@ -485,7 +499,14 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.contentType"
+                  placeholder="请选择总表连接方式"
+                  :options="contentTypeList"
+                  clearable
+                  filterable
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -495,7 +516,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.collectionCycle"
                   class="m-3"
                   placeholder="请输入采集周期"
@@ -506,7 +527,14 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.collectionCycle"
+                  placeholder="请输入采集周期"
+                  :options="collectionCycleList"
+                  clearable
+                  filterable
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -856,7 +884,7 @@
 </template>
 <script setup lang="ts">
 // import { useRouter, useRoute } from "vue-router"; // 导入路由模块
-import { ref, reactive, onActivated, onMounted, nextTick } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import {
   VXETable,
   VxeFormPropTypes,
@@ -879,55 +907,65 @@ import rightlist from "@/components/rightlist/rightlist.vue";
 // const regioned = ref("");
 // const area = ref("");
 // 住户状态
-const residentstatusList = [
-  {
-    id: 1,
-    name: "1"
-  },
-  {
-    id: 2,
-    name: "2"
-  },
-  {
-    id: 3,
-    name: "3"
-  },
-  {
-    id: 4,
-    name: "4"
-  },
-  {
-    id: 5,
-    name: "6"
-  },
-  {
-    id: 6,
-    name: "8"
-  },
-  {
-    id: 7,
-    name: "12"
-  },
-  {
-    id: 8,
-    name: "24"
-  }
-];
+// const residentstatusList = [
+//   {
+//     id: 1,
+//     name: "1"
+//   },
+//   {
+//     id: 2,
+//     name: "2"
+//   },
+//   {
+//     id: 3,
+//     name: "3"
+//   },
+//   {
+//     id: 4,
+//     name: "4"
+//   },
+//   {
+//     id: 5,
+//     name: "6"
+//   },
+//   {
+//     id: 6,
+//     name: "8"
+//   },
+//   {
+//     id: 7,
+//     name: "12"
+//   },
+//   {
+//     id: 8,
+//     name: "24"
+//   }
+// ];
 
 // 工作模式
-const workModeList = [{ id: 1, name: "水表法" }];
+const workModeList = [{ value: 1, label: "水表法" }];
 
 // 地址类型
 const addressTypeList = [
-  { id: 1, name: "ip地址" },
-  { id: 2, name: "域名" }
+  { value: 1, label: "ip地址" },
+  { value: 2, label: "域名" }
 ];
 
 // 总表连接方式
 const contentTypeList = [
-  { id: 1, name: "独立" },
-  { id: 2, name: "并联" },
-  { id: 3, name: "串联" }
+  { value: 1, label: "独立" },
+  { value: 2, label: "并联" },
+  { value: 3, label: "串联" }
+];
+
+// 采集周期
+const collectionCycleList = [
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
+  { value: 3, label: "4" },
+  { value: 4, label: "6" },
+  { value: 5, label: "12" },
+  { value: 6, label: "24" }
 ];
 
 onMounted(() => {
@@ -956,9 +994,9 @@ const getcollectorList = () => {
   });
 };
 
-onActivated(() => {
-  selectXq.value = JSON.parse(route.query.data);
-});
+// onActivated(() => {
+//   selectXq.value = JSON.parse(route.query.data);
+// });
 
 // 新增小区楼栋
 const addBuild = () => {
