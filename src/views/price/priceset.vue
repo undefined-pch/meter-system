@@ -395,7 +395,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, watch } from "vue";
-
+import { useRouter } from "vue-router";
 import {
   VXETable,
   VxeTableInstance,
@@ -504,8 +504,16 @@ const formData = reactive<FormDataVO>({
   describeinformation: ""
 });
 
+// 跳转获取name参数
+const router = useRouter();
+
 onMounted(() => {
-  getprice();
+  if (router.currentRoute.value.query.name) {
+    searchNumber.value = router.currentRoute.value.query.name as string;
+    getprice();
+  } else {
+    getprice();
+  }
 });
 const isShowa = ref(false);
 watch(

@@ -506,7 +506,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.changemeter"
                   class="m-3"
                   placeholder="请选择是否换表"
@@ -517,7 +517,17 @@
                     :label="item.label"
                     :value="item.value"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.changemeter"
+                  placeholder="请选择是否换表"
+                  :options="ismeterchange"
+                  clearable
+                  filterable
+                  @focus="searchBuildList(false)"
+                  @change="gethouseholdList()"
+                  @clear="clearBuildKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -566,7 +576,7 @@
               :item-render="{}"
             >
               <template #default="{ data }">
-                <el-select
+                <!-- <el-select
                   v-model="data.residentstatus"
                   class="m-3"
                   placeholder="请选择住户状态"
@@ -577,7 +587,17 @@
                     :label="item.name"
                     :value="item.name"
                   />
-                </el-select>
+                </el-select> -->
+                <vxe-select
+                  v-model="data.residentstatus"
+                  placeholder="请选择住户状态"
+                  :options="residentstatusList"
+                  clearable
+                  filterable
+                  @focus="searchBuildList(false)"
+                  @change="gethouseholdList()"
+                  @clear="clearBuildKey()"
+                />
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -877,24 +897,24 @@ const ismeterchange = [
 // 住户状态
 const residentstatusList = [
   {
-    id: 1,
-    name: "未开户"
+    value: 1,
+    label: "未开户"
   },
   {
-    id: 2,
-    name: "开户"
+    value: 2,
+    label: "开户"
   },
   {
-    id: 3,
-    name: "拆表"
+    value: 3,
+    label: "拆表"
   },
   {
-    id: 4,
-    name: "停表"
+    value: 4,
+    label: "停表"
   },
   {
-    id: 5,
-    name: "销户"
+    value: 5,
+    label: "销户"
   }
 ];
 onMounted(() => {
@@ -933,7 +953,7 @@ const gethouseholdList = () => {
         }
         // 对价格编号进行跳转
         if (item.executionprice) {
-          item.executionprice = `<a href="#/price/priceset" style="text-decoration:underline;color:rgb(64, 158, 255);">${item.executionprice}<a>`;
+          item.executionprice = `<a href="#/price/priceset?name=${item.executionprice}" style="text-decoration:underline;color:rgb(64, 158, 255);">${item.executionprice}<a>`;
         }
       });
       tableData.value = res.data.data;
@@ -963,11 +983,11 @@ const addBuild = () => {
     pipelocation: "", // 管道位置
     location: "", // 住方位
     roomcard: "", // 房间卡号
-    changemeter: "", // 是否换表
+    changemeter: "否", // 是否换表
     fixedtelephone: "", // 固定电话
     mobilephone: "", // 移动电话
     householdname: "", // 住户姓名
-    residentstatus: "", // 住户状态
+    residentstatus: "未开户", // 住户状态
     email: "", // 邮箱
     householdtype: "", // 住户类型
     IDcard: "", // 身份证
@@ -1065,7 +1085,7 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   userid: [{ required: true, message: "请输入用户编号" }],
   unit: [{ required: true, message: "请输入单元号" }],
   housenumber: [{ required: true, message: "请输入门牌号" }],
-  floor: [{ required: true, message: "请输入楼层号" }],
+  // floor: [{ required: true, message: "请输入楼层号" }],
   executionprice: [{ required: true, message: "请选择执行价格" }],
   roomcard: [{ required: true, message: "请输入房间卡号" }],
   changemeter: [{ required: true, message: "请选择是否换表" }]
@@ -1090,7 +1110,8 @@ const submitEvent = () => {
           console.log(res.data, "新增接口");
         });
         VXETable.modal.message({ content: "新增成功", status: "success" });
-        $table.insert({ ...householdData });
+        // $table.insert({ ...householdData });
+        gethouseholdList();
         // 将楼栋信息保存到pinia
         change(householdData);
         // 将表单信息保存

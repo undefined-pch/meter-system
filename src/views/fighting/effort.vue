@@ -414,7 +414,7 @@
             <template #default="{ data }">
               <vxe-input
                 v-model="data.zipcode"
-                type="text"
+                type="integer"
                 placeholder="请输入邮政编码"
               />
             </template>

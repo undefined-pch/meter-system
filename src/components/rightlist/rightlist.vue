@@ -201,7 +201,7 @@ const loadNode = (node: Node, resolve) => {
                       "-" +
                       item.houseNumber +
                       "[" +
-                      item.generalMeter +
+                      item.householdId +
                       "]",
                     leaf: true
                   });
@@ -349,7 +349,7 @@ onMounted(() => {
   .tip {
     position: fixed;
     top: 50%;
-    z-index: 9999999999;
+    z-index: 1300;
     width: 12px;
     height: 44px;
   }

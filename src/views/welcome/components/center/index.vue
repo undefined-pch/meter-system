@@ -64,7 +64,7 @@
       </baidu-map>
     </div>
     <div class="es-center-top" v-show="!isShowcenter">
-      <div style=" position: fixed;width: 15px; height: 15px">
+      <div style="position: fixed; width: 15px; height: 15px">
         <svg
           t="1689669883357"
           class="icon"
@@ -206,7 +206,11 @@ const addPoints = (item, e) => {
     const data = {
       page: 1,
       pageSize: 1000,
-      keyword: e.point.village
+      // keyword: e.point.village
+      company: "",
+      region: "",
+      village: e.point.village,
+      buildnumber: ""
     };
     getbuild(data).then(res => {
       if (res.retcode == 200) {

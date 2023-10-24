@@ -422,7 +422,22 @@
                   v-model="data.collectroId"
                   placeholder="请输入采集器编号"
                   style="width: 100%"
-                />
+                  maxlength="9"
+                  minlength="8"
+                >
+                  <template #suffix>
+                    <el-tooltip
+                      class="box-item"
+                      effect="dark"
+                      content="采集器编号由9位数字组成"
+                      placement="top"
+                    >
+                      <i
+                        class="vxe-icon-warning-triangle-fill"
+                        style="color: #eebe77"
+                      />
+                    </el-tooltip> </template
+                ></vxe-input>
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -668,6 +683,7 @@
                   v-model="data.startTime"
                   placeholder="请输入开始日期"
                   type="date"
+                  label-format="MM-dd"
                   :transfer="true"
                 />
               </template>
@@ -683,6 +699,7 @@
                   v-model="data.endTime"
                   placeholder="请输入结束日期"
                   type="date"
+                  label-format="MM-dd"
                   :transfer="true"
                 />
               </template>
@@ -960,12 +977,14 @@ const contentTypeList = [
 
 // 采集周期
 const collectionCycleList = [
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "4" },
-  { value: 4, label: "6" },
-  { value: 5, label: "12" },
-  { value: 6, label: "24" }
+  { value: 1, label: "1h" },
+  { value: 2, label: "2h" },
+  { value: 3, label: "3h" },
+  { value: 4, label: "4h" },
+  { value: 5, label: "6h" },
+  { value: 6, label: "6h" },
+  { value: 7, label: "12h" },
+  { value: 8, label: "24h" }
 ];
 
 onMounted(() => {
@@ -1145,16 +1164,16 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   serverPort: [{ required: true, message: "请输入服务器端口" }],
   middlewareAddress: [{ required: true, message: "请输入中间件地址" }],
   middlewarePort: [{ required: true, message: "请输入中间件端口" }],
-  specification: [{ required: true, message: "请输入规格型号" }],
+  // specification: [{ required: true, message: "请输入规格型号" }],
   dateOfManufacture: [{ required: true, message: "请选择出厂日期" }],
   installationDate: [{ required: true, message: "请选择安装日期" }],
   activationDate: [{ required: true, message: "请选择启用日期" }],
   SIMcard: [{ required: true, message: "请输入SIM卡号" }],
   startTime: [{ required: true, message: "请输入开始日期" }],
   endTime: [{ required: true, message: "请输入结束日期" }],
-  collectionCycle: [{ required: true, message: "请输入采集周期" }],
-  location: [{ required: true, message: "请输入安装位置" }],
-  describe: [{ required: true, message: "请输入描述信息" }]
+  collectionCycle: [{ required: true, message: "请输入采集周期" }]
+  // location: [{ required: true, message: "请输入安装位置" }],
+  // describe: [{ required: true, message: "请输入描述信息" }]
 });
 
 // 提交楼栋信息

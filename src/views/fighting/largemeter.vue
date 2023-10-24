@@ -612,7 +612,7 @@
         title="全部协议信息"
         direction="rtl"
         size="40%"
-        :z-index="1100"
+        :z-index="1900"
       >
         <div style="height: 100%">
           <vxe-toolbar>

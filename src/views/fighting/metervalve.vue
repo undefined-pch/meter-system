@@ -1233,7 +1233,11 @@ const searchUnitList = () => {
     buildnumber: householdData.buildingnumber
   };
   gethousehold(data).then(res => {
-    unitList.value = res.data.data.map(item => {
+    const map = new Map();
+    const newArr = res.data.data.filter(
+      item => !map.has(item.unit) && map.set(item.unit, item)
+    );
+    unitList.value = newArr.map(item => {
       return { value: item.unit, label: item.unit };
     });
   });
