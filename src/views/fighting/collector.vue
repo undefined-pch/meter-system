@@ -423,7 +423,6 @@
                   placeholder="请输入采集器编号"
                   style="width: 100%"
                   maxlength="9"
-                  minlength="8"
                 >
                   <template #suffix>
                     <el-tooltip

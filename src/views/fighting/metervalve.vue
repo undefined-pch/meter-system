@@ -493,7 +493,22 @@
                   v-model="data.householdId"
                   placeholder="请输入户表编号"
                   style="width: 100%"
-                />
+                  maxlength="10"
+                >
+                  <template #suffix>
+                    <el-tooltip
+                      class="box-item"
+                      effect="dark"
+                      content="表编号由10位数字组成"
+                      placement="top"
+                    >
+                      <i
+                        class="vxe-icon-warning-triangle-fill"
+                        style="color: #eebe77"
+                      />
+                    </el-tooltip>
+                  </template>
+                </vxe-input>
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -526,7 +541,21 @@
                 <vxe-input
                   v-model="data.householdAddress"
                   placeholder="请输入户表地址"
-                />
+                >
+                  <template #suffix>
+                    <el-tooltip
+                      class="box-item"
+                      effect="dark"
+                      content="表地址由14位任意16进制数字组成"
+                      placement="top"
+                    >
+                      <i
+                        class="vxe-icon-warning-triangle-fill"
+                        style="color: #eebe77"
+                      />
+                    </el-tooltip>
+                  </template>
+                </vxe-input>
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -564,7 +593,7 @@
                   <vxe-button
                     status="primary"
                     content="新增"
-                    @click="openright()"
+                    @click="openright('manufacturer')"
                   />
                 </div>
               </template>
@@ -696,14 +725,28 @@
             <vxe-form-item
               field="faulttype"
               title="故障类型号"
-              :span="8"
+              :span="16"
               :item-render="{}"
             >
               <template #default="{ data }">
-                <vxe-input
-                  v-model="data.faulttype"
-                  placeholder="请输入故障类型号"
-                />
+                <div style="display: flex">
+                  <div style="flex: 1">
+                    <vxe-select
+                      v-model="data.faulttype"
+                      placeholder="请选择故障类型号"
+                      :options="faulttypeList"
+                      clearable
+                      filterable
+                      @focus="searchFaulttypeList"
+                      style="padding-right: 10px"
+                    />
+                  </div>
+                  <vxe-button
+                    status="primary"
+                    content="新增"
+                    @click="openright('faulttype')"
+                  />
+                </div>
               </template>
             </vxe-form-item>
             <vxe-form-item
@@ -728,8 +771,9 @@
           </vxe-form>
         </template>
       </vxe-modal>
+      <!-- 显示右侧协议信息 -->
       <el-drawer
-        v-model="table"
+        v-model="manufacturertable"
         @close="closeRightList"
         title="全部协议信息"
         direction="rtl"
@@ -742,15 +786,12 @@
               <vxe-button status="primary" @click="insertAgreement()"
                 >新增</vxe-button
               >
-              <el-popconfirm
-                title="该操作会删除该区域下所有小区、楼栋、住户,您确定要删除吗？"
-                width="220"
-              >
+              <el-popconfirm title="您确定要删除吗？" width="220">
                 <template #reference>
                   <vxe-button status="danger">删除选中</vxe-button>
                 </template>
               </el-popconfirm>
-              <vxe-button status="success" @click="saveEvent()"
+              <vxe-button status="success" @click="saveEvent('manufacturer')"
                 >保存</vxe-button
               >
             </template>
@@ -801,6 +842,77 @@
           </vxe-table>
         </div>
       </el-drawer>
+      <!-- 显示右侧故障类型号信息 -->
+      <el-drawer
+        v-model="faulttypetable"
+        @close="closeRightList"
+        title="全部故障类型号信息"
+        direction="rtl"
+        size="30%"
+        :z-index="1100"
+      >
+        <div style="height: 100%">
+          <vxe-toolbar>
+            <template #tools>
+              <vxe-button status="primary" @click="insertFaulttype()"
+                >新增</vxe-button
+              >
+              <el-popconfirm title="您确定要删除吗？" width="220">
+                <template #reference>
+                  <vxe-button status="danger">删除选中</vxe-button>
+                </template>
+              </el-popconfirm>
+              <vxe-button status="success" @click="saveEvent('faulttype')"
+                >保存</vxe-button
+              >
+            </template>
+          </vxe-toolbar>
+          <vxe-table
+            border
+            show-overflow
+            keep-source
+            ref="fTable"
+            max-height="620"
+            style="margin-top: 4px"
+            :data="faulttypeData"
+            :edit-config="{
+              trigger: 'click',
+              mode: 'cell',
+              showStatus: true
+            }"
+          >
+            <vxe-column type="checkbox" width="45" />
+            <vxe-column type="seq" width="50" />
+            <vxe-column
+              field="faulttypeId"
+              title="故障类型号"
+              width="130"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.faulttypeId" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="notes"
+              title="故障描述"
+              width="166"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.notes" type="text" />
+              </template>
+            </vxe-column>
+            <!-- <vxe-column field="type" title="类型" :edit-render="{}" sortable>
+              <template #edit="{ row }">
+                <vxe-input v-model="row.type" type="text" />
+              </template>
+            </vxe-column> -->
+          </vxe-table>
+        </div>
+      </el-drawer>
     </div>
     <div>
       <vxe-pager
@@ -847,7 +959,13 @@ import {
   agreementadd,
   agreementfix,
   agreementdelete
-} from "@/api/agreement";
+} from "@/api/agreement"; // 生产厂家
+import {
+  getfaulttype,
+  faulttypeadd,
+  faulttypefix,
+  faulttypedelete
+} from "@/api/faulttype";
 import { ElMessage } from "element-plus";
 // import { getcollector } from "@/api/collector";
 // 表类型
@@ -1075,13 +1193,12 @@ const submitEvent = () => {
           }
         });
       } else {
-        // collectoradd(householdData).then(res => {
-        //   if (res.retcode == 200) {
-        //     VXETable.modal.message({ content: "新增成功", status: "success" });
-        //     // getcollectorList();
-        //   }
-        // });
-        // $table.insert({ ...householdData });
+        // 采集器编号不是9位数字则不允许提交
+        debugger;
+        console.log($table, "$table");
+        console.log(householdData);
+        // 表编号部署10位数字则不允许提交
+        // 表地址不是14位数字16进制则不允许提交
         gaugeValveadd(householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "新增成功", status: "success" });
@@ -1304,22 +1421,60 @@ const searchManufactureList = () => {
   });
 };
 
-const table = ref(false); // 控制右侧协议列表隐藏展示
-const agreementData = ref([]); // 协议信息列表
-// 打开右侧协议信息
-const openright = () => {
-  table.value = true;
-  // 打开协议信息
+// 故障类型号
+const faulttypeList = ref([]);
+// 搜索生产厂家列表
+const searchFaulttypeList = () => {
   const data = {
     page: 1,
     pageSize: 1000,
-    manufacturerName: ""
+    faulttypeId: ""
   };
-  getagreement(data).then(res => {
+  getfaulttype(data).then(res => {
     if (res.retcode == 200) {
-      agreementData.value = res.data.data;
+      faulttypeList.value = res.data.data.map(item => {
+        return {
+          value: item.faulttypeId,
+          label: item.faulttypeId + "-" + item.notes
+        };
+      });
     }
   });
+};
+
+const manufacturertable = ref(false); // 控制右侧协议列表隐藏展示
+const faulttypetable = ref(false); // 控制右侧故障类型号列表隐藏展示
+const agreementData = ref([]); // 协议信息列表
+const faulttypeData = ref([]); // 故障类型号信息列表
+// 打开右侧协议信息
+const openright = (type: string) => {
+  if (type == "manufacturer") {
+    manufacturertable.value = true;
+    // 打开协议信息
+    const data = {
+      page: 1,
+      pageSize: 1000,
+      manufacturerName: ""
+    };
+    getagreement(data).then(res => {
+      if (res.retcode == 200) {
+        agreementData.value = res.data.data;
+      }
+    });
+  } else if (type == "faulttype") {
+    faulttypetable.value = true;
+    // 打开故障类型号信息列表
+    const data = {
+      page: 1,
+      pageSize: 1000,
+      faulttypeId: ""
+    };
+    getfaulttype(data).then(res => {
+      if (res.retcode == 200) {
+        faulttypeData.value = res.data.data;
+      }
+    });
+  }
 };
 
 // 关闭列表后对数据进行更新
@@ -1348,88 +1503,193 @@ const insertAgreement = async (row?: RowCompany | number) => {
   }
 };
 
-// 保存协议表格
-const saveEvent = () => {
-  const $table = cTable.value;
+interface RowFault {
+  id: number;
+  faulttypeId: number; // 故障类型号
+  notes: string; // 故障类型描述
+}
+const fTable = ref<VxeTableInstance<RowFault>>();
+// 增加故障类型号信息
+const insertFaulttype = async (row?: RowFault | number) => {
+  const $table = fTable.value;
   if ($table) {
-    const { insertRecords, removeRecords, updateRecords } =
-      $table.getRecordset();
-    // 增加的信息，移除的信息，更新的信息
-    console.log(insertRecords, "insertRecordstype");
-    const insert = JSON.parse(JSON.stringify(insertRecords));
-    const remove = JSON.parse(JSON.stringify(removeRecords));
-    const update = JSON.parse(JSON.stringify(updateRecords));
-    let count = 0;
-    if (insert.length > 0) {
-      insert.forEach(item => {
-        count++;
-        if (item.manufacturerName == "默认厂家名称") {
-          return ElMessage.error("请修改默认厂家名称!");
-        } else if (item.manufacturerName.length == 0) {
-          return ElMessage.error("默认厂家名称不能为空!");
-        } else if (count === insert.length) {
-          // console.log(insert, "insert"); // 数组
-          agreementadd(insert).then(res => {
-            if (res.retcode == 200) {
-              ElMessage.success(`${res.message}`);
+    const record = {
+      faulttypeId: "默认故障类型号",
+      notes: "默认故障描述"
+    };
+    const { row: newRow } = await $table.insertAt(record, row);
+    await $table.setEditCell(newRow, "name");
+  }
+};
+
+// 保存协议表格
+const saveEvent = (type: string) => {
+  if (type == "manufacturer") {
+    const $table = cTable.value;
+    if ($table) {
+      const { insertRecords, removeRecords, updateRecords } =
+        $table.getRecordset();
+      // 增加的信息，移除的信息，更新的信息
+      console.log(insertRecords, "insertRecordstype");
+      const insert = JSON.parse(JSON.stringify(insertRecords));
+      const remove = JSON.parse(JSON.stringify(removeRecords));
+      const update = JSON.parse(JSON.stringify(updateRecords));
+      let count = 0;
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          count++;
+          if (item.manufacturerName == "默认厂家名称") {
+            return ElMessage.error("请修改默认厂家名称!");
+          } else if (item.manufacturerName.length == 0) {
+            return ElMessage.error("默认厂家名称不能为空!");
+          } else if (count === insert.length) {
+            // console.log(insert, "insert"); // 数组
+            agreementadd(insert).then(res => {
+              if (res.retcode == 200) {
+                ElMessage.success(`${res.message}`);
+                const data = {
+                  page: 1,
+                  pageSize: 1000,
+                  manufacturerName: ""
+                };
+                getagreement(data).then(res => {
+                  if (res.retcode == 200) {
+                    agreementData.value = res.data.data;
+                  } else {
+                    ElMessage.error("新增失败，请确认水司名称是否重复！");
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        agreementdelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              page: 1,
+              pageSize: 1000,
+              manufacturerName: ""
+            };
+            getagreement(data).then(res => {
+              if (res.retcode == 200) {
+                agreementData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        agreementfix(data).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              page: 1,
+              pageSize: 1000,
+              manufacturerName: ""
+            };
+            getagreement(data).then(res => {
+              if (res.retcode == 200) {
+                agreementData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+    }
+  } else if (type == "faulttype") {
+    const $table = fTable.value;
+    if ($table) {
+      const { insertRecords, removeRecords, updateRecords } =
+        $table.getRecordset();
+      // 增加的信息，移除的信息，更新的信息
+      // console.log(insertRecords, "insertRecordstype");
+      const insert = JSON.parse(JSON.stringify(insertRecords));
+      const remove = JSON.parse(JSON.stringify(removeRecords));
+      const update = JSON.parse(JSON.stringify(updateRecords));
+      let count = 0;
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          count++;
+          if (item.faulttypeId == "默认故障类型号") {
+            return ElMessage.error("请修改默认故障类型号!");
+          } else if (item.faulttypeId.length == 0) {
+            return ElMessage.error("默认故障类型号不能为空!");
+          } else if (count === insert.length) {
+            faulttypeadd(insert).then(res => {
+              if (res.retcode == 200) {
+                ElMessage.success(`${res.message}`);
+              }
               const data = {
                 page: 1,
                 pageSize: 1000,
-                manufacturerName: ""
+                faulttypeId: ""
               };
-              getagreement(data).then(res => {
+              getfaulttype(data).then(res => {
                 if (res.retcode == 200) {
-                  agreementData.value = res.data.data;
+                  faulttypeData.value = res.data.data;
                 } else {
-                  ElMessage.error("新增失败，请确认水司名称是否重复！");
+                  ElMessage.error("新增失败，请确认是否重复！");
                 }
               });
-            }
-          });
-        }
-      });
-    }
-    if (remove.length > 0) {
-      const deleteDatas = [];
-      remove.forEach(item => {
-        deleteDatas.push(item._id);
-      });
-      const ids = deleteDatas.toString();
-      agreementdelete(ids).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            page: 1,
-            pageSize: 1000,
-            manufacturerName: ""
-          };
-          getagreement(data).then(res => {
-            if (res.retcode == 200) {
-              agreementData.value = res.data.data;
-            }
-          });
-        }
-      });
-    }
-    if (update.length > 0) {
-      const data = {
-        name: update
-      };
-      agreementfix(data).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            page: 1,
-            pageSize: 1000,
-            manufacturerName: ""
-          };
-          getagreement(data).then(res => {
-            if (res.retcode == 200) {
-              agreementData.value = res.data.data;
-            }
-          });
-        }
-      });
+            });
+          }
+        });
+      }
+      // 删除故障类型号
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        faulttypedelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              page: 1,
+              pageSize: 1000,
+              faulttypeId: ""
+            };
+            getfaulttype(data).then(res => {
+              if (res.retcode == 200) {
+                faulttypeData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+      // 修改故障类型号
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        faulttypefix(data).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              page: 1,
+              pageSize: 1000,
+              faulttypeId: ""
+            };
+            getfaulttype(data).then(res => {
+              if (res.retcode == 200) {
+                agreementData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
     }
   }
 };
