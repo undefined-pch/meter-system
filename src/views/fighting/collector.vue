@@ -907,7 +907,7 @@ import {
   VxeTableInstance,
   VxeToolbarInstance
 } from "vxe-table";
-// import { ElMessageBox, ElMessage } from "element-plus";
+import { ElMessage } from "element-plus";
 // import fdData from "@/assets/data/fd.json"; // 导入福鼎家园楼栋数据
 import { getcompany, getregion, getlist } from "@/api/effort";
 import { getbuild } from "@/api/build";
@@ -981,7 +981,7 @@ const collectionCycleList = [
   { value: 3, label: "3h" },
   { value: 4, label: "4h" },
   { value: 5, label: "6h" },
-  { value: 6, label: "6h" },
+  { value: 6, label: "8h" },
   { value: 7, label: "12h" },
   { value: 8, label: "24h" }
 ];
@@ -1144,7 +1144,7 @@ const removeEvent = async (row: RowVO) => {
             content: `${res.message}`,
             status: "success"
           });
-          getcollector();
+          getcollectorList();
         }
       });
     }
@@ -1157,7 +1157,9 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   region: [{ required: true, message: "请输入区域名称" }],
   village: [{ required: true, message: "请输入小区名称" }],
   buildingnumber: [{ required: true, message: "请输入楼栋编号" }],
-  collectroId: [{ required: true, message: "请输入采集器编号" }],
+  collectroId: [
+    { required: true, type: "number", message: "请输入采集器编号(9位数字)" }
+  ],
   workMode: [{ required: true, message: "请输入工作模式" }],
   serverAddress: [{ required: true, message: "请输入服务器地址" }],
   serverPort: [{ required: true, message: "请输入服务器端口" }],
@@ -1183,147 +1185,36 @@ const submitEvent = () => {
     const $table = xTable.value;
     if ($table) {
       submitLoading.value = false;
-      showEdit.value = false;
       if (selectRow.value) {
         console.log(householdData, "编辑表单数据");
         collectorfix((selectRow.value as any)._id, householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "保存成功", status: "success" });
             // Object.assign(selectRow.value, householdData);
+            showEdit.value = false;
             getcollectorList();
           }
         });
       } else {
+        // 采集器编号为9位
+        if (householdData.collectroId.length !== 9) {
+          showEdit.value = true;
+          return ElMessage.error("请确认采集器编号是否为9位数字!");
+        }
         collectoradd(householdData).then(res => {
           // console.log(res.data, "新增接口");
           if (res.retcode == 200) {
+            showEdit.value = false;
             VXETable.modal.message({ content: "新增成功", status: "success" });
             // getcollectorList();
           }
         });
         $table.insert({ ...householdData });
-        // 将楼栋信息保存到pinia
-        // change(householdData);
-        // 将表单信息保存
-        // saveBuild(householdData);
-        // 加载完成后要立即刷新地图组件
-        // 根据高度展示不同广告牌
-        // homePage.value.interbuild();
-        // homePage.value.addregion("setbuild");
       }
     }
   }, 500);
 };
 const xTable = ref<VxeTableInstance<RowVO>>();
-
-// 改变小区
-// const changeArea = val => {
-//   console.log(val, "选中的小区");
-//   if (val == "福鼎家园") {
-//     // (tableData as any).value = fdData;
-//   } else {
-//     // (tableData as any).value = [];
-//   }
-// };
-
-// 获取区域信息
-// const selectRegion = ref([]);
-// const getregion = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000
-//   };
-//   getlist(data).then(res => {
-//     console.log(res.data, "区域数据");
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data.data;
-//     }
-//   });
-// };
-
-// 获取全部水司信息
-// const companyed = ref("");
-// const selectCompany = ref([]);
-// const getcompanyed = () => {
-//   getcompany().then(res => {
-//     if (res.retcode == 200) {
-//       // console.log(res.data, "res.data");
-//       selectCompany.value = res.data;
-//     }
-//   });
-// };
-
-// 修改水司查询区域信息
-// const selectRegion = ref([]);
-// const changeCompany = () => {
-//   let params = "";
-//   showEdit.value == true
-//     ? (params = householdData.company)
-//     : (params = companyed.value);
-//   getregion(params).then(res => {
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data;
-//       if (showEdit.value == false) {
-//         gethouseholdList();
-//       }
-//     }
-//   });
-// };
-// 筛选表格清除
-// const clearCompany = () => {
-//   console.log("清空表单");
-//   regioned.value = "";
-//   area.value = "";
-//   selectVillage.value = [];
-//   builded.value = "";
-//   selectBuild.value = [];
-// };
-// 筛选表单清除
-// const clearAddFrom = () => {
-//   householdData.company = "";
-//   householdData.region = "";
-//   householdData.village = "";
-//   householdData.buildingnumber = "";
-//   selectRegion.value = [];
-//   selectVillage.value = [];
-//   selectBuild.value = [];
-// };
-
-// 修改区域信息查询小区信息
-// const selectVillage = ref([]);
-// const changeRegion = () => {
-//   const data = { region: "" };
-//   showEdit.value == true
-//     ? (data.region = householdData.region)
-//     : (data.region = regioned.value);
-//   // const data = {
-//   //   village: regioned.value
-//   // };
-//   getvillage(data).then(res => {
-//     selectVillage.value = res.data;
-//     // console.log(selectVillage.value, "小区下拉菜单");
-//   });
-// };
-
-// 修改小区查询楼栋信息
-// const selectBuild = ref([]);
-// const changeVillage = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000,
-//     keyword: ""
-//   };
-//   showEdit.value == true
-//     ? (data.keyword = householdData.village)
-//     : (data.keyword = area.value);
-
-//   getbuild(data).then(res => {
-//     selectBuild.value = res.data.data;
-//   });
-// };
-
-// 楼栋信息
-// const builded = ref("");
 
 // 分页
 const pageVO2 = reactive({
@@ -1447,174 +1338,6 @@ const clearBuildKey = () => {
   buildKey.value = "";
   gethouseholdList();
 };
-
-// const RegionKeyword = ref(""); // 搜索区域关键词
-// const VillageKeyword = ref(""); // 搜索小区关键词
-// const BuildKeyword = ref(""); // 搜索楼栋关键词
-
-// 获取全部水司信息
-// const companys = ref([]);
-// interface ListItem {
-//   value: string;
-//   label: string;
-// }
-// const searchCompanysList = ref<ListItem[]>([]);
-// const loading = ref(false); // 搜索加载状态
-// const searchCompanyoptions = ref<ListItem[]>([]); // 列表数据
-
-// // 获取全部水司信息，在不做任何输入时显示
-// const getallCompany = () => {
-//   const data = {
-//     company: "",
-//     region: ""
-//   };
-//   getcompany(data).then(res => {
-//     if (res.retcode == 200) {
-//       companys.value = res.data.data;
-//       searchCompanysList.value = companys.value.map(item => {
-//         return { value: item._id, label: item.name };
-//       });
-//     }
-//   });
-// };
-
-// 输入水司方法
-// const remoteCompany = useDebounceFn((query: string) => {
-//   if (query) {
-//     loading.value = true;
-//     console.log(query, "搜索水司名称入参");
-//     // 调用查询接口
-//     const data = {
-//       company: query
-//     };
-//     getcompany(data).then(res => {
-//       if (res.retcode == 200) {
-//         loading.value = false;
-//         searchCompanyoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.name };
-//         });
-//       }
-//     });
-//   } else {
-//     searchCompanyoptions.value = searchCompanysList.value;
-//   }
-// }, 500);
-
-// 获取全部区域信息
-// const regions = ref([]);
-// const searchRegionList = ref<ListItem[]>([]);
-// const searchRegionloading = ref(false); // 搜索加载状态
-// const searchRegionoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入区域方法
-// const remoteRegion = useDebounceFn((query: string, isform) => {
-//   if (query) {
-//     searchRegionloading.value = true;
-//     const data = {
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: query
-//     };
-//     getregion(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchRegionloading.value = false;
-//         searchRegionoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.name };
-//         });
-//       } else {
-//         searchRegionoptions.value = searchRegionList.value;
-//       }
-//     });
-//   }
-// }, 500);
-
-// 获取全部小区信息
-// const village = ref([]);
-// const searchVillageList = ref<ListItem[]>([]);
-// const searchVillageloading = ref(false); // 搜索加载状态
-// const searchVillageoptions = ref<ListItem[]>([]); // 列表数据
-
-// 输入小区方法
-// const remoteVillage = useDebounceFn((query: string, isform) => {
-//   if (query) {
-//     searchVillageloading.value = true;
-//     const data = {
-//       page: 1,
-//       pageSize: 1000,
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: isform == "true" ? householdData.region : RegionKeyword.value,
-//       village: query
-//     };
-//     getlist(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchVillageloading.value = false;
-//         searchVillageoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.village };
-//         });
-//       } else {
-//         searchVillageoptions.value = searchVillageList.value;
-//       }
-//     });
-//   }
-// }, 500);
-
-// 获取全部楼栋信息
-// const searchBuildList = ref<ListItem[]>([]);
-// const searchBuildloading = ref(false); // 搜索加载状态
-// const searchBuildoptions = ref<ListItem[]>([]); // 列表数据
-// 输入楼栋方法
-// const remoteBuild = useDebounceFn((query: string, isform) => {
-//   if (query) {
-//     searchBuildloading.value = true;
-//     const data = {
-//       page: 1,
-//       pageSize: 1000,
-//       company: isform == "true" ? householdData.company : CompanyKeyword.value,
-//       region: isform == "true" ? householdData.region : RegionKeyword.value,
-//       village: isform == "true" ? householdData.village : VillageKeyword.value,
-//       buildnumber: query
-//     };
-//     getbuild(data).then(res => {
-//       if (res.retcode == 200) {
-//         searchBuildloading.value = false;
-//         searchBuildoptions.value = res.data.data.map(item => {
-//           return { value: item._id, label: item.buildnumber };
-//         });
-//       } else {
-//         searchBuildoptions.value = searchBuildList.value;
-//       }
-//     });
-//   }
-// }, 500);
-
-// const rgcompany = ref(""); // 查询楼栋入参水司
-// const rgregion = ref(""); // 查询楼栋入参区域
-// const rgvillage = ref(""); // 查询楼栋入参小区
-// const rgbuild = ref(""); // 查询楼栋入参小区
-// 根据水司查询小区信息
-// const searchEffortList = val => {
-//   // console.log(val, "水司关键词");
-//   // 入参水司，请求楼栋数据
-//   rgcompany.value = val;
-//   gethouseholdList();
-// };
-
-// 根据水司-区域查询小区信息
-// const searchRegionLists = val => {
-//   rgregion.value = val;
-//   gethouseholdList();
-// };
-
-// 根据水司-区域-小区模糊搜索查询小区信息
-// const searchVillageLists = val => {
-//   rgvillage.value = val;
-//   gethouseholdList();
-// };
-
-// 根据水司-区域-小区-楼栋号模糊搜索查询小区信息
-// const searchBuildLists = val => {
-//   rgbuild.value = val;
-//   gethouseholdList();
-// };
 </script>
 <style lang="scss" scoped>
 .table-main {

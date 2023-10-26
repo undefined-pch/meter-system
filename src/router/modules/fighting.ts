@@ -50,14 +50,14 @@ export default {
         title: $t("menus.collector")
       }
     },
-    {
-      path: "/fighting/largemeter",
-      name: "Largemeter",
-      component: () => import("@/views/fighting/largemeter.vue"),
-      meta: {
-        title: $t("menus.bigmeter")
-      }
-    },
+    // {
+    //   path: "/fighting/largemeter",
+    //   name: "Largemeter",
+    //   component: () => import("@/views/fighting/largemeter.vue"),
+    //   meta: {
+    //     title: $t("menus.bigmeter")
+    //   }
+    // },
     {
       path: "/fighting/metervalve",
       name: "Metervalve",

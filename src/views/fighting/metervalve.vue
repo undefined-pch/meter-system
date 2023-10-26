@@ -55,19 +55,6 @@
               @clear="clearBuildKey()"
             />
           </div>
-          <!-- <div style="margin-left: 6px">
-            采集器:
-            <vxe-select
-              v-model="collectorKey"
-              placeholder="请输入要查找的采集器"
-              :options="collectorKeyList"
-              clearable
-              filterable
-              @focus="searchCollectorList(true)"
-              @change="getlargemeterList()"
-              @clear="clearBuildKey()"
-            />
-          </div> -->
         </template>
         <template #tools>
           <el-button type="primary" @click="addBuild" style="margin-left: 10px"
@@ -122,6 +109,27 @@
           show-header-overflow
         />
         <vxe-column
+          field="hasCollector"
+          width="100"
+          title="是否有采集器"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="belongCollector"
+          width="100"
+          title="所属采集器"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
+          field="belongCollector"
+          width="100"
+          title="是否为大表"
+          sortable
+          show-header-overflow
+        />
+        <vxe-column
           field="unit"
           width="100"
           title="所属单元"
@@ -143,16 +151,16 @@
           show-header-overflow
         />
         <vxe-column
-          field="householdId"
+          field="meterId"
           width="100"
-          title="户表编号"
+          title="表编号"
           sortable
           show-header-overflow
         />
         <vxe-column
-          field="householdAddress"
+          field="meterAddress"
           width="100"
-          title="户表地址"
+          title="表地址"
           sortable
           show-header-overflow
         />
@@ -332,7 +340,7 @@
         v-model="showEdit"
         :title="selectRow ? '编辑&保存' : '新增&保存'"
         width="800"
-        height="644px"
+        height="700px"
         min-width="600"
         min-height="300"
         :loading="submitLoading"
@@ -347,6 +355,42 @@
             title-width="100"
             @submit="submitEvent"
           >
+            <vxe-form-item
+              title="有无采集器"
+              field="hasCollector"
+              :item-render="{}"
+              :span="12"
+            >
+              <template #default="{ data }">
+                <vxe-switch
+                  v-model="data.hasCollector"
+                  open-label="有"
+                  close-label="无"
+                />
+              </template>
+            </vxe-form-item>
+            <vxe-form-item
+              title="是否为大表"
+              field="isLargemeter"
+              :item-render="{}"
+              :span="12"
+              :visible="householdData.hasCollector"
+            >
+              <template #default="{ data }">
+                <vxe-switch
+                  v-model="data.isLargemeter"
+                  open-label="是"
+                  close-label="否"
+                />
+              </template>
+            </vxe-form-item>
+            <vxe-form-item
+              title="基础信息"
+              title-align="left"
+              :title-width="200"
+              :span="24"
+              :title-prefix="{ icon: 'vxe-icon-comment' }"
+            />
             <vxe-form-item
               field="company"
               title="水司名称"
@@ -424,10 +468,32 @@
               </template>
             </vxe-form-item>
             <vxe-form-item
+              field="belongCollector"
+              title="所属采集器"
+              :span="8"
+              :item-render="{}"
+              :visible="householdData.hasCollector"
+            >
+              <template #default="{ data }">
+                <vxe-select
+                  v-model="data.belongCollector"
+                  placeholder="请输入所属采集器编号"
+                  :options="belongCollectorList"
+                  clearable
+                  filterable
+                  @focus="searchBelongCollectorList()"
+                  @clear="clearBelongCollectorList()"
+                />
+              </template>
+            </vxe-form-item>
+            <vxe-form-item
               field="unit"
               title="所属单元"
               :span="8"
               :item-render="{}"
+              :visible="
+                !householdData.isLargemeter && householdData.hasCollector
+              "
             >
               <template #default="{ data }">
                 <vxe-select
@@ -446,6 +512,9 @@
               title="门牌号"
               :span="8"
               :item-render="{}"
+              :visible="
+                !householdData.isLargemeter && householdData.hasCollector
+              "
             >
               <template #default="{ data }">
                 <vxe-select
@@ -464,13 +533,11 @@
               title="所属总表"
               :span="8"
               :item-render="{}"
+              :visible="
+                !householdData.isLargemeter && householdData.hasCollector
+              "
             >
               <template #default="{ data }">
-                <!-- <vxe-input
-                  v-model="data.generalMeter"
-                  placeholder="请选择所属总表"
-                  style="width: 100%"
-                /> -->
                 <vxe-select
                   v-model="data.generalMeter"
                   placeholder="请选择所属总表"
@@ -483,15 +550,15 @@
               </template>
             </vxe-form-item>
             <vxe-form-item
-              field="householdId"
-              title="户表编号"
+              field="meterId"
+              title="表编号"
               :span="8"
               :item-render="{}"
             >
               <template #default="{ data }">
                 <vxe-input
-                  v-model="data.householdId"
-                  placeholder="请输入户表编号"
+                  v-model="data.meterId"
+                  placeholder="请输入表编号"
                   style="width: 100%"
                   maxlength="10"
                 >
@@ -532,15 +599,15 @@
               </template>
             </vxe-form-item>
             <vxe-form-item
-              field="householdAddress"
-              title="户表地址"
+              field="meterAddress"
+              title="表地址"
               :span="16"
               :item-render="{}"
             >
               <template #default="{ data }">
                 <vxe-input
-                  v-model="data.householdAddress"
-                  placeholder="请输入户表地址"
+                  v-model="data.meterAddress"
+                  placeholder="请输入表地址"
                 >
                   <template #suffix>
                     <el-tooltip
@@ -778,7 +845,7 @@
         title="全部协议信息"
         direction="rtl"
         size="40%"
-        :z-index="1100"
+        :z-index="1900"
       >
         <div style="height: 100%">
           <vxe-toolbar>
@@ -849,7 +916,7 @@
         title="全部故障类型号信息"
         direction="rtl"
         size="30%"
-        :z-index="1100"
+        :z-index="1900"
       >
         <div style="height: 100%">
           <vxe-toolbar>
@@ -953,6 +1020,7 @@ import {
   gaugeValvedelete
 } from "@/api/gaugeValve";
 import { getbuild } from "@/api/build";
+import { getcollector } from "@/api/collector";
 import { getlargemeter } from "@/api/largemeter";
 import {
   getagreement,
@@ -1007,15 +1075,18 @@ const getGaugeValveList = () => {
 const addBuild = () => {
   // console.log("新增楼栋表单");
   Object.assign(householdData, {
+    hasCollector: true,
+    isLargemeter: true,
     company: "",
     region: "",
     village: "",
     buildingnumber: "",
+    belongCollector: "",
     unit: "", // 所属单元
     houseNumber: "", // 门牌号
     generalMeter: "", // 所属总表
-    householdId: "", // 户表编号
-    householdAddress: "", // 户表地址
+    meterId: "", // 表编号
+    meterAddress: "", // 表地址
     metertype: "", // 表类型
     specification: "", // 规格编号
     manufacturer: "", // 生产厂家
@@ -1046,15 +1117,18 @@ const addBuild = () => {
 // 表格字段
 interface RowVO {
   id: number;
+  hasCollector: boolean;
+  isLargemeter: boolean;
   company: string;
   region: string;
   village: string;
   buildingnumber: string;
+  belongCollector: string;
   unit: string;
   houseNumber: string;
   generalMeter: string;
-  householdId: string;
-  householdAddress: string;
+  meterId: string;
+  meterAddress: string;
   metertype: string;
   specification: string;
   manufacturer: string;
@@ -1080,11 +1154,14 @@ const householdData = reactive({
   region: "",
   village: "",
   buildingnumber: "",
+  hasCollector: true,
+  belongCollector: "",
+  isLargemeter: true,
   unit: "", // 所属单元
   houseNumber: "", // 门牌号
   generalMeter: "", // 所属总表
-  householdId: "", // 户表编号
-  householdAddress: "", // 户表地址
+  meterId: "", // 户表编号
+  meterAddress: "", // 户表地址
   metertype: "", // 表类型
   specification: "", // 规格编号
   manufacturer: "", // 生产厂家
@@ -1149,6 +1226,8 @@ const removeEvent = async (row: RowVO) => {
 
 // 表单规则
 const formRules = reactive<VxeFormPropTypes.Rules>({
+  hasCollector: [{ required: true, message: "请选择有无采集器" }],
+  belongCollector: [{ required: true, message: "请选择所属采集器" }],
   company: [{ required: true, message: "请输入水司名称" }],
   region: [{ required: true, message: "请输入区域名称" }],
   village: [{ required: true, message: "请输入小区名称" }],
@@ -1156,8 +1235,15 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   unit: [{ required: true, message: "请输入所属单元" }],
   houseNumber: [{ required: true, message: "请输入门牌号" }],
   generalMeter: [{ required: true, message: "请选择所属总表" }],
-  householdId: [{ required: true, message: "请输入户表编号" }],
-  householdAddress: [{ required: true, message: "请输入户表地址" }],
+  meterId: [
+    { required: true, type: "number", message: "请输入表编号(10位数字)" }
+  ],
+  meterAddress: [
+    {
+      required: true,
+      message: "请输入表地址(14位数字含16进制)"
+    }
+  ],
   metertype: [{ required: true, message: "请选择表类型" }],
   specification: [{ required: true, message: "请输入规格编号" }],
   manufacturer: [{ required: true, message: "请输入生产厂家" }],
@@ -1182,26 +1268,34 @@ const submitEvent = () => {
     const $table = xTable.value;
     if ($table) {
       submitLoading.value = false;
-      showEdit.value = false;
       if (selectRow.value) {
         // console.log(householdData, "编辑表单数据");
         gaugeValvefix((selectRow.value as any)._id, householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "保存成功", status: "success" });
+            showEdit.value = false;
             // Object.assign(selectRow.value, householdData);
             getGaugeValveList();
           }
         });
       } else {
         // 采集器编号不是9位数字则不允许提交
-        debugger;
-        console.log($table, "$table");
-        console.log(householdData);
-        // 表编号部署10位数字则不允许提交
+        // debugger;
+        // console.log($table, "$table");
+        // console.log(householdData);
+        if (householdData.meterId.length !== 10) {
+          showEdit.value = true;
+          return ElMessage.error("请确认表编号是否为10位!");
+        } else if (householdData.meterAddress.length !== 14) {
+          showEdit.value = true;
+          return ElMessage.error("请确认表地址是否为14位!");
+        }
+        // 表编号不是10位数字则不允许提交
         // 表地址不是14位数字16进制则不允许提交
         gaugeValveadd(householdData).then(res => {
           if (res.retcode == 200) {
             VXETable.modal.message({ content: "新增成功", status: "success" });
+            showEdit.value = false;
           }
         });
         $table.insert({ ...householdData });
@@ -1337,6 +1431,31 @@ const searchBuildList = type => {
 const clearBuildKey = () => {
   buildKey.value = "";
   getGaugeValveList();
+};
+
+const belongCollectorList = ref([]); // 所属采集器列表
+// 查询所属采集器列表
+const searchBelongCollectorList = () => {
+  // true为表格筛选，false为表单筛选
+  // console.log(householdData, "表单选择的小区");
+  const data = {
+    company: householdData.company,
+    region: householdData.region,
+    village: householdData.village,
+    buildnumber: householdData.buildingnumber
+  };
+  getcollector(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      belongCollectorList.value = res.data.data.map(item => {
+        return { value: item.collectroId, label: item.collectroId };
+      });
+    }
+  });
+};
+// 清除所属采集器关键词
+const clearBelongCollectorList = () => {
+  householdData.belongCollector = "";
 };
 
 const unitList = ref([]); // 单元号搜索列表
