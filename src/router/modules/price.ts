@@ -4,7 +4,7 @@ export default {
   meta: {
     icon: "tagPriceLinear",
     title: $t("menus.Pricesetting"),
-    rank: 3
+    rank: 4
   },
   children: [
     {

@@ -1270,7 +1270,10 @@ const removeCompany = async () => {
         return ElMessage.error("至少选中一项进行操作！");
       }
       const ids = deleteDatas.toString();
-      companydelete(ids).then(res => {
+      const deletedata = {
+        ids: ids
+      };
+      companydelete(deletedata).then(res => {
         if (res.retcode == 200) {
           ElMessage({
             message: `${res.message}`,

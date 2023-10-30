@@ -2,6 +2,16 @@
   <div class="es-screen-header">
     <h1 class="es-screen-logo">
       <span>{{ t("abc") }}</span>
+      <span>&nbsp;&nbsp;当前水司</span>
+      <vxe-select
+        v-model="companyKey"
+        placeholder="请输入要查找的水司"
+        :options="companyKeyList"
+        filterable
+        @focus="searchCompanyList"
+        @change="geteffortlist()"
+        @clear="clearCompanyKey()"
+      />
     </h1>
     <div class="es-screen-header-title">{{ store.title }}</div>
     <div class="es-screen-header-right">
@@ -18,6 +28,7 @@ import { useScreenStore } from "../../../store/scene";
 import darkIcon from "@/assets/images/screen/qiehuan_dark.png";
 import lightIcon from "@/assets/images/screen/qiehuan_light.png";
 import { useI18n } from "vue-i18n";
+import { getcompany } from "@/api/effort";
 
 const { t } = useI18n({
   locale: "en",
@@ -48,6 +59,30 @@ function startTime() {
     startTime();
   }, 1000);
 }
+
+const companyKey = ref(""); // 所属水司搜索词
+const companyKeyList = ref([]); // 所属水司搜索列表
+// 查询水司列表信息
+const searchCompanyList = () => {
+  const data = {
+    company: ""
+  };
+  getcompany(data).then(res => {
+    if (res.retcode == 200) {
+      // loading.value = false;
+      companyKeyList.value = res.data.data.map(item => {
+        return { value: item.name, label: item.name };
+      });
+    }
+  });
+};
+// 清除查询水司关键词
+const clearCompanyKey = () => {
+  companyKey.value = "";
+  regionKey.value = "";
+  CommunityKey.value = "";
+  geteffortlist();
+};
 
 onBeforeUnmount(() => {
   clearTimeout(timeId.value);

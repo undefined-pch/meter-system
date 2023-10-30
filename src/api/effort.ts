@@ -75,11 +75,10 @@ export const companyadd = data => {
 };
 
 // 删除水司
-export const companydelete = params => {
-  return httplocal.request<RefreshTokenResult>(
-    "delete",
-    "/api/companydelete/" + params
-  );
+export const companydelete = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/companydelete", {
+    data
+  });
 };
 
 // 查询所有区域

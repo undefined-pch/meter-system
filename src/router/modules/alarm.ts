@@ -8,48 +8,48 @@ export default {
   },
   children: [
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/writeLargemeters",
+      name: "writeLargemeters",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.largemeter")
       }
     },
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/writehouseholdmeters",
+      name: "writehouseholdmeters",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.usersmeter")
       }
     },
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/controlCollector",
+      name: "controlCollector",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.controlcollector")
       }
     },
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/controlValve",
+      name: "controlValve",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.controlvalve")
       }
     },
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/collectorStatus",
+      name: "collectorStatus",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.collectorstatus")
       }
     },
     {
-      path: "/alarm/readinglargemeters",
-      name: "Largemeters",
+      path: "/alarm/faultAlarm",
+      name: "faultAlarm",
       component: () => import("@/views/fighting/effort.vue"),
       meta: {
         title: $t("menus.faultalarm")

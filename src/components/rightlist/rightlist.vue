@@ -55,7 +55,7 @@ import { getbuild } from "@/api/build";
 // import { gethousehold } from "@/api/household";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import { getcollector } from "@/api/collector";
-import { getlargemeter } from "@/api/largemeter";
+// import { getlargemeter } from "@/api/largemeter";
 import { getGaugeValve } from "@/api/gaugeValve";
 // pinia获取右侧栏展开状态
 import { useStore } from "@/store/rightlist/state";
@@ -171,46 +171,69 @@ const loadNode = (node: Node, resolve) => {
         });
         const data2 = {
           page: 1,
-          pageSize: 10,
+          pageSize: 1000,
           company: node.parent.parent.parent.label,
           region: node.parent.parent.label,
           village: node.parent.label,
-          buildingnumber: node.label,
-          collector: ""
+          buildingnumber: node.label
         };
-        getlargemeter(data2).then(res => {
+        getGaugeValve(data2).then(res => {
           if (res.retcode == 200) {
             res.data.data.forEach(item => {
-              newhouseholdArr.push({
-                name: item.largeMeterId + `-大表`,
-                leaf: true
-              });
-            });
-            const data3 = {
-              company: node.parent.parent.parent.label,
-              region: node.parent.parent.label,
-              village: node.parent.label,
-              buildingnumber: node.label
-            };
-            getGaugeValve(data3).then(res => {
-              if (res.retcode == 200) {
-                res.data.data.forEach(item => {
-                  newhouseholdArr.push({
-                    name:
-                      item.unit +
-                      "-" +
-                      item.houseNumber +
-                      "[" +
-                      item.householdId +
-                      "]",
-                    leaf: true
-                  });
+              // 有采集器并且是大表
+              if (item.hasCollector && item.isLargemeter) {
+                newhouseholdArr.push({
+                  name: item.meterId + `-大表`,
+                  leaf: true
+                });
+              } else if (item.hasCollector && !item.isLargemeter) {
+                newhouseholdArr.push({
+                  name: item.meterId + `-小表`,
+                  leaf: true
+                });
+              } else if (!item.hasCollector) {
+                newhouseholdArr.push({
+                  name: item.meterId + `-小表(无采集器)`,
+                  leaf: true
                 });
               }
-              return resolve(newhouseholdArr);
             });
           }
+          return resolve(newhouseholdArr);
         });
+        // getlargemeter(data2).then(res => {
+        //   if (res.retcode == 200) {
+        //     res.data.data.forEach(item => {
+        //       newhouseholdArr.push({
+        //         name: item.largeMeterId + `-大表`,
+        //         leaf: true
+        //       });
+        //     });
+        //     const data3 = {
+        //       company: node.parent.parent.parent.label,
+        //       region: node.parent.parent.label,
+        //       village: node.parent.label,
+        //       buildingnumber: node.label
+        //     };
+        //     getGaugeValve(data3).then(res => {
+        //       if (res.retcode == 200) {
+        //         res.data.data.forEach(item => {
+        //           newhouseholdArr.push({
+        //             name:
+        //               item.unit +
+        //               "-" +
+        //               item.houseNumber +
+        //               "[" +
+        //               item.householdId +
+        //               "]",
+        //             leaf: true
+        //           });
+        //         });
+        //       }
+        //       return resolve(newhouseholdArr);
+        //     });
+        //   }
+        // });
         // return resolve(newhouseholdArr);
       }
     });

@@ -112,9 +112,17 @@
           field="hasCollector"
           width="100"
           title="是否有采集器"
+          type="html"
           sortable
           show-header-overflow
-        />
+        >
+          <template #default="{ row }">
+            <el-tag type="success" v-if="row.hasCollector == true"
+              >有采集器</el-tag
+            >
+            <el-tag type="danger" v-else>无采集器</el-tag>
+          </template>
+        </vxe-column>
         <vxe-column
           field="belongCollector"
           width="100"
@@ -123,12 +131,23 @@
           show-header-overflow
         />
         <vxe-column
-          field="belongCollector"
+          field="isLargemeter"
           width="100"
           title="是否为大表"
           sortable
           show-header-overflow
-        />
+        >
+          <template #default="{ row }">
+            <el-tag v-if="row.isLargemeter == true && row.hasCollector == true"
+              >大表</el-tag
+            >
+            <el-tag
+              type="info"
+              v-else-if="row.isLargemeter == false && row.hasCollector == true"
+              >小表</el-tag
+            >
+          </template>
+        </vxe-column>
         <vxe-column
           field="unit"
           width="100"
@@ -1021,7 +1040,7 @@ import {
 } from "@/api/gaugeValve";
 import { getbuild } from "@/api/build";
 import { getcollector } from "@/api/collector";
-import { getlargemeter } from "@/api/largemeter";
+// import { getlargemeter } from "@/api/largemeter";
 import {
   getagreement,
   agreementadd,
@@ -1061,6 +1080,20 @@ const getGaugeValveList = () => {
   };
   getGaugeValve(data).then(res => {
     if (res.retcode == 200) {
+      // res.data.data.forEach(item => {
+      // 采集器颜色区分
+      // if (item.hasCollector == true) {
+      //   item.hasCollector = `<span style="color:green">有无采集器<span>`;
+      // } else if (item.hasCollector == false) {
+      //   item.hasCollector = `<span style="color:red">无采集器<span>`;
+      // }
+      // 是否为大表颜色区分
+      // if (item.isLargemeter == true) {
+      //   item.isLargemeter = `<el-tag>大表</el-tag>`;
+      // } else if (item.isLargemeter == false) {
+      //   item.isLargemeter = `<el-tag>小表</el-tag>`;
+      // }
+      // });
       tableData.value = res.data.data;
       pageVO2.total = res.data.total;
     }
@@ -1505,15 +1538,14 @@ const searchLargemeterList = () => {
   const data = {
     page: 1,
     pageSize: 1000,
-    company: "",
-    region: "",
-    village: "",
-    buildingnumber: "",
-    collectorBelong: ""
+    company: householdData.company,
+    region: householdData.region,
+    village: householdData.village,
+    buildingnumber: householdData.buildingnumber
   };
-  getlargemeter(data).then(res => {
+  getGaugeValve(data).then(res => {
     largemeterList.value = res.data.data.map(item => {
-      return { value: item.largeMeterId, label: item.largeMeterId };
+      return { value: item.meterId, label: item.meterId };
     });
   });
 };
