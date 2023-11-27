@@ -1,23 +1,26 @@
 <template>
   <div class="right-content">
-    <div class="main" v-if="isshow">
+    <div class="main" v-if="isshow" style="height: 100%">
       <el-card class="box-card">
-        <div v-show="istree">
+        <div v-show="istree" style="height: 100vh">
           <el-input
             v-model="filterText"
             style="margin-top: 4px"
             placeholder="请输入关键词"
           />
-          <el-tree
-            :props="props"
-            :load="loadNode"
-            lazy
-            show-checkbox
-            ref="treeRef"
-            @check="select"
-            check-strictly
-            :filter-node-method="filterNode"
-          />
+          <el-scrollbar style="height: 100%">
+            <el-tree
+              :props="props"
+              :load="loadNode"
+              lazy
+              show-checkbox
+              ref="treeRef"
+              @check="select"
+              check-strictly
+              :filter-node-method="filterNode"
+            />
+          </el-scrollbar>
+
           <div class="shift-map" @click="openmap('map')" />
         </div>
         <div v-show="!istree">
@@ -247,7 +250,7 @@ const isshowbottom = ref(false);
 // const isopentip = ref(false);
 
 // 动态宽度
-const tipright = ref("240px");
+const tipright = ref("310px");
 const changewidth = item => {
   if (item == "close") {
     // isopentip.value = false;
@@ -258,7 +261,7 @@ const changewidth = item => {
     // isopentip.value = true;
     isshow.value = true;
     console.log(isshow.value);
-    tipright.value = "240px";
+    tipright.value = "310px";
   }
 };
 
@@ -335,7 +338,7 @@ onMounted(() => {
     top: 84px;
     right: 0;
     z-index: 99;
-    width: 240px;
+    width: 310px;
     height: 100%;
     // background-color: pink;
     .box-card {
@@ -378,8 +381,13 @@ onMounted(() => {
   }
 }
 
+.el-tree {
+  min-width: 100%;
+  display: inline-block !important;
+}
 .es-center {
   padding: 0 !important;
+  height: 100vh;
 }
 
 ::v-deep(.el-card__body) {

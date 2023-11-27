@@ -10,9 +10,13 @@ import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
 import alarmIcon from "@iconify-icons/icon-park-twotone/alarm";
 import tagPriceLinear from "@iconify-icons/solar/tag-price-linear";
+import baseInformation from "@iconify-icons/maki/village";
+import keyicon from "@iconify-icons/ep/key";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
 addIcon("lollipop", Lollipop);
 addIcon("alarmIcon", alarmIcon);
 addIcon("tagPriceLinear", tagPriceLinear);
+addIcon("baseInformation", baseInformation);
+addIcon("keyicon", keyicon);

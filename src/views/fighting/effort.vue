@@ -1,707 +1,739 @@
 <template>
-  <div class="table-main">
-    <vxe-toolbar custom ref="toolbarRef">
-      <template #buttons>
-        <div style="margin-left: 6px">
-          {{ t("company") }}:
-          <vxe-select
-            v-model="companyKey"
-            placeholder="请输入要查找的水司"
-            :options="companyKeyList"
-            clearable
-            filterable
-            @focus="searchCompanyList"
-            @change="geteffortlist()"
-            @clear="clearCompanyKey()"
-            :loading="searchcompanyKey"
-          />
-        </div>
-        <div style="margin-left: 10px">
-          {{ t("areaname") }}:
-          <vxe-select
-            v-model="regionKey"
-            placeholder="请输入要查找的区域"
-            :options="regionKeyList"
-            clearable
-            filterable
-            @focus="searchRegionList(true)"
-            @change="geteffortlist()"
-            @clear="clearRegionKey()"
-          />
-        </div>
-
-        <vxe-button
-          icon="vxe-icon-square-plus"
-          style="margin-left: 10px"
-          @click="insertEvent()"
-          >{{ t("add") }}</vxe-button
-        >
-      </template>
-      <template #tools>
-        <vxe-button
-          icon="vxe-icon-download"
-          style="margin-right: 10px"
-          @click="downloadExcel"
-          >{{ t("download") }}</vxe-button
-        >
-        <el-upload
-          class="upload-demo"
-          style="overflow: hidden"
-          :show-file-list="false"
-          :limit="1"
-          action="http://localhost:8000/api/up"
-          :on-exceed="handleExceed"
-          :on-success="successupload"
-          :auto-upload="true"
-          ref="uploadRef"
-        >
-          <vxe-button status="primary" style="margin-right: 10px">{{
-            t("batchimport")
-          }}</vxe-button>
-        </el-upload>
-        <vxe-button
-          status="danger"
-          style="margin-right: 10px"
-          @click="removeSelectRowEvent"
-          >{{ t("batchDelete") }}</vxe-button
-        >
-      </template>
-    </vxe-toolbar>
-    <vxe-table
-      border
-      show-overflow
-      ref="xTable"
-      height="564"
-      id="toolbar_demo3"
-      :custom-config="{ storage: true }"
-      :column-config="{ resizable: true }"
-      :row-config="{ isCurrent: true, keyField: 'id' }"
-      :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
-      :data="tableData"
-      @cell-dblclick="cellDBLClickEvent"
-    >
-      <vxe-column type="checkbox" width="50" fixed="left" />
-      <vxe-column type="seq" title="序号" width="50" fixed="left" />
-      <vxe-column
-        field="company"
-        width="100"
-        show-header-overflow
-        title="所属水司"
-        fixed="left"
-        sortable
-      >
-        <template #header>
-          {{ t("company") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="region"
-        width="100"
-        show-header-overflow
-        title="区域名称"
-        fixed="left"
-        sortable
-      >
-        <template #header>
-          {{ t("areaname") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="village"
-        width="100"
-        show-header-overflow
-        sortable
-        title="小区名称"
-        fixed="left"
-      >
-        <template #header>
-          {{ t("communityname") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="address"
-        width="100"
-        show-header-overflow
-        sortable
-        title="地址"
-      >
-        <template #header>
-          {{ t("address") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="zipcode"
-        width="100"
-        show-header-overflow
-        sortable
-        title="邮编"
-        show-overflow
-      >
-        <template #header>
-          {{ t("postcode") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="area"
-        width="100"
-        show-header-overflow
-        sortable
-        title="小区面积"
-      >
-        <template #header>
-          {{ t("communityarea") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="build"
-        width="100"
-        show-header-overflow
-        sortable
-        title="楼栋数"
-      >
-        <template #header>
-          {{ t("buildings") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="households"
-        width="100"
-        show-header-overflow
-        sortable
-        min="0"
-        title="小区户数"
-      >
-        <template #header>
-          {{ t("households") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="property"
-        width="100"
-        show-header-overflow
-        sortable
-        title="所属物业"
-      >
-        <template #header>
-          {{ t("Ownedproperty") }}
-        </template>
-      </vxe-column>
-      <!-- <vxe-column
-        field="company"
-        width="100"
-        show-header-overflow
-        sortable
-        title="所属自来水公司"
-      >
-        <template #header>
-          {{ t("watercompany") }}
-        </template>
-      </vxe-column> -->
-      <vxe-column field="attr3" title="icon" width="60" tree-node>
-        <template #default>
-          <img src="@/assets/iconfont/mapicon.png" height="40" width="40" />
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="founder"
-        width="100"
-        show-header-overflow
-        sortable
-        title="创建人"
-      >
-        <template #header>
-          {{ t("founder") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="creationtime"
-        width="100"
-        show-header-overflow
-        sortable
-        title="创建时间"
-      >
-        <template #header>
-          {{ t("creationtime") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updater"
-        width="100"
-        show-header-overflow
-        sortable
-        title="最近更新人"
-      >
-        <template #header>
-          {{ t("lastupdater") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updatetime"
-        width="100"
-        show-header-overflow
-        sortable
-        title="最近更新时间"
-      >
-        <template #header>
-          {{ t("lastupdated") }}
-        </template>
-      </vxe-column>
-      <vxe-column title="操作" width="100" fixed="right" show-overflow>
-        <template #header>
-          {{ t("operate") }}
-        </template>
-        <template #default="{ row }">
-          <vxe-button
-            type="text"
-            icon="vxe-icon-edit"
-            style="color: #409eff"
-            @click="editEvent(row)"
-          />
-          <vxe-button
-            type="text"
-            icon="vxe-icon-delete"
-            style="color: #f23c3c"
-            @click="removeEvent(row)"
-          />
-        </template>
-      </vxe-column>
-    </vxe-table>
-    <!-- 分页 -->
-    <div>
-      <vxe-pager
-        v-model:current-page="pageVO2.currentPage"
-        :total="pageVO2.total"
-        :page-size="10"
-        @page-change="geteffortlist"
-        :layouts="[
-          'PrevJump',
-          'PrevPage',
-          'Number',
-          'NextPage',
-          'NextJump',
-          'FullJump',
-          'Total'
-        ]"
-      />
-    </div>
-    <!-- 新增/修改表单 -->
-    <vxe-modal
-      v-model="showEdit"
-      width="800"
-      height="90%"
-      min-width="600"
-      min-height="300"
-      :loading="submitLoading"
-      @close="closeForm"
-      resize
-      destroy-on-close
-    >
-      <template #title>
-        <span v-if="selectRow">{{ t("editsave") }}</span>
-        <span v-else>{{ t("addsave") }}</span>
-      </template>
-      <template #default>
-        <vxe-form
-          :data="formData"
-          :rules="formRules"
-          title-align="right"
-          title-width="100"
-          ref="formRef"
-          @submit="submitEvent"
-        >
-          <vxe-form-item field="company" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("watercompany") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-select
-                v-model="data.company"
-                placeholder="请选择水司"
-                :options="companyKeyList"
-                clearable
+  <div>
+    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tab-pane label="水表" name="first">
+        <vxe-toolbar custom ref="toolbarRef">
+          <template #buttons>
+            <div style="margin-left: 6px">
+              {{ t("company") }}:
+              <el-select-v2
+                v-model="companyKey"
+                style="width: 140px"
+                :multiple="false"
                 filterable
-                @focus="searchCompanyList"
-              />
-              <el-button
-                type="primary"
-                style="margin-bottom: 2px; margin-left: 10px"
-                @click="openright('village')"
-                >新增</el-button
-              >
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="region" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("areaname") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-select
-                v-model="data.region"
-                placeholder="请选择水司"
-                :options="regionKeyList"
+                remote
+                :remote-method="remoteMethod"
+                @change="setCompanyKey"
+                @focus="getallCompany"
+                @clear="clearall"
                 clearable
+                :options="searchCompanysList"
+                :loading="loading"
+                placeholder="请输入水司"
+              />
+            </div>
+            <div style="margin-left: 6px">
+              {{ t("areaname") }}:
+              <el-select-v2
+                v-model="regionKey"
+                style="width: 140px"
+                multiple
                 filterable
-                @focus="searchRegionList(false)"
+                remote
+                :remote-method="remoteRegionMethod"
+                clearable
+                :options="searchRegionsList"
+                :loading="searchRegionloading"
+                :disabled="isshowSearchRegion"
+                placeholder="请输入区域"
               />
-              <el-button
-                type="primary"
-                style="margin-bottom: 2px; margin-left: 10px"
-                @click="openright('region')"
-                >新增</el-button
-              >
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="village" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("communityname") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.village" placeholder="请输入小区名称">
-                <template #suffix>
-                  <el-tooltip
-                    class="box-item"
-                    effect="dark"
-                    content="点击在地图上搜索该小区名"
-                    placement="top"
-                  >
-                    <i class="vxe-icon-location" @click="lookupvillage()" />
-                  </el-tooltip>
-                </template>
-              </vxe-input>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="build" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("buildings") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.build"
-                type="integer"
-                min="0"
-                placeholder="请输入楼栋数"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="households" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("households") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.households"
-                type="integer"
-                placeholder="请输入小区户数"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="area" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("communityarea") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.area" placeholder="请输入小区面积">
-                <template #suffix>
-                  <span>m2</span>
-                </template>
-              </vxe-input>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="zipcode" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("postcode") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.zipcode"
-                type="integer"
-                placeholder="请输入邮政编码"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="property" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("Ownedproperty") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.property" placeholder="请输入所属物业" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="address" :span="24" :item-render="{}">
-            <template #title>
-              {{ t("address") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-textarea
-                v-model="data.address"
-                placeholder="请填写小区地址"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="jd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("jd") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.jd" placeholder="请输入经度" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="wd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("wd") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.wd" placeholder="请输入纬度" transfer />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item
-            field="pitture"
-            title="小区图片"
-            :span="24"
-            :item-render="{}"
-          >
-            <template #title>
-              {{ t("pitture") }}
-            </template>
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1" size="large">默认icon</el-radio>
-              <el-radio label="2" size="large">自定义icon</el-radio>
-            </el-radio-group>
+            </div>
+            <vxe-button
+              icon="vxe-icon-square-plus"
+              style="margin-left: 10px"
+              @click="insertEvent()"
+              >{{ t("add") }}</vxe-button
+            >
+          </template>
+          <template #tools>
+            <vxe-button
+              icon="vxe-icon-download"
+              style="margin-right: 10px"
+              @click="downloadExcel"
+              >{{ t("download") }}</vxe-button
+            >
             <el-upload
               class="upload-demo"
-              v-model:file-list="fileList"
-              :show-file-list="true"
-              :on-change="fileChange"
-              :before-remove="beforeRemove"
+              style="overflow: hidden"
+              :show-file-list="false"
               :limit="1"
+              action="http://localhost:8000/api/up"
               :on-exceed="handleExceed"
-              :http-request:void="uploadIon"
-              :on-remove="removefile"
+              :on-success="successupload"
+              :auto-upload="true"
               ref="uploadRef"
-              v-if="Number(radio1) == 2"
             >
-              <el-button type="primary">{{ t("pitture") }}</el-button>
-              <template #tip>
-                <div class="el-upload__tip">{{ t("tips") }}</div>
-              </template>
+              <vxe-button status="primary" style="margin-right: 10px">{{
+                t("batchimport")
+              }}</vxe-button>
             </el-upload>
-          </vxe-form-item>
-          <vxe-form-item :span="24">
-            <div class="map">
-              <baidu-map
-                class="baidu-map"
-                :center="center"
-                :zoom="zoom"
-                @click="getpoint"
-                :scroll-wheel-zoom="true"
-              >
-                <bm-local-search
-                  :keyword="villagekeyword"
-                  :auto-viewport="true"
-                />
-                <bm-marker
-                  :position="points"
-                  :dragging="true"
-                  @dragend="dragend"
-                />
-              </baidu-map>
-            </div>
-          </vxe-form-item>
-          <vxe-form-item align="center" :span="24">
-            <template #default>
-              <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
-              <vxe-button type="reset">{{ t("reset") }}</vxe-button>
-            </template>
-          </vxe-form-item>
-        </vxe-form>
-      </template>
-    </vxe-modal>
-    <!-- 右侧水司信息 -->
-    <el-drawer
-      v-model="table"
-      @close="closeCompany"
-      title="全部水司信息"
-      direction="rtl"
-      size="40%"
-      :z-index="companyDrawerZ"
-    >
-      <div style="height: 100%">
-        <vxe-toolbar>
-          <template #tools>
-            <vxe-button @click="insertCompany()" status="primary"
-              >新增</vxe-button
+            <vxe-button
+              status="danger"
+              style="margin-right: 10px"
+              @click="removeSelectRowEvent"
+              >{{ t("batchDelete") }}</vxe-button
             >
-            <el-popconfirm
-              title="该操作会删除该区域下所有小区、楼栋、住户,您确定要删除吗？"
-              width="220"
-              @confirm="removeCompany()"
-            >
-              <template #reference>
-                <vxe-button status="danger">删除选中</vxe-button>
-              </template>
-            </el-popconfirm>
-            <vxe-button @click="saveEvent()" status="success">保存</vxe-button>
           </template>
         </vxe-toolbar>
         <vxe-table
           border
           show-overflow
-          keep-source
-          ref="cTable"
-          max-height="620"
-          style="margin-top: 4px"
-          :data="companyData"
-          :edit-config="{
-            trigger: 'click',
-            mode: 'cell',
-            showStatus: true
-          }"
+          ref="xTable"
+          height="500"
+          auto-resize
+          id="toolbar_demo3"
+          :custom-config="{ storage: true }"
+          :column-config="{ resizable: true }"
+          :row-config="{ isCurrent: true, keyField: 'id', height: 34 }"
+          :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
+          :data="tableData"
         >
-          <vxe-column type="checkbox" width="45" />
-          <vxe-column type="seq" width="40" />
-          <vxe-column
-            field="name"
-            title="所属自来水公司"
-            width="160"
-            :edit-render="{}"
-            sortable
-          >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.name" type="text" />
-            </template>
-          </vxe-column>
-          <vxe-column
-            field="phone"
-            title="联系电话"
-            width="130"
-            :edit-render="{}"
-            sortable
-          >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.phone" type="text" />
-            </template>
-          </vxe-column>
-          <vxe-column
-            field="address"
-            title="水司地址"
-            :edit-render="{}"
-            sortable
-          >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.address" type="text" />
-            </template>
-          </vxe-column>
-        </vxe-table>
-      </div>
-    </el-drawer>
-    <!-- 右侧区域信息 -->
-    <el-drawer
-      v-model="regiontable"
-      @close="closeCompany"
-      title="全部区域信息"
-      direction="rtl"
-      size="40%"
-      :z-index="1100"
-    >
-      <div style="height: 100%">
-        <vxe-toolbar>
-          <template #tools>
-            <vxe-button @click="insertRegion()" status="primary"
-              >新增</vxe-button
-            >
-            <el-popconfirm
-              title="该操作会删除该区域下所有区域、小区、楼栋、住户,您确定要删除吗？"
-              width="220"
-              @confirm="removeRegion()"
-            >
-              <template #reference>
-                <vxe-button status="danger">删除选中</vxe-button>
-              </template>
-            </el-popconfirm>
-            <vxe-button @click="saveRegion()" status="success">保存</vxe-button>
-          </template>
-        </vxe-toolbar>
-        <vxe-table
-          border
-          show-overflow
-          keep-source
-          ref="rTable"
-          max-height="620"
-          style="margin-top: 4px"
-          :data="regionData"
-          :edit-config="{
-            trigger: 'click',
-            mode: 'cell',
-            showStatus: true
-          }"
-        >
-          <vxe-column type="checkbox" width="45" />
-          <vxe-column type="seq" width="40" />
-          <vxe-column
-            field="name"
-            title="Name"
-            sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
-          >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.name" type="text" />
-            </template>
-          </vxe-column>
+          <vxe-column type="checkbox" width="50" fixed="left" />
+          <vxe-column type="seq" title="序号" width="50" fixed="left" />
           <vxe-column
             field="company"
+            width="100"
+            show-header-overflow
             title="所属水司"
+            fixed="left"
             sortable
-            :edit-render="{}"
-            width="130px"
           >
-            <!-- <template #default="{ row }"> -->
-            <!-- <span>{{ formatMultiSex(row.sex2) }}</span> -->
-            <!-- </template> -->
-            <template #edit="{ row }">
-              <!-- <vxe-input v-model="row.company" type="text" /> -->
-              <!-- <abc /> -->
-              <vxe-select v-model="row.company" placeholder="可清除" clearable>
-                <vxe-option
-                  v-for="item in companys"
-                  :key="item._id"
-                  :value="item.name"
-                  :label="item.name"
-                />
-              </vxe-select>
+            <template #header>
+              {{ t("company") }}
             </template>
           </vxe-column>
           <vxe-column
-            field="phone"
-            title="phone"
+            field="region"
+            width="100"
+            show-header-overflow
+            title="区域名称"
+            fixed="left"
             sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
           >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.phone" type="text" />
+            <template #header>
+              {{ t("areaname") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="village"
+            width="100"
+            show-header-overflow
+            sortable
+            title="小区名称"
+            fixed="left"
+          >
+            <template #header>
+              {{ t("communityname") }}
             </template>
           </vxe-column>
           <vxe-column
             field="address"
-            title="address"
+            width="100"
+            show-header-overflow
             sortable
-            :edit-render="{
-              autofocus: '.vxe-input--inner',
-              defaultValue: 'name'
-            }"
+            title="地址"
           >
-            <template #edit="{ row }">
-              <vxe-input v-model="row.address" type="text" />
+            <template #header>
+              {{ t("address") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="zipcode"
+            width="100"
+            show-header-overflow
+            sortable
+            title="邮编"
+            show-overflow
+          >
+            <template #header>
+              {{ t("postcode") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="area"
+            width="100"
+            show-header-overflow
+            sortable
+            title="小区面积"
+          >
+            <template #header>
+              {{ t("communityarea") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="build"
+            width="100"
+            show-header-overflow
+            sortable
+            title="楼栋数"
+          >
+            <template #header>
+              {{ t("buildings") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="households"
+            width="100"
+            show-header-overflow
+            sortable
+            min="0"
+            title="小区户数"
+          >
+            <template #header>
+              {{ t("households") }}
+            </template>
+          </vxe-column>
+          <vxe-column field="attr3" title="icon" width="60" tree-node>
+            <template #default>
+              <img src="@/assets/iconfont/mapicon.png" height="40" width="40" />
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="founder"
+            width="100"
+            show-header-overflow
+            sortable
+            title="创建人"
+          >
+            <template #header>
+              {{ t("founder") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="creationtime"
+            width="100"
+            show-header-overflow
+            sortable
+            title="创建时间"
+          >
+            <template #header>
+              {{ t("creationtime") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="updater"
+            width="100"
+            show-header-overflow
+            sortable
+            title="最近更新人"
+          >
+            <template #header>
+              {{ t("lastupdater") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="updatetime"
+            show-header-overflow
+            sortable
+            width="100"
+            title="最近更新时间"
+          >
+            <template #header>
+              {{ t("lastupdated") }}
+            </template>
+          </vxe-column>
+          <vxe-column title="操作" width="100" fixed="right" show-overflow>
+            <template #header>
+              {{ t("operate") }}
+            </template>
+            <template #default="{ row }">
+              <vxe-button
+                type="text"
+                icon="vxe-icon-edit"
+                style="color: #409eff"
+                @click="editEvent(row)"
+              />
+              <vxe-button
+                type="text"
+                icon="vxe-icon-delete"
+                style="color: #f23c3c"
+                @click="removeEvent(row)"
+              />
             </template>
           </vxe-column>
         </vxe-table>
-      </div>
-    </el-drawer>
+        <!-- 分页 -->
+        <div>
+          <vxe-pager
+            v-model:current-page="pageVO2.currentPage"
+            :total="pageVO2.total"
+            v-model:page-size="pageVO2.pageSize"
+            @page-change="geteffortlist"
+            :layouts="[
+              'PrevJump',
+              'PrevPage',
+              'Number',
+              'NextPage',
+              'NextJump',
+              'Sizes',
+              'FullJump',
+              'Total'
+            ]"
+          />
+        </div>
+        <!-- 新增/修改表单 -->
+        <vxe-modal
+          v-model="showEdit"
+          width="800"
+          height="90%"
+          min-width="600"
+          min-height="300"
+          :loading="submitLoading"
+          @close="closeForm"
+          resize
+          destroy-on-close
+        >
+          <template #title>
+            <span v-if="selectRow">{{ t("editsave") }}</span>
+            <span v-else>{{ t("addsave") }}</span>
+          </template>
+          <template #default>
+            <vxe-form
+              :data="formData"
+              :rules="formRules"
+              title-align="right"
+              title-width="100"
+              ref="formRef"
+              @submit="submitEvent"
+            >
+              <vxe-form-item field="company" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("watercompany") }}
+                </template>
+                <template #default="{ data }">
+                  <el-select-v2
+                    v-model="data.company"
+                    style="width: 140px"
+                    :multiple="false"
+                    filterable
+                    remote
+                    :remote-method="remoteMethod"
+                    @change="setCompanyKey"
+                    @focus="getallCompany"
+                    @clear="clearall"
+                    clearable
+                    :options="searchCompanysList"
+                    :loading="loading"
+                    placeholder="请输入水司"
+                  />
+                  <el-button
+                    type="primary"
+                    style="margin-bottom: 2px; margin-left: 10px"
+                    @click="openright('company')"
+                    >新增</el-button
+                  >
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="region" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("areaname") }}
+                </template>
+                <template #default="{ data }">
+                  <el-select-v2
+                    v-model="data.region"
+                    style="width: 140px"
+                    :multiple="false"
+                    filterable
+                    remote
+                    @focus="getallRegion('form')"
+                    :remote-method="remoteRegionMethod"
+                    clearable
+                    :options="searchRegionsList"
+                    :loading="searchRegionloading"
+                    placeholder="请输入区域"
+                  />
+                  <el-button
+                    type="primary"
+                    style="margin-bottom: 2px; margin-left: 10px"
+                    @click="openright('region')"
+                    >新增</el-button
+                  >
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="village" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("communityname") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.village"
+                    placeholder="请输入小区名称"
+                  >
+                    <template #suffix>
+                      <el-tooltip
+                        class="box-item"
+                        effect="dark"
+                        content="点击在地图上搜索该小区名"
+                        placement="top"
+                      >
+                        <i class="vxe-icon-location" @click="lookupvillage()" />
+                      </el-tooltip>
+                    </template>
+                  </vxe-input>
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="build" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("buildings") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.build"
+                    type="integer"
+                    min="0"
+                    placeholder="请输入楼栋数"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="households" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("households") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.households"
+                    type="integer"
+                    placeholder="请输入小区户数"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="area" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("communityarea") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input v-model="data.area" placeholder="请输入小区面积">
+                    <template #suffix>
+                      <span>m2</span>
+                    </template>
+                  </vxe-input>
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="zipcode" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("postcode") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.zipcode"
+                    type="integer"
+                    placeholder="请输入邮政编码"
+                  />
+                </template>
+              </vxe-form-item>
+              <!-- <vxe-form-item field="property" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("Ownedproperty") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.property"
+                    placeholder="请输入所属物业"
+                  />
+                </template>
+              </vxe-form-item> -->
+              <vxe-form-item field="address" :span="24" :item-render="{}">
+                <template #title>
+                  {{ t("address") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-textarea
+                    v-model="data.address"
+                    placeholder="请填写小区地址"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="jd" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("jd") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input v-model="data.jd" placeholder="请输入经度" />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="wd" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("wd") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.wd"
+                    placeholder="请输入纬度"
+                    transfer
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item
+                field="pitture"
+                title="小区图片"
+                :span="24"
+                :item-render="{}"
+              >
+                <template #title>
+                  {{ t("pitture") }}
+                </template>
+                <el-radio-group v-model="radio1" class="ml-4">
+                  <el-radio label="1" size="large">默认icon</el-radio>
+                  <el-radio label="2" size="large" disabled
+                    >自定义icon</el-radio
+                  >
+                </el-radio-group>
+                <el-upload
+                  class="upload-demo"
+                  v-model:file-list="fileList"
+                  :show-file-list="true"
+                  :on-change="fileChange"
+                  :before-remove="beforeRemove"
+                  :limit="1"
+                  :on-exceed="handleExceed"
+                  :http-request:void="uploadIon"
+                  :on-remove="removefile"
+                  ref="uploadRef"
+                  v-if="Number(radio1) == 2"
+                >
+                  <el-button type="primary">{{ t("pitture") }}</el-button>
+                  <template #tip>
+                    <div class="el-upload__tip">{{ t("tips") }}</div>
+                  </template>
+                </el-upload>
+              </vxe-form-item>
+              <vxe-form-item :span="24">
+                <div class="map">
+                  <baidu-map
+                    class="baidu-map"
+                    :center="center"
+                    :zoom="zoom"
+                    @click="getpoint"
+                    :scroll-wheel-zoom="true"
+                  >
+                    <bm-local-search
+                      :keyword="villagekeyword"
+                      :auto-viewport="true"
+                    />
+                    <bm-marker
+                      :position="points"
+                      :dragging="true"
+                      @dragend="dragend"
+                    />
+                  </baidu-map>
+                </div>
+              </vxe-form-item>
+              <vxe-form-item align="center" :span="24">
+                <template #default>
+                  <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
+                  <vxe-button type="reset">{{ t("reset") }}</vxe-button>
+                </template>
+              </vxe-form-item>
+            </vxe-form>
+          </template>
+        </vxe-modal>
+      </el-tab-pane>
+      <el-tab-pane label="热表" name="second">
+        <fireVillage @openright="openright" />
+      </el-tab-pane>
+    </el-tabs>
+    <div class="table-main" id="table-main">
+      <!-- 右侧水司信息 -->
+      <el-drawer
+        v-model="table"
+        @close="closeCompany"
+        title="全部水司信息"
+        direction="rtl"
+        size="40%"
+        :z-index="companyDrawerZ"
+      >
+        <div style="height: 100%">
+          <vxe-toolbar>
+            <template #tools>
+              <vxe-button @click="insertCompany()" status="primary"
+                >新增</vxe-button
+              >
+              <el-popconfirm
+                title="该操作会删除该区域下所有小区、楼栋、住户,您确定要删除吗？"
+                width="220"
+                @confirm="removeCompany()"
+              >
+                <template #reference>
+                  <vxe-button status="danger">删除选中</vxe-button>
+                </template>
+              </el-popconfirm>
+              <el-popconfirm
+                title="修改操作会批量修改该水司下所有小区、楼栋、住户,您确定要保存吗？"
+                width="220"
+                @confirm="saveEvent()"
+              >
+                <template #reference>
+                  <!-- <vxe-button status="danger">删除选中</vxe-button> -->
+                  <vxe-button status="success">保存</vxe-button>
+                </template>
+              </el-popconfirm>
+            </template>
+          </vxe-toolbar>
+          <vxe-table
+            border
+            show-overflow
+            keep-source
+            ref="cTable"
+            max-height="620"
+            style="margin-top: 4px"
+            :data="companyData"
+            :edit-config="{
+              trigger: 'click',
+              mode: 'cell',
+              showStatus: true
+            }"
+            :scroll-y="{ enabled: true }"
+          >
+            <vxe-column type="checkbox" width="45" />
+            <vxe-column type="seq" width="40" />
+            <vxe-column
+              field="name"
+              title="所属自来水公司"
+              width="160"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.name" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="phone"
+              title="联系电话"
+              width="130"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.phone" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="address"
+              title="水司地址"
+              :edit-render="{}"
+              sortable
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.address" type="text" />
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
+      </el-drawer>
+      <!-- 右侧区域信息 -->
+      <el-drawer
+        v-model="regiontable"
+        @close="closeCompany"
+        title="全部区域信息"
+        direction="rtl"
+        size="44%"
+        :z-index="1100"
+      >
+        <div>
+          <vxe-toolbar>
+            <template #tools>
+              <vxe-button @click="insertRegion()" status="primary"
+                >新增</vxe-button
+              >
+              <el-popconfirm
+                title="该操作会删除该区域下所有区域、小区、楼栋、住户,您确定要删除吗？"
+                width="220"
+                @confirm="removeRegion()"
+              >
+                <template #reference>
+                  <vxe-button status="danger">删除选中</vxe-button>
+                </template>
+              </el-popconfirm>
+              <vxe-button @click="saveRegion()" status="success"
+                >保存</vxe-button
+              >
+            </template>
+          </vxe-toolbar>
+          <vxe-table
+            border
+            show-overflow
+            keep-source
+            ref="rTable"
+            max-height="580"
+            height="580"
+            style="margin-top: 4px"
+            :data="regionData"
+            :column-config="{ resizable: true }"
+            :edit-config="{
+              trigger: 'click',
+              mode: 'cell',
+              showStatus: true
+            }"
+          >
+            <vxe-column type="checkbox" width="45" />
+            <vxe-column type="seq" width="40" />
+            <vxe-column
+              field="name"
+              title="区域名称"
+              sortable
+              :edit-render="{
+                autofocus: '.vxe-input--inner',
+                defaultValue: 'name'
+              }"
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.name" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="company"
+              title="所属水司"
+              sortable
+              :edit-render="{}"
+              width="130px"
+            >
+              <template #edit="{ row }">
+                <vxe-select
+                  v-model="row.company"
+                  placeholder="可清除"
+                  clearable
+                  style="z-index: 1200"
+                >
+                  <vxe-option
+                    v-for="item in companys"
+                    :key="item._id"
+                    :value="item.name"
+                    :label="item.name"
+                  />
+                </vxe-select>
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="phone"
+              title="联系方式"
+              sortable
+              :edit-render="{
+                autofocus: '.vxe-input--inner',
+                defaultValue: 'name'
+              }"
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.phone" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="address"
+              title="地址"
+              sortable
+              :edit-render="{
+                autofocus: '.vxe-input--inner',
+                defaultValue: 'name'
+              }"
+            >
+              <template #edit="{ row }">
+                <vxe-input v-model="row.address" type="text" />
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
+      </el-drawer>
+    </div>
   </div>
 </template>
 
@@ -718,12 +750,7 @@ import {
 } from "vxe-table";
 import { ElMessage, ElMessageBox, UploadUserFile } from "element-plus";
 import type { UploadProps } from "element-plus";
-import { useI18n } from "vue-i18n"; // 表头翻译
-// import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
-import { useRouter } from "vue-router"; // 导入路由模块
-// import { useDebounceFn } from "@vueuse/core";
-import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
-// import allarea from "@/assets/data/allarea.json";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange"; // 切换主题颜色
 import {
   getlist,
   addlist,
@@ -736,69 +763,91 @@ import {
   companyadd,
   getcompany,
   companydelete,
-  companyfix
+  companyfix,
+  firecompany,
+  firecompanyadd,
+  firecompanyfix,
+  firecompanydelete,
+  fireregion
 } from "@/api/effort";
-// import abc from "./index.vue";
+// import { t } from "@/utils/effortlanguage/effortlanguage.js"; // 翻译词典
+import { useI18n } from "vue-i18n"; // 表头翻译
+import { useStore } from "@/store/logo/state";
+import { storeToRefs } from "pinia";
+// 导入热表表格
+import fireVillage from "../components/fireVillage.vue";
 
-const area = useArea();
-const { savearea } = area;
-// 使用路由
-const router = useRouter();
-
-const searchcompanyKey = ref(false);
-const companyKey = ref(""); // 所属水司搜索词
-const companyKeyList = ref([]); // 所属水司搜索列表
-// 查询水司列表信息
-const searchCompanyList = () => {
-  searchcompanyKey.value = true;
-  const data = {
-    company: ""
-  };
-  getcompany(data).then(res => {
-    if (res.retcode == 200) {
-      searchcompanyKey.value = false;
-      companyKeyList.value = res.data.data.map(item => {
-        return { value: item.name, label: item.name };
-      });
-    }
-  });
+const companyKey = ref(""); // 水司关键词
+const searchCompanysList = ref<ListItem[]>([]);
+const loading = ref(false);
+const remoteMethod = (query: string) => {
+  if (query !== "") {
+    loading.value = true;
+    // 模糊查询
+    const data = {
+      company: query
+    };
+    getcompany(data).then(res => {
+      if (res.retcode == 200) {
+        companys.value = res.data.data;
+        searchCompanysList.value = companys.value.map(item => {
+          return { value: item.name, label: item.name };
+        });
+        loading.value = false;
+      }
+    });
+  } else {
+    searchCompanysList.value = [];
+  }
 };
-// 清除查询水司关键词
-const clearCompanyKey = () => {
-  companyKey.value = "";
-  regionKey.value = "";
-  geteffortlist();
-};
 
-const regionKey = ref(""); // 区域搜索词
-const regionKeyList = ref([]); // 区域搜索列表
-// 查询区域列表信息
-const searchRegionList = type => {
-  // true为表格筛选，false为表单筛选
-  console.log(formData.value, "表单选择的水司");
+const isshowSearchRegion = ref(true); // 搜索栏查询水司是否可编辑
+const setCompanyKey = val => {
+  if (showEdit.value == false) {
+    companyKey.value = val;
+    isshowSearchRegion.value = false;
+  }
+  formData.value.region = "";
   const data = {
-    company: type === true ? companyKey.value : formData.value.company,
+    company: val,
     region: ""
   };
   getregion(data).then(res => {
     if (res.retcode == 200) {
-      // loading.value = false;
-      regionKeyList.value = res.data.data.map(item => {
+      const regions = res.data.data;
+      searchRegionsList.value = regions.map(item => {
         return { value: item.name, label: item.name };
       });
     }
   });
 };
-// 清除区域关键词
-const clearRegionKey = () => {
-  regionKey.value = "";
-  geteffortlist();
+
+const regionKey = ref([]); // 区域关键词
+const searchRegionsList = ref<ListItem[]>([]); // 区域列表
+const searchRegionloading = ref(false);
+// 需要将模糊搜索进行判断
+const remoteRegionMethod = (query: string) => {
+  if (query !== "") {
+    searchRegionloading.value = true;
+    const data = {
+      company:
+        showEdit.value == true ? formData.value.company : companyKey.value,
+      region: query
+    };
+    getregion(data).then(res => {
+      if (res.retcode == 200) {
+        const regions = res.data.data;
+        searchRegionsList.value = regions.map(item => {
+          return { value: item.name, label: item.name };
+        });
+        searchRegionloading.value = false;
+      }
+    });
+  } else {
+    searchRegionsList.value = [];
+  }
 };
 
-const selectList = ref([]);
-const selectRowsId = computed(() => {
-  return selectList.value.map(item => item.id);
-});
 // 上传文件
 // const fileList = ref<UploadUserFile[]>([]);
 const handleExceed: UploadProps["onExceed"] = files => {
@@ -848,7 +897,7 @@ interface RowVO {
   households: number;
   area: string;
   zipcode: string;
-  property: string;
+  // property: string;
   company: string;
   address: string;
   jd: string;
@@ -866,7 +915,7 @@ interface FormDataVO {
   households: number;
   area: string;
   zipcode: string;
-  property: string; // 物业
+  // property: string; // 物业
   address: string;
   jd: number;
   wd: number;
@@ -879,7 +928,7 @@ const formData = ref<FormDataVO>({
   households: 1,
   area: "",
   zipcode: "",
-  property: "", // 物业
+  // property: "", // 物业
   address: "",
   jd: 0,
   wd: 0
@@ -897,7 +946,7 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
   households: [{ required: true, message: "请输入户数" }],
   area: [{ required: true, message: "请输入小区面积" }],
   zipcode: [{ required: true, message: "请输入邮编" }],
-  property: [{ required: true, message: "请输入所属物业" }],
+  // property: [{ required: true, message: "请输入所属物业" }],
   company: [{ required: true, message: "请输入所属自来水公司" }],
   address: [{ required: true, message: "请输入地址" }],
   jd: [{ required: true, message: "点击坐标输入经度" }],
@@ -912,7 +961,7 @@ const insertEvent = () => {
     households: "",
     area: "",
     zipcode: "",
-    property: "", // 物业
+    // property: "", // 物业
     company: "", // 公司
     address: "",
     jd: "",
@@ -927,7 +976,7 @@ const insertEvent = () => {
     households: 1,
     area: "",
     zipcode: "",
-    property: "", // 物业
+    // property: "", // 物业
     address: "",
     jd: 0,
     wd: 0
@@ -938,9 +987,15 @@ const insertEvent = () => {
   zoom.value = 8;
   selectRow.value = null;
   showEdit.value = true;
-  getallCompany(); // 点击水司获取所有水司信息
-  getallRegion(); //  点击水司获取所有区域信息
+  villagekeyword.value = "";
+  // getallCompany(); // 点击水司获取所有水司信息
+  // getallRegion(); //  点击水司获取所有区域信息
 };
+
+const selectList = ref([]);
+const selectRowsId = computed(() => {
+  return selectList.value.map(item => item.id);
+});
 
 const fixedid = ref("");
 const points = ref({ lng: 0, lat: 0 }); // 小区定位点icon
@@ -963,18 +1018,6 @@ const editEvent = (row: RowVO) => {
 const closeForm = () => {
   console.log("关闭事件");
   (points.value as any) = {};
-};
-
-const cellDBLClickEvent = ({ row, rowIndex }) => {
-  // editEvent(row)
-  console.log(row, rowIndex, "row");
-  // let rows = row.toString()
-  router.push({
-    path: "/fighting/build",
-    query: { data: JSON.stringify(row) }
-  });
-  // 将点击的小区行数据暂存
-  savearea(JSON.stringify(row));
 };
 
 const removeEvent = async (row: RowVO) => {
@@ -1119,12 +1162,22 @@ const submitEvent = () => {
           // console.log(`Key: ${key}, Value: ${value}`);
           formdd.value.append(`${key}`, `${value}`);
         });
-        addlist(formdd.value).then(res => {
-          if (res.retcode == 200) {
-            VXETable.modal.message({ content: "新增成功", status: "success" });
-            geteffortlist();
-          }
-        });
+        addlist(formdd.value)
+          .then(res => {
+            if (res.retcode == 200) {
+              VXETable.modal.message({
+                content: "新增成功",
+                status: "success"
+              });
+              geteffortlist();
+            }
+          })
+          .catch(error => {
+            console.log(error.response);
+            if (error.response.status == 400) {
+              ElMessage.error(`${error.response.data.message}`);
+            }
+          });
       }
     }
   }, 500);
@@ -1141,12 +1194,13 @@ const successupload = () => {
 const radio1 = ref("1");
 onMounted(() => {
   geteffortlist();
+  // gettableHeight();
 });
 
 const geteffortlist = () => {
   const data = {
     page: pageVO2.currentPage,
-    pageSize: 10,
+    pageSize: pageVO2.pageSize,
     company: companyKey.value,
     region: regionKey.value,
     village: ""
@@ -1161,6 +1215,7 @@ const geteffortlist = () => {
 
 // 分页
 const pageVO2 = reactive({
+  pageSize: 10,
   currentPage: 1,
   total: 0
 });
@@ -1206,52 +1261,93 @@ interface ListItem {
   value: string;
   label: string;
 }
-const searchCompanysList = ref<ListItem[]>([]);
 // 获取全部水司信息，在不做任何输入时显示
 const getallCompany = () => {
-  // debugger;
-  console.log("点击下拉框就展示所有水司数据");
-  // remoteCompany("");
   const data = {
-    company: "",
-    region: ""
+    company: ""
   };
   getcompany(data).then(res => {
     if (res.retcode == 200) {
-      // debugger;
-      // loading.value = true;
       companys.value = res.data.data;
       searchCompanysList.value = companys.value.map(item => {
-        return { value: item._id, label: item.name };
+        return { key: item._id, value: item.name, label: item.name };
       });
-      // loading.value = false;
+    }
+  });
+};
+
+// 清空所有搜索信息
+const clearall = () => {
+  isshowSearchRegion.value = true;
+  regionKey.value = [];
+};
+
+// 根据水司获取区域数据
+const getallRegion = (type?: string) => {
+  const data = {
+    company: type == "form" ? formData.value.company : companyKey.value,
+    region: ""
+  };
+  getregion(data).then(res => {
+    if (res.retcode == 200) {
+      const regions = res.data.data;
+      searchCompanysList.value = regions.map(item => {
+        return { value: item.name, label: item.name };
+      });
     }
   });
 };
 
 // 打开右侧抽屉，请求全部水司数据
 const openright = menu => {
-  if (menu == "village") {
-    table.value = true;
-    const data = {
-      company: ""
-    };
-    getcompany(data).then(res => {
-      if (res.retcode == 200) {
-        companyData.value = res.data.data;
-      }
-    });
-  } else if (menu == "region") {
-    const data = {
-      company: "",
-      region: ""
-    };
-    getregion(data).then(res => {
-      if (res.retcode == 200) {
-        regionData.value = res.data.data;
-      }
-    });
-    regiontable.value = true;
+  if (showname.value == "water") {
+    // tab页为水表
+    if (menu == "company") {
+      table.value = true;
+      const data = {
+        company: ""
+      };
+      getcompany(data).then(res => {
+        if (res.retcode == 200) {
+          companyData.value = res.data.data;
+        }
+      });
+    } else if (menu == "region") {
+      const data = {
+        company: "",
+        region: ""
+      };
+      getregion(data).then(res => {
+        if (res.retcode == 200) {
+          regionData.value = res.data.data;
+        }
+      });
+      regiontable.value = true;
+    }
+  } else if (showname.value == "fire") {
+    // tab页为热表
+    if (menu == "company") {
+      table.value = true;
+      const data = {
+        company: ""
+      };
+      firecompany(data).then(res => {
+        if (res.retcode == 200) {
+          companyData.value = res.data.data;
+        }
+      });
+    } else if (menu == "region") {
+      const data = {
+        company: "",
+        region: ""
+      };
+      fireregion(data).then(res => {
+        if (res.retcode == 200) {
+          regionData.value = res.data.data;
+        }
+      });
+      regiontable.value = true;
+    }
   }
 };
 
@@ -1323,70 +1419,163 @@ const saveEvent = () => {
     const insert = JSON.parse(JSON.stringify(insertRecords));
     const remove = JSON.parse(JSON.stringify(removeRecords));
     const update = JSON.parse(JSON.stringify(updateRecords));
-    let count = 0;
-    if (insert.length > 0) {
-      insert.forEach(item => {
-        count++;
-        if (item.name == "默认水司") {
-          return ElMessage.error("请修改默认水司名称!");
-        } else if (item.name.length == 0) {
-          return ElMessage.error("水司名称不能为空!");
-        } else if (count === insert.length) {
-          companyadd(insert).then(res => {
+    let count = 0; // 控制水表水司总数
+    let firecount = 0; //控制热表公司总数
+    if (showname.value == "water") {
+      // tab为水表时
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          count++;
+          if (item.name == "默认水司") {
+            return ElMessage.error("请修改默认水司名称!");
+          } else if (item.name.length == 0) {
+            return ElMessage.error("水司名称不能为空!");
+          } else if (count === insert.length) {
+            companyadd(insert)
+              .then(res => {
+                if (res.retcode == 200) {
+                  ElMessage.success(`${res.message}`);
+                  const data = {
+                    company: ""
+                  };
+                  getcompany(data).then(res => {
+                    if (res.retcode == 200) {
+                      companyData.value = res.data.data;
+                    } else {
+                      ElMessage.error("新增失败，请确认水司名称是否重复！");
+                    }
+                  });
+                } else {
+                  ElMessage.success(`${res.message}`);
+                }
+              })
+              .catch(error => {
+                console.log(error.response);
+                if (error.response.status == 400) {
+                  ElMessage.error(`${error.response.data.message}`);
+                }
+              });
+          }
+        });
+      }
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        companydelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: ""
+            };
+            getcompany(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        companyfix(data).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: ""
+            };
+            getcompany(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+    } else if (showname.value == "fire") {
+      // tab为热表时
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          firecount++;
+          if (item.name == "默认供热") {
+            return ElMessage.error("请修改默认供热名称!");
+          } else if (item.name.length == 0) {
+            return ElMessage.error("供热公司名称不能为空!");
+          } else if (firecount === insert.length) {
+            firecompanyadd(insert)
+              .then(res => {
+                if (res.retcode == 200) {
+                  ElMessage.success(`${res.message}`);
+                  const data = {
+                    company: ""
+                  };
+                  firecompany(data).then(res => {
+                    if (res.retcode == 200) {
+                      companyData.value = res.data.data;
+                    } else {
+                      ElMessage.error("新增失败，请确认供热公司名称是否重复！");
+                    }
+                  });
+                } else {
+                  ElMessage.success(`${res.message}`);
+                }
+              })
+              .catch(error => {
+                if (error.response.status == 400) {
+                  ElMessage.error(`${error.response.data.message}`);
+                }
+              });
+          }
+        });
+      }
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        firecompanydelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: ""
+            };
+            firecompany(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        firecompanyfix(data)
+          .then(res => {
             if (res.retcode == 200) {
               ElMessage.success(`${res.message}`);
               const data = {
                 company: ""
               };
-              getcompany(data).then(res => {
+              firecompany(data).then(res => {
                 if (res.retcode == 200) {
                   companyData.value = res.data.data;
-                } else {
-                  ElMessage.error("新增失败，请确认水司名称是否重复！");
                 }
               });
             }
-          });
-        }
-      });
-    }
-    if (remove.length > 0) {
-      const deleteDatas = [];
-      remove.forEach(item => {
-        deleteDatas.push(item._id);
-      });
-      const ids = deleteDatas.toString();
-      companydelete(ids).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            company: ""
-          };
-          getcompany(data).then(res => {
-            if (res.retcode == 200) {
-              companyData.value = res.data.data;
+          })
+          .catch(error => {
+            if (error.response.status == 400) {
+              ElMessage.error(`${error.response.data.message}`);
             }
           });
-        }
-      });
-    }
-    if (update.length > 0) {
-      const data = {
-        name: update
-      };
-      companyfix(data).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            company: ""
-          };
-          getcompany(data).then(res => {
-            if (res.retcode == 200) {
-              companyData.value = res.data.data;
-            }
-          });
-        }
-      });
+      }
     }
   }
 };
@@ -1395,10 +1584,6 @@ const saveEvent = () => {
 const closeCompany = () => {
   getallCompany();
   getallRegion();
-};
-
-const getallRegion = () => {
-  console.log("获取所有区域信息");
 };
 // 新增区域
 const insertRegion = async (row?: RowRegion | number) => {
@@ -1436,22 +1621,29 @@ const saveRegion = () => {
         } else if (item.company == null) {
           return ElMessage.error("所属水司不能为空!");
         } else if (count === insert.length) {
-          regionadd(insert).then(res => {
-            if (res.retcode == 200) {
-              ElMessage.success(`${res.message}`);
-              const data = {
-                company: "",
-                region: ""
-              };
-              getregion(data).then(res => {
-                if (res.retcode == 200) {
-                  regionData.value = res.data.data;
-                } else {
-                  ElMessage.error("新增失败，请确认区域名称是否重复！");
-                }
-              });
-            }
-          });
+          regionadd(insert)
+            .then(res => {
+              if (res.retcode == 200) {
+                ElMessage.success(`${res.message}`);
+                const data = {
+                  company: "",
+                  region: ""
+                };
+                getregion(data).then(res => {
+                  if (res.retcode == 200) {
+                    regionData.value = res.data.data;
+                  } else {
+                    ElMessage.error("新增失败，请确认区域名称是否重复！");
+                  }
+                });
+              }
+            })
+            .catch(error => {
+              console.log(error.response);
+              if (error.response.status == 400) {
+                ElMessage.error(`${error.response.data.message}`);
+              }
+            });
         }
       });
     }
@@ -1500,9 +1692,7 @@ const saveRegion = () => {
 // 地图定位小区信息
 const villagekeyword = ref("");
 const lookupvillage = () => {
-  // console.log(formData.value.village, "小区名称");
   villagekeyword.value = formData.value.village;
-  console.log(villagekeyword.value, "小区名称");
 };
 
 // const tableRef = ref<VxeTableInstance<RowVO>>();
@@ -1518,12 +1708,32 @@ nextTick(() => {
   }, 1000);
 });
 
+// pinia保存当前状态值
+const name = useStore();
+const { showname } = storeToRefs(name); //解构出来的值变为ref对象
+// tab切换水/热表表格
+const { setLayoutThemeColor } = useDataThemeChange();
+const activeName = ref("first");
+const handleClick = tab => {
+  // console.log(tab.props.label);
+  if (tab.props.label == "水表") {
+    setLayoutThemeColor("default");
+    showname.value = "water";
+    console.log(showname.value);
+  } else if (tab.props.label == "热表") {
+    setLayoutThemeColor("dusk");
+    showname.value = "fire";
+    console.log(showname.value);
+  }
+};
+
 // 翻译词典
 const { t } = useI18n({
   locale: "en",
   messages: {
     en: {
       company: "company",
+      firecompany: "company",
       areaname: "areaname",
       communityname: "community",
       address: "adress",
@@ -1531,7 +1741,7 @@ const { t } = useI18n({
       communityarea: "communityarea",
       buildings: "buildings",
       households: "households",
-      Ownedproperty: "Ownedproperty",
+      // Ownedproperty: "Ownedproperty",
       watercompany: "watercompany",
       founder: "founder",
       creationtime: "creationtime",
@@ -1562,7 +1772,7 @@ const { t } = useI18n({
       communityarea: "小区面积",
       buildings: "楼栋数",
       households: "户数",
-      Ownedproperty: "所属物业",
+      // Ownedproperty: "所属物业",
       watercompany: "所属自来水公司",
       founder: "创建人",
       creationtime: "创建时间",
@@ -1590,6 +1800,7 @@ const { t } = useI18n({
 <style lang="scss" scoped>
 .table-main {
   width: 100%;
+  z-index: 999;
   // margin: auto;
   // margin-left: 50px;
 }
@@ -1665,11 +1876,28 @@ const { t } = useI18n({
 ::v-deep .vxe-form--item-content {
   display: flex;
 }
+
 ::v-deep .vxe-form--item-valid {
   margin-top: 34px;
 }
 
 ::v-deep .vxe-form .vxe-form--item-inner > .align--center {
   justify-content: center;
+}
+
+::v-deep .el-input__suffix {
+  width: 20px;
+}
+
+::v-deep .el-select .el-input {
+  width: 160px;
+}
+
+::v-deep .el-tabs__header {
+  margin: 0 0 0 !important;
+}
+
+::v-deep .el-tabs__nav {
+  margin-left: 10px;
 }
 </style>

@@ -1,7 +1,7 @@
 import { httplocal } from "@/utils/httplocal";
 import { baseUrlApi } from "./utils";
 
-// 获取列表数据
+// 获取水表列表数据
 export const getlist = data => {
   return httplocal.request<RefreshTokenResult>("post", "/api/effort", { data });
 };
@@ -60,7 +60,7 @@ export const companyfix = data => {
   });
 };
 
-// 根据区域查询小区信息
+// 根据区域查询水表小区信息
 export const getvillage = data => {
   return httplocal.request<RefreshTokenResult>("post", "/api/lookupVillage", {
     data
@@ -107,6 +107,70 @@ export const regiondelete = id => {
   return httplocal.request<RefreshTokenResult>(
     "delete",
     "/api/regiondelete/" + id
+  );
+};
+
+// 新增供热公司数据
+export const firecompanyadd = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firecompanyadd", {
+    data
+  });
+};
+
+// 查询供热公司数据
+export const firecompany = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firecompany", {
+    data
+  });
+};
+
+// 修改供热公司数据
+export const firecompanyfix = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firecompanyfix", {
+    data
+  });
+};
+
+// 删除供热公司数据
+export const firecompanydelete = data => {
+  return httplocal.request<RefreshTokenResult>(
+    "delete",
+    "/api/firecompanydelete",
+    {
+      data
+    }
+  );
+};
+
+// 新增区域（热）
+export const fireregionadd = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/fireregionadd", {
+    data
+  });
+};
+
+// 修改区域（热）
+export const fireregionfix = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/fireregionfix", {
+    data
+  });
+};
+
+// 查询区域（热）
+export const fireregion = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/fireregion", {
+    data
+  });
+};
+
+// 删除区域（热）
+export const fireregiondelete = data => {
+  return httplocal.request<RefreshTokenResult>(
+    "delete",
+    "/api/fireregiondelete",
+    {
+      data
+    }
   );
 };
 

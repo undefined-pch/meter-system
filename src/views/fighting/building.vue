@@ -41,7 +41,6 @@
             @clear="clearCommunityKey()"
           />
         </div>
-
         <vxe-button
           icon="vxe-icon-square-plus"
           style="margin-left: 10px"
@@ -167,7 +166,6 @@
       </vxe-column>
       <vxe-column
         field="creationtime"
-        width="100"
         show-header-overflow
         sortable
         title="创建时间"
@@ -189,7 +187,6 @@
       </vxe-column>
       <vxe-column
         field="updatetime"
-        width="100"
         show-header-overflow
         sortable
         title="最近更新时间"
@@ -1060,8 +1057,6 @@ const { t } = useI18n({
 <style lang="scss" scoped>
 .table-main {
   width: 100%;
-  // margin: auto;
-  // margin-left: 50px;
 }
 
 .map {

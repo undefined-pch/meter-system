@@ -68,298 +68,315 @@
           >
         </template>
       </vxe-toolbar>
-      <vxe-table
-        border
-        show-overflow
-        ref="xTable"
-        height="550"
-        :column-config="{ resizable: true, useKey: true }"
-        :row-config="{ isHover: true, useKey: true }"
-        :data="tableData"
-        @cell-dblclick="cellDBLClickEvent"
-      >
-        <vxe-column type="checkbox" width="50" fixed="left" />
-        <vxe-column type="seq" width="50" title="序号" fixed="left" />
-        <vxe-column
-          field="company"
-          width="100"
-          title="水司名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="region"
-          width="100"
-          title="区域名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="village"
-          width="100"
-          title="小区名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="buildingnumber"
-          width="100"
-          title="楼栋编号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="hasCollector"
-          width="100"
-          title="是否有采集器"
-          type="html"
-          sortable
-          show-header-overflow
+      <div style="height: 92%">
+        <vxe-table
+          border
+          show-overflow
+          :loading="tableloading"
+          ref="xTable"
+          height="auto"
+          :column-config="{ resizable: true, useKey: true }"
+          :row-config="{ isHover: true, useKey: true }"
+          :scroll-y="{ enabled: true }"
+          :data="tableData"
+          @cell-dblclick="cellDBLClickEvent"
         >
-          <template #default="{ row }">
-            <el-tag type="success" v-if="row.hasCollector == true"
-              >有采集器</el-tag
-            >
-            <el-tag type="danger" v-else>无采集器</el-tag>
-          </template>
-        </vxe-column>
-        <vxe-column
-          field="belongCollector"
-          width="100"
-          title="所属采集器"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="isLargemeter"
-          width="100"
-          title="是否为大表"
-          sortable
-          show-header-overflow
-        >
-          <template #default="{ row }">
-            <el-tag v-if="row.isLargemeter == true && row.hasCollector == true"
-              >大表</el-tag
-            >
-            <el-tag
-              type="info"
-              v-else-if="row.isLargemeter == false && row.hasCollector == true"
-              >小表</el-tag
-            >
-          </template>
-        </vxe-column>
-        <vxe-column
-          field="unit"
-          width="100"
-          title="所属单元"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="houseNumber"
-          width="100"
-          title="门牌号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="generalMeter"
-          width="100"
-          title="所属总表"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="meterId"
-          width="100"
-          title="表编号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="meterAddress"
-          width="100"
-          title="表地址"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="metertype"
-          width="100"
-          title="表类型"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="checkbit"
-          width="100"
-          title="检验位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="specification"
-          width="100"
-          title="规格编号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="manufacturer"
-          width="100"
-          title="生产厂家"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="dateOfManufacture"
-          width="100"
-          title="出厂日期"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="installationDate"
-          width="100"
-          title="安装日期"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="activationDate"
-          width="100"
-          title="启用日期"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="bandrate"
-          width="100"
-          title="波特率"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="databit"
-          width="100"
-          title="数据位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="checkbit"
-          width="100"
-          title="校验位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="stopbit"
-          width="100"
-          title="停止位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="stopbit"
-          width="100"
-          title="停止位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="initialFlowrate"
-          width="100"
-          title="初始流量"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="correctionFactor"
-          width="100"
-          title="修正系数"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="correctedMassflow"
-          width="100"
-          title="修正流量"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="faulttype"
-          width="100"
-          title="故障类型号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="describe"
-          width="100"
-          title="备注"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="founder"
-          width="100"
-          title="创建人"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="creationtime"
-          width="100"
-          title="创建时间"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="updater"
-          width="100"
-          title="最近更新人"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="updatedtime"
-          width="100"
-          title="最近更新时间"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="location"
-          width="100"
-          title="安装位置"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column field="describe" width="160" title="描述信息" />
-        <vxe-column title="操作" width="100" fixed="right" show-overflow>
-          <template #default="{ row }">
-            <vxe-button
-              type="text"
-              icon="vxe-icon-edit"
-              style="color: #409eff"
-              @click="editEvent(row)"
-            />
-            <vxe-button
-              type="text"
-              icon="vxe-icon-delete"
-              style="color: #f23c3c"
-              @click="removeEvent(row)"
-            />
-          </template>
-        </vxe-column>
-      </vxe-table>
+          <vxe-column type="checkbox" width="50" fixed="left" />
+          <vxe-column type="seq" width="50" title="序号" fixed="left" />
+          <vxe-column
+            field="company"
+            width="100"
+            title="水司名称"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="region"
+            width="100"
+            title="区域名称"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="village"
+            width="100"
+            title="小区名称"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="buildingnumber"
+            width="100"
+            title="楼栋编号"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="hasCollector"
+            width="100"
+            title="是否有采集器"
+            type="html"
+            sortable
+            show-header-overflow
+          >
+            <template #default="{ row }">
+              <el-tag type="success" v-if="row.hasCollector == true"
+                >有采集器</el-tag
+              >
+              <el-tag type="danger" v-else>无采集器</el-tag>
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="belongCollector"
+            width="100"
+            title="所属采集器"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="isLargemeter"
+            width="100"
+            title="是否为大表"
+            sortable
+            show-header-overflow
+          >
+            <template #default="{ row }">
+              <el-tag v-if="row.isLargemeter == true">大表</el-tag>
+              <el-tag type="info" v-else-if="row.isLargemeter == false"
+                >小表</el-tag
+              >
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="hasValve"
+            width="100"
+            title="有无阀门"
+            sortable
+            show-header-overflow
+          >
+            <template #default="{ row }">
+              <el-tag type="success" v-if="row.hasValve == 'true'"
+                >有阀门</el-tag
+              >
+              <el-tag type="info" v-else-if="row.hasValve == 'false'"
+                >无阀门</el-tag
+              >
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="unit"
+            width="100"
+            title="所属单元"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="houseNumber"
+            width="100"
+            title="门牌号"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="generalMeter"
+            width="100"
+            title="所属总表"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="meterId"
+            width="100"
+            title="表编号"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="meterAddress"
+            width="100"
+            title="表地址"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="metertype"
+            width="100"
+            title="表类型"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="checkbit"
+            width="100"
+            title="检验位"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="specification"
+            width="100"
+            title="规格编号"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="manufacturer"
+            width="100"
+            title="生产厂家"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="dateOfManufacture"
+            width="100"
+            title="出厂日期"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="installationDate"
+            width="100"
+            title="安装日期"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="activationDate"
+            width="100"
+            title="启用日期"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="bandrate"
+            width="100"
+            title="波特率"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="databit"
+            width="100"
+            title="数据位"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="checkbit"
+            width="100"
+            title="校验位"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="stopbit"
+            width="100"
+            title="停止位"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="stopbit"
+            width="100"
+            title="停止位"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="initialFlowrate"
+            width="100"
+            title="初始流量"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="correctionFactor"
+            width="100"
+            title="修正系数"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="correctedMassflow"
+            width="100"
+            title="修正流量"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="faulttype"
+            width="100"
+            title="故障类型号"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="describe"
+            width="100"
+            title="备注"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="founder"
+            width="100"
+            title="创建人"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="creationtime"
+            width="100"
+            title="创建时间"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="updater"
+            width="100"
+            title="最近更新人"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="updatedtime"
+            width="100"
+            title="最近更新时间"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column
+            field="location"
+            width="100"
+            title="安装位置"
+            sortable
+            show-header-overflow
+          />
+          <vxe-column field="describe" width="160" title="描述信息" />
+          <vxe-column title="操作" width="100" fixed="right" show-overflow>
+            <template #default="{ row }">
+              <vxe-button
+                type="text"
+                icon="vxe-icon-edit"
+                style="color: #409eff"
+                @click="editEvent(row)"
+              />
+              <vxe-button
+                type="text"
+                icon="vxe-icon-delete"
+                style="color: #f23c3c"
+                @click="removeEvent(row)"
+              />
+            </template>
+          </vxe-column>
+        </vxe-table>
+      </div>
+
       <vxe-modal
         v-model="showEdit"
         :title="selectRow ? '编辑&保存' : '新增&保存'"
         width="800"
-        height="700px"
+        height="740px"
         min-width="600"
         min-height="300"
         :loading="submitLoading"
@@ -393,7 +410,6 @@
               field="isLargemeter"
               :item-render="{}"
               :span="12"
-              :visible="householdData.hasCollector"
             >
               <template #default="{ data }">
                 <vxe-switch
@@ -480,9 +496,9 @@
                   :options="buildKeyList"
                   clearable
                   filterable
+                  @clear="clearBuildKey()"
                   @focus="searchBuildList(false)"
                   @change="getGaugeValveList()"
-                  @clear="clearBuildKey()"
                 />
               </template>
             </vxe-form-item>
@@ -552,9 +568,7 @@
               title="所属总表"
               :span="8"
               :item-render="{}"
-              :visible="
-                !householdData.isLargemeter && householdData.hasCollector
-              "
+              :visible="!householdData.isLargemeter"
             >
               <template #default="{ data }">
                 <vxe-select
@@ -645,9 +659,22 @@
               </template>
             </vxe-form-item>
             <vxe-form-item
+              field="hasValve"
+              title="有无阀门"
+              :span="8"
+              :item-render="{}"
+            >
+              <template #default="{ data }">
+                <vxe-radio-group v-model="data.hasValve">
+                  <vxe-radio label="true" content="有" />
+                  <vxe-radio label="false" content="无" />
+                </vxe-radio-group>
+              </template>
+            </vxe-form-item>
+            <vxe-form-item
               field="specification"
               title="规格型号"
-              :span="8"
+              :span="16"
               :item-render="{}"
             >
               <template #default="{ data }">
@@ -1000,11 +1027,11 @@
         </div>
       </el-drawer>
     </div>
-    <div>
+    <div style="z-index: 99">
       <vxe-pager
         v-model:current-page="pageVO2.currentPage"
         :total="pageVO2.total"
-        :page-size="10"
+        :page-size="1000"
         @page-change="getGaugeValveList"
         :layouts="[
           'PrevJump',
@@ -1068,11 +1095,14 @@ onMounted(() => {
   getGaugeValveList(); // 获取全部大表信息
 });
 
+const tableloading = ref(false); // table加载图标
+
 // const serchcompany = ref("");
 const getGaugeValveList = () => {
+  tableloading.value = true;
   const data = {
-    page: 1,
-    pageSize: 10,
+    page: pageVO2.currentPage,
+    pageSize: 1000,
     company: companyKey.value,
     region: regionKey.value,
     village: CommunityKey.value,
@@ -1080,6 +1110,7 @@ const getGaugeValveList = () => {
   };
   getGaugeValve(data).then(res => {
     if (res.retcode == 200) {
+      tableloading.value = false;
       // res.data.data.forEach(item => {
       // 采集器颜色区分
       // if (item.hasCollector == true) {
@@ -1120,6 +1151,7 @@ const addBuild = () => {
     generalMeter: "", // 所属总表
     meterId: "", // 表编号
     meterAddress: "", // 表地址
+    hasValve: "true", // 是否有阀门
     metertype: "", // 表类型
     specification: "", // 规格编号
     manufacturer: "", // 生产厂家
@@ -1162,6 +1194,7 @@ interface RowVO {
   generalMeter: string;
   meterId: string;
   meterAddress: string;
+  hasValve: boolean; // 有无阀门
   metertype: string;
   specification: string;
   manufacturer: string;
@@ -1195,6 +1228,7 @@ const householdData = reactive({
   generalMeter: "", // 所属总表
   meterId: "", // 户表编号
   meterAddress: "", // 户表地址
+  hasValve: "", // 有无阀门
   metertype: "", // 表类型
   specification: "", // 规格编号
   manufacturer: "", // 生产厂家
@@ -1277,6 +1311,7 @@ const formRules = reactive<VxeFormPropTypes.Rules>({
       message: "请输入表地址(14位数字含16进制)"
     }
   ],
+  hasValve: [{ required: true, message: "请选择有否有阀门" }],
   metertype: [{ required: true, message: "请选择表类型" }],
   specification: [{ required: true, message: "请输入规格编号" }],
   manufacturer: [{ required: true, message: "请输入生产厂家" }],
@@ -1463,7 +1498,9 @@ const searchBuildList = type => {
 // 清除楼栋关键词
 const clearBuildKey = () => {
   buildKey.value = "";
-  getGaugeValveList();
+  setTimeout(() => {
+    getGaugeValveList();
+  }, 1000);
 };
 
 const belongCollectorList = ref([]); // 所属采集器列表
@@ -1847,7 +1884,7 @@ const saveEvent = (type: string) => {
 </script>
 <style lang="scss" scoped>
 .table-main {
-  height: 100%;
+  height: 82vh;
 }
 
 .baidu-map {
@@ -1868,6 +1905,7 @@ const saveEvent = (type: string) => {
 .icon-price:hover {
   fill: #53a7ff;
 }
+
 // ::v-deep(.timetip) {
 //   z-index: 9999999999999;
 // }

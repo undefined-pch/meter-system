@@ -183,6 +183,10 @@ function handleAsyncRoutes(routeList) {
 
 /** 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）*/
 function initRouter() {
+  // debugger;
+  const a = localStorage.getItem("responsive-locale");
+  const params = JSON.parse(a);
+  // console.log(params.locale, "获取到的本地语言");
   if (getConfig()?.CachingAsyncRoutes) {
     // 开启动态路由缓存本地sessionStorage
     const key = "async-routes";
@@ -194,7 +198,7 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
+        getAsyncRoutes(params.locale).then(({ data }) => {
           handleAsyncRoutes(cloneDeep(data));
           storageSession().setItem(key, data);
           resolve(router);
@@ -203,7 +207,7 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
+      getAsyncRoutes(params.locale).then(({ data }) => {
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });

@@ -1,10 +1,10 @@
-import { http } from "@/utils/http";
+import { httplocal } from "@/utils/httplocal";
 
 type Result = {
   success: boolean;
   data: Array<any>;
 };
 
-export const getAsyncRoutes = () => {
-  return http.request<Result>("get", "/getAsyncRoutes");
+export const getAsyncRoutes = params => {
+  return httplocal.request<Result>("get", "/getAsyncRoutes/" + params);
 };

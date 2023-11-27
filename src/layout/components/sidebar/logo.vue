@@ -2,6 +2,9 @@
 import { getTopMenu } from "@/router/utils";
 import { useNav } from "@/layout/hooks/useNav";
 import { useI18n } from "vue-i18n";
+// pinia记录当前是水表/热表
+import { useStore } from "@/store/logo/state";
+import { storeToRefs } from "pinia";
 const { t } = useI18n();
 
 const props = defineProps({
@@ -9,6 +12,10 @@ const props = defineProps({
 });
 
 const { title } = useNav();
+// pinia保存当前状态值
+const name = useStore();
+const { showname } = storeToRefs(name); //解构出来的值变为ref对象
+console.log(showname, "logo的值");
 </script>
 
 <template>
@@ -21,7 +28,12 @@ const { title } = useNav();
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <img src="/logo.svg" alt="logo" />
+        <img src="/logo.svg" alt="logo" v-if="showname == 'water'" />
+        <img
+          src="../../../assets/fire.png"
+          alt="logo"
+          v-else-if="showname == 'fire'"
+        />
         <span class="sidebar-title">{{ t("maintitle.title") }}</span>
       </router-link>
       <router-link
@@ -31,7 +43,12 @@ const { title } = useNav();
         class="sidebar-logo-link"
         :to="getTopMenu()?.path ?? '/'"
       >
-        <img src="/logo.svg" alt="logo" />
+        <img src="/logo.svg" alt="logo" v-if="showname == 'water'" />
+        <img
+          src="../../../assets/fire.png"
+          alt="logo"
+          v-else-if="showname == 'fire'"
+        />
         <span class="sidebar-title">{{ t("maintitle.title") }}</span>
       </router-link>
     </transition>

@@ -43,6 +43,7 @@ menus:
   permission: Permission Manage
   permissionPage: Page Permission
   permissionButton: Button Permission
+  abcd: abcd
 status:
   hsLoad: Loading...
 login:

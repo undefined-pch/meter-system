@@ -51,6 +51,7 @@ menus:
   permission: 权限管理
   permissionPage: 页面权限
   permissionButton: 按钮权限
+  abcd: 告警信息
 status:
   hsLoad: 加载中...
 login:
@@ -63,4 +64,4 @@ login:
 table:
   tablename: 区域名称
 maintitle:
-  title: 智能水表管理系统
+  title: 智能抄表管理系统

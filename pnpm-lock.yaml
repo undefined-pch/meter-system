@@ -8,12 +8,18 @@ dependencies:
   '@iconify-icons/icon-park-twotone':
     specifier: ^1.2.8
     version: 1.2.8
+  '@iconify-icons/maki':
+    specifier: ^1.2.18
+    version: 1.2.18
   '@iconify-icons/solar':
     specifier: ^1.2.3
     version: 1.2.3
   '@iconify/icons-mdi':
     specifier: ^1.2.47
     version: 1.2.47
+  '@iconify/vue':
+    specifier: ^4.1.1
+    version: 4.1.1(vue@3.3.4)
   '@pureadmin/descriptions':
     specifier: ^1.1.1
     version: 1.1.1(element-plus@2.3.6)
@@ -109,9 +115,6 @@ devDependencies:
   '@iconify-icons/ri':
     specifier: ^1.2.9
     version: 1.2.9
-  '@iconify/vue':
-    specifier: ^4.1.1
-    version: 4.1.1(vue@3.3.4)
   '@intlify/unplugin-vue-i18n':
     specifier: ^0.11.0
     version: 0.11.0(vue-i18n@9.2.2)
@@ -893,6 +896,12 @@ packages:
       '@iconify/types': 2.0.0
     dev: false
 
+  /@iconify-icons/maki@1.2.18:
+    resolution: {integrity: sha512-H/BJ0FLzoGB2KyYtfs88zLY5L7Ns/CXOvzbE7Ge9AKdCTsDJG5CnN5Kj71Zp3OYAH4ikpqZDkE4K34A/EjkVPA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: false
+
   /@iconify-icons/ri@1.2.9:
     resolution: {integrity: sha512-BIxB+Hm6M1amgT+ebrD5XizKhjwaM5bC0F5Yg3tyN1dOfc++tzFeulbXb9cmTk9YfpqPZ1SUGJo5r0Wze+wUcA==}
     dependencies:
@@ -921,7 +930,7 @@ packages:
     dependencies:
       '@iconify/types': 2.0.0
       vue: 3.3.4
-    dev: true
+    dev: false
 
   /@intlify/bundle-utils@6.0.1(vue-i18n@9.2.2):
     resolution: {integrity: sha512-BkeZNKZiC0B7K3OYMwiPLoAqsZmKH3SxTL75vYAkuQ//XWR8WO0NpfjXhTxgLTVFHxMcNb2agAopC0DP6fqDrg==}

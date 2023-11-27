@@ -2,6 +2,7 @@ import { useNav } from "./useNav";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { watch, onBeforeMount, type Ref } from "vue";
+import { initRouter } from "@/router/utils";
 
 export function useTranslationLang(ref?: Ref) {
   const { $storage, changeTitle, handleResize } = useNav();
@@ -12,12 +13,18 @@ export function useTranslationLang(ref?: Ref) {
     $storage.locale = { locale: "zh" };
     locale.value = "zh";
     ref && handleResize(ref.value);
+    // 修改菜单为中文
+    // console.log("修改为中文");
+    initRouter();
   }
 
   function translationEn() {
     $storage.locale = { locale: "en" };
     locale.value = "en";
     ref && handleResize(ref.value);
+    // 修改菜单为英文
+    // console.log("修改为英文");
+    initRouter();
   }
 
   watch(
