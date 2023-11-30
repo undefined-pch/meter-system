@@ -1,7 +1,7 @@
 import { httplocal } from "@/utils/httplocal";
 import { baseUrlApi } from "./utils";
 
-// 获取水表列表数据
+// 获取水表小区列表数据
 export const getlist = data => {
   return httplocal.request<RefreshTokenResult>("post", "/api/effort", { data });
 };
@@ -168,6 +168,42 @@ export const fireregiondelete = data => {
   return httplocal.request<RefreshTokenResult>(
     "delete",
     "/api/fireregiondelete",
+    {
+      data
+    }
+  );
+};
+
+// 查询小区信息（热）
+export const firevillage = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firevillage", {
+    data
+  });
+};
+
+// 新增小区信息（热）
+export const firevillageadd = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firevillageadd", {
+    data
+  });
+};
+
+// 修改小区信息（热）
+export const firevillagefix = (id, data) => {
+  return httplocal.request<RefreshTokenResult>(
+    "patch",
+    "/api/firevillagefix/" + id,
+    {
+      data
+    }
+  );
+};
+
+// 删除小区信息（热）
+export const firevillagedelete = data => {
+  return httplocal.request<RefreshTokenResult>(
+    "post",
+    "/api/firevillagedelete",
     {
       data
     }

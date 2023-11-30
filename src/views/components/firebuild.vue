@@ -29,10 +29,26 @@
             remote
             :remote-method="remoteRegionMethod"
             clearable
+            @change="setRegionKey"
             :options="searchRegionsList"
             :loading="searchRegionloading"
             :disabled="isshowSearchRegion"
             placeholder="请输入区域"
+          />
+        </div>
+        <div style="margin-left: 6px">
+          {{ t("villagename") }}:
+          <el-select-v2
+            v-model="villageKey"
+            style="width: 140px"
+            filterable
+            remote
+            :remote-method="remoteVillageMethod"
+            clearable
+            :options="searchVillageList"
+            :loading="searchVillageloading"
+            :disabled="isshowSearchVillage"
+            placeholder="请输入小区名称"
           />
         </div>
         <vxe-button
@@ -124,18 +140,19 @@
         </template>
       </vxe-column>
       <vxe-column
-        field="address"
+        field="buildnumber"
         width="100"
         show-header-overflow
         sortable
-        title="地址"
+        title="楼栋编号"
+        show-overflow
       >
         <template #header>
-          {{ t("address") }}
+          {{ t("buildnumber") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="area"
+        field="heatingarea"
         width="100"
         show-header-overflow
         sortable
@@ -146,18 +163,18 @@
         </template>
       </vxe-column>
       <vxe-column
-        field="build"
+        field="buildlevel"
         width="100"
         show-header-overflow
         sortable
-        title="楼栋数"
+        title="楼层数"
       >
         <template #header>
-          {{ t("buildings") }}
+          {{ t("level") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="heatingHouseholds"
+        field="heatinghouseholds"
         width="100"
         show-header-overflow
         sortable
@@ -180,31 +197,7 @@
           {{ t("measuring") }}
         </template>
       </vxe-column>
-      <vxe-column
-        field="heatunitPrice"
-        width="100"
-        show-header-overflow
-        sortable
-        min="0"
-        title="热量单价"
-      >
-        <template #header>
-          {{ t("Heatunitprice") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="areaunitPrice"
-        width="100"
-        show-header-overflow
-        sortable
-        min="0"
-        title="面积单价"
-      >
-        <template #header>
-          {{ t("Areaunitprice") }}
-        </template>
-      </vxe-column>
-      <vxe-column field="attr3" title="icon" width="60" tree-node>
+      <vxe-column field="attr3" title="icon" width="70" tree-node>
         <template #default>
           <img src="@/assets/iconfont/mapicon.png" height="40" width="40" />
         </template>
@@ -324,7 +317,7 @@
             <template #default="{ data }">
               <el-select-v2
                 v-model="data.company"
-                style="width: 140px"
+                style="width: 100%"
                 :multiple="false"
                 filterable
                 remote
@@ -337,12 +330,6 @@
                 :loading="loading"
                 placeholder="请输入供热公司"
               />
-              <el-button
-                type="primary"
-                style="margin-bottom: 2px; margin-left: 10px"
-                @click="$emit('openright', 'company')"
-                >新增</el-button
-              >
             </template>
           </vxe-form-item>
           <vxe-form-item field="region" :span="12" :item-render="{}">
@@ -352,7 +339,7 @@
             <template #default="{ data }">
               <el-select-v2
                 v-model="data.region"
-                style="width: 140px"
+                style="width: 100%"
                 :multiple="false"
                 filterable
                 remote
@@ -363,12 +350,6 @@
                 :loading="searchRegionloading"
                 placeholder="请输入区域"
               />
-              <el-button
-                type="primary"
-                style="margin-bottom: 2px; margin-left: 10px"
-                @click="$emit('openright', 'region')"
-                >新增</el-button
-              >
             </template>
           </vxe-form-item>
           <vxe-form-item field="village" :span="12" :item-render="{}">
@@ -376,7 +357,7 @@
               {{ t("communityname") }}
             </template>
             <template #default="{ data }">
-              <vxe-input v-model="data.village" placeholder="请输入小区名称">
+              <!-- <vxe-input v-model="data.village" placeholder="请输入小区名称">
                 <template #suffix>
                   <el-tooltip
                     class="box-item"
@@ -387,44 +368,80 @@
                     <i class="vxe-icon-location" @click="lookupvillage()" />
                   </el-tooltip>
                 </template>
-              </vxe-input>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="build" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("buildings") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.build"
-                type="integer"
-                min="0"
-                placeholder="请输入楼栋数"
+              </vxe-input> -->
+              <el-select-v2
+                v-model="data.village"
+                style="width: 100%"
+                :multiple="false"
+                filterable
+                remote
+                @focus="getallVillage('form')"
+                :remote-method="remoteVillageMethod"
+                clearable
+                :options="searchVillageList"
+                :loading="searchVillageloading"
+                @change="changeMappoint"
+                placeholder="请输入小区名称"
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="heatingHouseholds" :span="12" :item-render="{}">
+          <vxe-form-item field="buildnumber" :span="12" :item-render="{}">
             <template #title>
-              {{ t("heatingHouseholds") }}
+              {{ t("buildnumber") }}
             </template>
             <template #default="{ data }">
               <vxe-input
-                v-model="data.heatingHouseholds"
+                v-model="data.buildnumber"
+                placeholder="请输入楼栋编号"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="buildlevel" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("buildlevel") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.buildlevel"
                 type="integer"
+                min="0"
+                placeholder="请输入楼层数"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="heatingarea" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("heatingarea") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.heatingarea"
+                placeholder="请输入供热面积"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="heatinghouseholds" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("heatinghouseholds") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.heatinghouseholds"
+                type="integer"
+                min="0"
                 placeholder="请输入供热户数"
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="area" :span="12" :item-render="{}">
+          <vxe-form-item field="buildtype" :span="12" :item-render="{}">
             <template #title>
-              {{ t("communityarea") }}
+              {{ t("buildtype") }}
             </template>
             <template #default="{ data }">
-              <vxe-input v-model="data.area" placeholder="请输入供热面积">
-                <template #suffix>
-                  <span>m2</span>
-                </template>
-              </vxe-input>
+              <vxe-input
+                v-model="data.buildtype"
+                placeholder="请输入楼栋类型"
+              />
             </template>
           </vxe-form-item>
           <vxe-form-item field="heatMetering" :span="12" :item-render="{}">
@@ -446,77 +463,20 @@
               </vxe-select>
             </template>
           </vxe-form-item>
-          <!-- <vxe-form-item field="zipcode" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("postcode") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.zipcode"
-                type="integer"
-                placeholder="请输入邮政编码"
-              />
-            </template>
-          </vxe-form-item> -->
-          <vxe-form-item field="heatunitPrice" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("HeatunitPrice") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.heatunitPrice"
-                type="integer"
-                placeholder="请输入热量单价"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="areaunitPrice" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("Areaunitprice") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.areaunitPrice"
-                type="integer"
-                placeholder="请输入面积单价"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="twopartratio" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("Twopartratio") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.twopartratio"
-                type="integer"
-                placeholder="请输入二部制比例"
-              >
-                <template #suffix>
-                  <span>%</span>
-                </template>
-              </vxe-input>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="notes" :span="12" :item-render="{}">
+          <vxe-form-item field="notes" :span="24" :item-render="{}">
             <template #title>
               {{ t("notes") }}
             </template>
             <template #default="{ data }">
-              <vxe-input v-model="data.notes" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="address" :span="24" :item-render="{}">
-            <template #title>
-              {{ t("address") }}
-            </template>
-            <template #default="{ data }">
               <vxe-textarea
-                v-model="data.address"
-                placeholder="请填写小区地址"
+                v-model="data.notes"
+                type="integer"
+                min="0"
+                placeholder="请输入描述信息"
               />
             </template>
           </vxe-form-item>
+          <!-- 修改之前的表单 -->
           <vxe-form-item field="jd" :span="12" :item-render="{}">
             <template #title>
               {{ t("jd") }}
@@ -532,38 +492,6 @@
             <template #default="{ data }">
               <vxe-input v-model="data.wd" placeholder="请输入纬度" transfer />
             </template>
-          </vxe-form-item>
-          <vxe-form-item
-            field="pitture"
-            title="小区图片"
-            :span="24"
-            :item-render="{}"
-          >
-            <template #title>
-              {{ t("pitture") }}
-            </template>
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1" size="large">默认icon</el-radio>
-              <el-radio label="2" size="large" disabled>自定义icon</el-radio>
-            </el-radio-group>
-            <!-- <el-upload
-              class="upload-demo"
-              v-model:file-list="fileList"
-              :show-file-list="true"
-              :on-change="fileChange"
-              :before-remove="beforeRemove"
-              :limit="1"
-              :on-exceed="handleExceed"
-              :http-request:void="uploadIon"
-              :on-remove="removefile"
-              ref="uploadRef"
-              v-if="Number(radio1) == 2"
-            >
-              <el-button type="primary">{{ t("pitture") }}</el-button>
-              <template #tip>
-                <div class="el-upload__tip">{{ t("tips") }}</div>
-              </template>
-            </el-upload> -->
           </vxe-form-item>
           <vxe-form-item :span="24">
             <div class="map">
@@ -609,15 +537,14 @@ import {
   VxeFormInstance,
   VxeToolbarInstance
 } from "vxe-table";
+import { deletelist, fireregion, firecompany, firevillage } from "@/api/effort";
 import {
-  deletelist,
-  fireregion,
-  firecompany,
-  firevillage,
-  firevillageadd,
-  firevillagefix,
-  firevillagedelete
-} from "@/api/effort";
+  firebuild,
+  firebuildadd,
+  firebuildfix,
+  firebuilddelete,
+  lookupfireregion
+} from "@/api/build";
 import type { UploadProps } from "element-plus";
 // import { t } from "@/utils/effortlanguage/effortlanguage.js"; // 翻译词典
 
@@ -670,6 +597,30 @@ const setCompanyKey = val => {
   });
 };
 
+const isshowSearchVillage = ref(false);
+// 选取供热区域
+const setRegionKey = val => {
+  if (showEdit.value == false) {
+    regionKey.value = val;
+    isshowSearchVillage.value = false;
+  }
+  formData.value.village = "";
+  const data = {
+    company:
+      showEdit.value == false ? companyKey.value : formData.value.company,
+    region: val,
+    village: ""
+  };
+  firevillage(data).then(res => {
+    if (res.retcode == 200) {
+      const regions = res.data.data;
+      searchVillageList.value = regions.map(item => {
+        return { value: item.village, label: item.village };
+      });
+    }
+  });
+};
+
 // 获取全部供热公司信息，在不做任何输入时显示
 const getallCompany = () => {
   const data = {
@@ -695,7 +646,7 @@ const regionKey = ref(""); // 区域关键词
 const searchRegionsList = ref<ListItem[]>([]); // 区域列表
 const searchRegionloading = ref(false);
 const isshowSearchRegion = ref(true); // 搜索栏查询水司是否可编辑
-// 需要将模糊搜索进行判断
+// 需要将区域模糊搜索进行判断
 const remoteRegionMethod = (query: string) => {
   if (query !== "") {
     searchRegionloading.value = true;
@@ -711,6 +662,33 @@ const remoteRegionMethod = (query: string) => {
           return { value: item.name, label: item.name };
         });
         searchRegionloading.value = false;
+      }
+    });
+  } else {
+    searchRegionsList.value = [];
+  }
+};
+
+const villageKey = ref(""); // 小区关键词
+const searchVillageList = ref<ListItem[]>([]); // 区域列表
+const searchVillageloading = ref(false);
+// 将小区进行模糊搜索
+const remoteVillageMethod = (query: string) => {
+  if (query !== "") {
+    searchVillageList.value = true;
+    const data = {
+      company:
+        showEdit.value == true ? formData.value.company : companyKey.value,
+      region: showEdit.value == true ? formData.value.region : regionKey.value,
+      village: query
+    };
+    firevillage(data).then(res => {
+      if (res.retcode == 200) {
+        const regions = res.data.data;
+        searchRegionsList.value = regions.map(item => {
+          return { value: item.name, label: item.name };
+        });
+        searchVillageloading.value = false;
       }
     });
   } else {
@@ -738,7 +716,7 @@ const removeSelectRowEvent = async () => {
           return ElMessage.error("至少选中一项进行操作！");
         }
         const ids = deleteDatas.toString();
-        firevillagedelete(ids).then(res => {
+        firebuilddelete(ids).then(res => {
           if (res.retcode == 200) {
             ElMessage({
               message: `${res.message}`,
@@ -771,37 +749,29 @@ const insertEvent = () => {
     company: "", // 公司
     region: "",
     village: "",
-    build: "",
-    heatingHouseholds: "",
-    area: "",
-    measuring: "", // 计量方式
-    zipcode: "",
-    heatunitPrice: "", // 热量单价
-    areaunitPrice: "", // 面积单价
-    twopartratio: "", //二部制比例
-    address: "",
+    buildnumber: "",
+    buildlevel: 0,
+    heatingarea: "",
+    heatinghouseholds: 0,
+    buildtype: "",
+    heatMetering: "",
     notes: "",
     jd: "",
-    wd: "",
-    pitture: ""
+    wd: ""
   });
   formData.value = {
     company: "", // 公司
     region: "",
     village: "",
-    build: "1",
-    heatingHouseholds: 0,
-    area: "",
-    measuring: "", // 计量方式
-    zipcode: "",
-    heatunitPrice: "", // 热量单价
-    areaunitPrice: "", // 面积单价
-    twopartratio: "", //二部制比例
-    address: "",
+    buildnumber: "",
+    buildlevel: 0,
+    heatingarea: "",
+    heatinghouseholds: 0,
+    buildtype: "",
+    heatMetering: "",
     notes: "",
     jd: 0,
-    wd: 0,
-    pitture: ""
+    wd: 0
   };
   // 设置默认地址
   center.value.lng = 116.404;
@@ -838,14 +808,12 @@ interface FormDataVO {
   company: string;
   region: string;
   village: string;
-  build: string;
-  heatingHouseholds: number;
-  area: string;
+  buildnumber: string;
+  buildlevel: number;
+  heatingarea: string;
+  heatinghouseholds: number;
+  buildtype: string;
   heatMetering: string;
-  heatunitPrice: string;
-  areaunitPrice: string;
-  twopartratio: string;
-  address: string;
   notes: string;
   jd: number;
   wd: number;
@@ -854,17 +822,12 @@ const formData = ref<FormDataVO>({
   company: "",
   region: "",
   village: "",
-  build: "1",
-  heatingHouseholds: 1,
-  area: "",
+  buildnumber: "",
+  buildlevel: 1,
+  heatingarea: "",
+  heatinghouseholds: 1,
+  buildtype: "",
   heatMetering: "",
-  heatunitPrice: "",
-  areaunitPrice: "",
-  measuring: "",
-  zipcode: "",
-  areaunitprice: "",
-  twopartratio: "",
-  address: "",
   notes: "",
   jd: 0,
   wd: 0
@@ -882,9 +845,9 @@ const selectRowsId = computed(() => {
 
 // 地图定位小区信息
 const villagekeyword = ref("");
-const lookupvillage = () => {
-  villagekeyword.value = formData.value.village;
-};
+// const lookupvillage = () => {
+//   villagekeyword.value = formData.value.village;
+// };
 
 // 地图相关配置
 const center = ref({ lng: 0, lat: 0 });
@@ -951,15 +914,13 @@ interface RowVO {
   company: string;
   region: string;
   village: string;
-  build: string;
-  heatingHouseholds: number;
-  area: string;
-  measuring: string;
-  zipcode: string;
-  heatunitprice: string;
-  areaunitprice: string;
-  twopartratio: string;
-  address: string;
+  buildnumber: string;
+  buildlevel: number;
+  heatingarea: string;
+  heatinghouseholds: number;
+  buildtype: string;
+  heatMetering: string;
+  notes: string;
   jd: string;
   wd: string;
   founder: string;
@@ -1025,21 +986,16 @@ const submitEvent = () => {
       submitLoading.value = false;
       showEdit.value = false;
       if (selectRow.value) {
-        firevillagefix((selectRow.value as any)._id, formData.value).then(
-          res => {
-            if (res.retcode == 200) {
-              VXETable.modal.message({
-                content: "保存成功",
-                status: "success"
-              });
-              geteffortlist();
-            }
+        firebuildfix((selectRow.value as any)._id, formData.value).then(res => {
+          if (res.retcode == 200) {
+            VXETable.modal.message({
+              content: "保存成功",
+              status: "success"
+            });
+            geteffortlist();
           }
-        );
-        // Object.assign(selectRow.value, formData);
+        });
       } else {
-        // console.log(111);
-        // const form = uploadIon();
         if (radio1.value == "1") {
           formdd.value = new FormData();
         }
@@ -1047,7 +1003,7 @@ const submitEvent = () => {
           // console.log(`Key: ${key}, Value: ${value}`);
           formdd.value.append(`${key}`, `${value}`);
         });
-        firevillageadd(formdd.value)
+        firebuildadd(formdd.value)
           .then(res => {
             if (res.retcode == 200) {
               VXETable.modal.message({
@@ -1075,16 +1031,17 @@ const pageVO2 = reactive({
   total: 0
 });
 
-// 获取小区数据
+// 获取热表楼栋数据
 const geteffortlist = () => {
   const data = {
     page: pageVO2.currentPage,
     pageSize: pageVO2.pageSize,
     company: companyKey.value,
     region: regionKey.value,
-    village: ""
+    village: villageKey.value,
+    buildnumber: ""
   };
-  firevillage(data).then(res => {
+  firebuild(data).then(res => {
     if (res.retcode == 200) {
       (tableData.value as any) = res.data.data;
       pageVO2.total = res.data.total;
@@ -1108,6 +1065,37 @@ const getallRegion = (type?: string) => {
   });
 };
 
+// 根据水司、区域获取小区信息
+const getallVillage = (type?: string) => {
+  const data = {
+    company: type == "form" ? formData.value.company : companyKey.value,
+    region: type == "form" ? formData.value.region : regionKey.value,
+    village: ""
+  };
+  firevillage(data).then(res => {
+    if (res.retcode == 200) {
+      const regions = res.data.data;
+      searchVillageList.value = regions.map(item => {
+        return { value: item.village, label: item.village };
+      });
+    }
+  });
+};
+
+// 点击小区定位地图坐标
+const changeMappoint = val => {
+  const data = {
+    company: formData.value.company,
+    region: formData.value.region,
+    village: val
+  };
+  lookupfireregion(data).then(res => {
+    center.value.lng = res.data[0].jd;
+    center.value.lat = res.data[0].wd;
+    zoom.value = 16;
+  });
+};
+
 onMounted(() => {
   geteffortlist();
 });
@@ -1120,11 +1108,11 @@ const { t } = useI18n({
       firecompany: "company",
       areaname: "areaname",
       communityname: "community",
-      address: "adress",
+      buildnumber: "buildnumber",
       postcode: "postcode",
       communityarea: "communityarea",
       measuring: "measuringMethod",
-      buildings: "buildings",
+      level: "level",
       heatingHouseholds: "heatingHouseholds",
       Heatunitprice: "Heatunitprice", // 热量单价
       Areaunitprice: "Areaunitprice", // 面积单价
@@ -1151,17 +1139,21 @@ const { t } = useI18n({
       batchimport: "batchimport",
       download: "Download",
       batchDelete: "BatchDelete",
-      HeatunitPrice: "HeatunitPrice"
+      buildlevel: "buildlevel",
+      heatingarea: "heatingarea",
+      heatinghouseholds: "heatinghouseholds",
+      buildtype: "buildtype",
+      villagename: "villagename"
     },
     zh: {
       company: "所属供热公司",
       areaname: "区域名称",
       communityname: "小区名称",
-      address: "地址",
+      buildnumber: "楼栋编号",
       postcode: "邮编",
       communityarea: "供热面积",
       measuring: "计量方式",
-      buildings: "楼栋数",
+      level: "楼层数",
       heatingHouseholds: "供热户数",
       Heatunitprice: "热量单价",
       Areaunitprice: "面积单价", // 面积单价
@@ -1188,7 +1180,11 @@ const { t } = useI18n({
       batchimport: "批量导入",
       download: "下载模板",
       batchDelete: "批量删除",
-      HeatunitPrice: "热量单价"
+      buildlevel: "楼层数",
+      heatingarea: "供热面积",
+      heatinghouseholds: "供热户数",
+      buildtype: "楼栋类型",
+      villagename: "小区名称"
     }
   }
 });

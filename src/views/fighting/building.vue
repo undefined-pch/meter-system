@@ -1,451 +1,464 @@
 <template>
   <div class="table-main">
-    <vxe-toolbar custom ref="toolbarRef">
-      <template #buttons>
-        <div style="margin-left: 6px">
-          {{ t("company") }}:
-          <vxe-select
-            v-model="companyKey"
-            placeholder="请输入要查找的水司"
-            :options="companyKeyList"
-            clearable
-            filterable
-            @focus="searchCompanyList"
-            @change="geteffortlist()"
-            @clear="clearCompanyKey()"
-          />
-        </div>
-        <div style="margin-left: 10px">
-          {{ t("areaname") }}:
-          <vxe-select
-            v-model="regionKey"
-            placeholder="请输入要查找的区域"
-            :options="regionKeyList"
-            clearable
-            filterable
-            @focus="searchRegionList(true)"
-            @change="geteffortlist()"
-            @clear="clearRegionKey()"
-          />
-        </div>
-        <div style="margin-left: 10px">
-          {{ t("communityname") }}:
-          <vxe-select
-            v-model="CommunityKey"
-            placeholder="请输入要查找的小区"
-            :options="communityKeyList"
-            clearable
-            filterable
-            @focus="searchCommunityList(true)"
-            @change="geteffortlist()"
-            @clear="clearCommunityKey()"
-          />
-        </div>
-        <vxe-button
-          icon="vxe-icon-square-plus"
-          style="margin-left: 10px"
-          @click="insertEvent()"
-          >{{ t("add") }}</vxe-button
-        >
-      </template>
-      <template #tools>
-        <vxe-button
-          status="danger"
-          style="margin-right: 10px"
-          @click="removeSelectRowEvent"
-          >{{ t("batchDelete") }}</vxe-button
-        >
-      </template>
-    </vxe-toolbar>
-    <vxe-table
-      border
-      show-overflow
-      ref="xTable"
-      height="564"
-      id="toolbar_demo4"
-      :custom-config="{ storage: true }"
-      :column-config="{ resizable: true }"
-      :row-config="{ isCurrent: true, keyField: 'id' }"
-      :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
-      :data="tableData"
-      @cell-dblclick="cellDBLClickEvent"
-    >
-      <vxe-column type="checkbox" width="50" fixed="left" />
-      <vxe-column type="seq" title="序号" width="50" fixed="left" />
-      <vxe-column
-        field="company"
-        width="100"
-        show-header-overflow
-        title="所属水司"
-        fixed="left"
-        sortable
-      >
-        <template #header>
-          {{ t("company") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="region"
-        width="100"
-        show-header-overflow
-        title="区域名称"
-        fixed="left"
-        sortable
-      >
-        <template #header>
-          {{ t("areaname") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="village"
-        width="100"
-        show-header-overflow
-        sortable
-        title="小区名称"
-        fixed="left"
-      >
-        <template #header>
-          {{ t("communityname") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="buildnumber"
-        width="100"
-        show-header-overflow
-        sortable
-        title="楼栋编号"
-      >
-        <template #header>
-          {{ t("buildnumber") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="level"
-        width="100"
-        show-header-overflow
-        sortable
-        title="楼层数"
-        show-overflow
-      >
-        <template #header>
-          {{ t("level") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="households"
-        width="100"
-        show-header-overflow
-        sortable
-        title="户数"
-      >
-        <template #header>
-          {{ t("households") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="types"
-        width="100"
-        show-header-overflow
-        sortable
-        title="楼栋类型"
-      >
-        <template #header>
-          {{ t("types") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="founder"
-        width="100"
-        show-header-overflow
-        sortable
-        title="创建人"
-      >
-        <template #header>
-          {{ t("founder") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="creationtime"
-        show-header-overflow
-        sortable
-        title="创建时间"
-      >
-        <template #header>
-          {{ t("creationtime") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updater"
-        width="100"
-        show-header-overflow
-        sortable
-        title="最近更新人"
-      >
-        <template #header>
-          {{ t("lastupdater") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updatetime"
-        show-header-overflow
-        sortable
-        title="最近更新时间"
-      >
-        <template #header>
-          {{ t("lastupdated") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="notes"
-        width="100"
-        show-header-overflow
-        sortable
-        title="备注"
-      >
-        <template #header>
-          {{ t("notes") }}
-        </template>
-      </vxe-column>
-      <vxe-column title="操作" width="100" fixed="right" show-overflow>
-        <template #header>
-          {{ t("operate") }}
-        </template>
-        <template #default="{ row }">
-          <vxe-button
-            type="text"
-            icon="vxe-icon-edit"
-            style="color: #409eff"
-            @click="editEvent(row)"
-          />
-          <vxe-button
-            type="text"
-            icon="vxe-icon-delete"
-            style="color: #f23c3c"
-            @click="removeEvent(row)"
-          />
-        </template>
-      </vxe-column>
-    </vxe-table>
-    <!-- 分页 -->
-    <div>
-      <vxe-pager
-        v-model:current-page="pageVO2.currentPage"
-        :total="pageVO2.total"
-        :page-size="10"
-        @page-change="geteffortlist"
-        :layouts="[
-          'PrevJump',
-          'PrevPage',
-          'Number',
-          'NextPage',
-          'NextJump',
-          'FullJump',
-          'Total'
-        ]"
-      />
-    </div>
-    <!-- 新增/修改表单 -->
-    <vxe-modal
-      v-model="showEdit"
-      width="800"
-      height="90%"
-      min-width="600"
-      min-height="300"
-      :loading="submitLoading"
-      @close="closeForm"
-      resize
-      destroy-on-close
-    >
-      <template #title>
-        <span v-if="selectRow">{{ t("editsave") }}</span>
-        <span v-else>{{ t("addsave") }}</span>
-      </template>
-      <template #default>
-        <vxe-form
-          :data="formData"
-          :rules="formRules"
-          title-align="right"
-          title-width="100"
-          ref="formRef"
-          @submit="submitEvent"
-        >
-          <vxe-form-item field="company" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("company") }}
-            </template>
-            <template #default="{ data }">
+    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tab-pane label="水表" name="first">
+        <vxe-toolbar custom ref="toolbarRef">
+          <template #buttons>
+            <div style="margin-left: 6px">
+              {{ t("company") }}:
               <vxe-select
-                v-model="data.company"
-                placeholder="请选择水司"
+                v-model="companyKey"
+                placeholder="请输入要查找的水司"
                 :options="companyKeyList"
                 clearable
                 filterable
                 @focus="searchCompanyList"
+                @change="geteffortlist()"
+                @clear="clearCompanyKey()"
               />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="region" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("areaname") }}
-            </template>
-            <template #default="{ data }">
+            </div>
+            <div style="margin-left: 10px">
+              {{ t("areaname") }}:
               <vxe-select
-                v-model="data.region"
-                placeholder="请选择区域"
+                v-model="regionKey"
+                placeholder="请输入要查找的区域"
                 :options="regionKeyList"
                 clearable
                 filterable
-                @focus="searchRegionList(false)"
+                @focus="searchRegionList(true)"
+                @change="geteffortlist()"
+                @clear="clearRegionKey()"
               />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="village" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("communityname") }}
-            </template>
-            <template #default="{ data }">
+            </div>
+            <div style="margin-left: 10px">
+              {{ t("communityname") }}:
               <vxe-select
-                v-model="data.village"
-                placeholder="请选择小区"
+                v-model="CommunityKey"
+                placeholder="请输入要查找的小区"
                 :options="communityKeyList"
                 clearable
                 filterable
-                @focus="searchCommunityList"
-                @change="changeMappoint"
+                @focus="searchCommunityList(true)"
+                @change="geteffortlist()"
+                @clear="clearCommunityKey()"
               />
+            </div>
+            <vxe-button
+              icon="vxe-icon-square-plus"
+              style="margin-left: 10px"
+              @click="insertEvent()"
+              >{{ t("add") }}</vxe-button
+            >
+          </template>
+          <template #tools>
+            <vxe-button
+              status="danger"
+              style="margin-right: 10px"
+              @click="removeSelectRowEvent"
+              >{{ t("batchDelete") }}</vxe-button
+            >
+          </template>
+        </vxe-toolbar>
+        <vxe-table
+          border
+          show-overflow
+          ref="xTable"
+          height="564"
+          id="toolbar_demo4"
+          :custom-config="{ storage: true }"
+          :column-config="{ resizable: true }"
+          :row-config="{ isCurrent: true, keyField: 'id' }"
+          :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
+          :data="tableData"
+          @cell-dblclick="cellDBLClickEvent"
+        >
+          <vxe-column type="checkbox" width="50" fixed="left" />
+          <vxe-column type="seq" title="序号" width="50" fixed="left" />
+          <vxe-column
+            field="company"
+            width="100"
+            show-header-overflow
+            title="所属水司"
+            fixed="left"
+            sortable
+          >
+            <template #header>
+              {{ t("company") }}
             </template>
-          </vxe-form-item>
-          <vxe-form-item field="buildnumber" :span="12" :item-render="{}">
-            <template #title>
+          </vxe-column>
+          <vxe-column
+            field="region"
+            width="100"
+            show-header-overflow
+            title="区域名称"
+            fixed="left"
+            sortable
+          >
+            <template #header>
+              {{ t("areaname") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="village"
+            width="100"
+            show-header-overflow
+            sortable
+            title="小区名称"
+            fixed="left"
+          >
+            <template #header>
+              {{ t("communityname") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="buildnumber"
+            width="100"
+            show-header-overflow
+            sortable
+            title="楼栋编号"
+          >
+            <template #header>
               {{ t("buildnumber") }}
             </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.buildnumber"
-                placeholder="请输入楼栋编号"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="level" :span="12" :item-render="{}">
-            <template #title>
+          </vxe-column>
+          <vxe-column
+            field="level"
+            width="100"
+            show-header-overflow
+            sortable
+            title="楼层数"
+            show-overflow
+          >
+            <template #header>
               {{ t("level") }}
             </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.level"
-                type="integer"
-                min="0"
-                placeholder="请输入楼层数"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="households" :span="12" :item-render="{}">
-            <template #title>
+          </vxe-column>
+          <vxe-column
+            field="households"
+            width="100"
+            show-header-overflow
+            sortable
+            title="户数"
+          >
+            <template #header>
               {{ t("households") }}
             </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.households"
-                type="integer"
-                min="0"
-                placeholder="请输入楼栋户数"
-              />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="types" :span="12" :item-render="{}">
-            <template #title>
+          </vxe-column>
+          <vxe-column
+            field="types"
+            width="100"
+            show-header-overflow
+            sortable
+            title="楼栋类型"
+          >
+            <template #header>
               {{ t("types") }}
             </template>
-            <template #default="{ data }">
-              <vxe-input
-                v-model="data.types"
-                type="text"
-                placeholder="请输入楼栋类型"
-              />
+          </vxe-column>
+          <vxe-column
+            field="founder"
+            width="100"
+            show-header-overflow
+            sortable
+            title="创建人"
+          >
+            <template #header>
+              {{ t("founder") }}
             </template>
-          </vxe-form-item>
-          <vxe-form-item field="notes" :span="24" :item-render="{}">
-            <template #title>
+          </vxe-column>
+          <vxe-column
+            field="creationtime"
+            show-header-overflow
+            sortable
+            width="100"
+            title="创建时间"
+          >
+            <template #header>
+              {{ t("creationtime") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="updater"
+            width="100"
+            show-header-overflow
+            sortable
+            title="最近更新人"
+          >
+            <template #header>
+              {{ t("lastupdater") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="updatetime"
+            show-header-overflow
+            width="100"
+            sortable
+            title="最近更新时间"
+          >
+            <template #header>
+              {{ t("lastupdated") }}
+            </template>
+          </vxe-column>
+          <vxe-column
+            field="notes"
+            width="100"
+            show-header-overflow
+            sortable
+            title="备注"
+          >
+            <template #header>
               {{ t("notes") }}
             </template>
-            <template #default="{ data }">
-              <vxe-textarea v-model="data.notes" placeholder="请填写备注" />
+          </vxe-column>
+          <vxe-column title="操作" width="100" fixed="right" show-overflow>
+            <template #header>
+              {{ t("operate") }}
             </template>
-          </vxe-form-item>
-          <vxe-form-item field="jd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("jd") }}
+            <template #default="{ row }">
+              <vxe-button
+                type="text"
+                icon="vxe-icon-edit"
+                style="color: #409eff"
+                @click="editEvent(row)"
+              />
+              <vxe-button
+                type="text"
+                icon="vxe-icon-delete"
+                style="color: #f23c3c"
+                @click="removeEvent(row)"
+              />
             </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.jd" placeholder="请输入经度" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="wd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("wd") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.wd" placeholder="请输入纬度" transfer />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item
-            field="pitture"
-            title="楼栋图片"
-            :span="24"
-            :item-render="{}"
-          >
-            <template #title>
-              {{ t("pitture") }}
-            </template>
-            <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio label="1" size="large">默认icon</el-radio>
-              <el-radio label="2" size="large">自定义icon</el-radio>
-            </el-radio-group>
-            <el-upload
-              class="upload-demo"
-              v-model:file-list="fileList"
-              :show-file-list="true"
-              :on-change="fileChange"
-              :before-remove="beforeRemove"
-              :limit="1"
-              :on-exceed="handleExceed"
-              :http-request:void="uploadIon"
-              :on-remove="removefile"
-              ref="uploadRef"
-              v-if="Number(radio1) == 2"
+          </vxe-column>
+        </vxe-table>
+        <!-- 分页 -->
+        <div>
+          <vxe-pager
+            v-model:current-page="pageVO2.currentPage"
+            :total="pageVO2.total"
+            :page-size="10"
+            @page-change="geteffortlist"
+            :layouts="[
+              'PrevJump',
+              'PrevPage',
+              'Number',
+              'NextPage',
+              'NextJump',
+              'FullJump',
+              'Total'
+            ]"
+          />
+        </div>
+        <!-- 新增/修改表单 -->
+        <vxe-modal
+          v-model="showEdit"
+          width="800"
+          height="90%"
+          min-width="600"
+          min-height="300"
+          :loading="submitLoading"
+          @close="closeForm"
+          resize
+          destroy-on-close
+        >
+          <template #title>
+            <span v-if="selectRow">{{ t("editsave") }}</span>
+            <span v-else>{{ t("addsave") }}</span>
+          </template>
+          <template #default>
+            <vxe-form
+              :data="formData"
+              :rules="formRules"
+              title-align="right"
+              title-width="100"
+              ref="formRef"
+              @submit="submitEvent"
             >
-              <el-button type="primary">{{ t("pitture") }}</el-button>
-              <template #tip>
-                <div class="el-upload__tip">{{ t("tips") }}</div>
-              </template>
-            </el-upload>
-          </vxe-form-item>
-          <vxe-form-item :span="24">
-            <div class="map">
-              <baidu-map
-                class="baidu-map"
-                :center="center"
-                :zoom="zoom"
-                @click="getpoint"
-                :scroll-wheel-zoom="true"
+              <vxe-form-item field="company" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("company") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-select
+                    v-model="data.company"
+                    placeholder="请选择水司"
+                    :options="companyKeyList"
+                    clearable
+                    filterable
+                    @focus="searchCompanyList"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="region" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("areaname") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-select
+                    v-model="data.region"
+                    placeholder="请选择区域"
+                    :options="regionKeyList"
+                    clearable
+                    filterable
+                    @focus="searchRegionList(false)"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="village" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("communityname") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-select
+                    v-model="data.village"
+                    placeholder="请选择小区"
+                    :options="communityKeyList"
+                    clearable
+                    filterable
+                    @focus="searchCommunityList"
+                    @change="changeMappoint"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="buildnumber" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("buildnumber") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.buildnumber"
+                    placeholder="请输入楼栋编号"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="level" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("level") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.level"
+                    type="integer"
+                    min="0"
+                    placeholder="请输入楼层数"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="households" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("households") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.households"
+                    type="integer"
+                    min="0"
+                    placeholder="请输入楼栋户数"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="types" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("types") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.types"
+                    type="text"
+                    placeholder="请输入楼栋类型"
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="notes" :span="24" :item-render="{}">
+                <template #title>
+                  {{ t("notes") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-textarea v-model="data.notes" placeholder="请填写备注" />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="jd" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("jd") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input v-model="data.jd" placeholder="请输入经度" />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item field="wd" :span="12" :item-render="{}">
+                <template #title>
+                  {{ t("wd") }}
+                </template>
+                <template #default="{ data }">
+                  <vxe-input
+                    v-model="data.wd"
+                    placeholder="请输入纬度"
+                    transfer
+                  />
+                </template>
+              </vxe-form-item>
+              <vxe-form-item
+                field="pitture"
+                title="楼栋图片"
+                :span="24"
+                :item-render="{}"
               >
-                <bm-marker
-                  :position="points"
-                  :dragging="true"
-                  @dragend="dragend"
-                />
-              </baidu-map>
-            </div>
-          </vxe-form-item>
-          <vxe-form-item align="center" :span="24">
-            <template #default>
-              <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
-              <vxe-button type="reset">{{ t("reset") }}</vxe-button>
-            </template>
-          </vxe-form-item>
-        </vxe-form>
-      </template>
-    </vxe-modal>
+                <template #title>
+                  {{ t("pitture") }}
+                </template>
+                <el-radio-group v-model="radio1" class="ml-4">
+                  <el-radio label="1" size="large">默认icon</el-radio>
+                  <el-radio label="2" size="large">自定义icon</el-radio>
+                </el-radio-group>
+                <el-upload
+                  class="upload-demo"
+                  v-model:file-list="fileList"
+                  :show-file-list="true"
+                  :on-change="fileChange"
+                  :before-remove="beforeRemove"
+                  :limit="1"
+                  :on-exceed="handleExceed"
+                  :http-request:void="uploadIon"
+                  :on-remove="removefile"
+                  ref="uploadRef"
+                  v-if="Number(radio1) == 2"
+                >
+                  <el-button type="primary">{{ t("pitture") }}</el-button>
+                  <template #tip>
+                    <div class="el-upload__tip">{{ t("tips") }}</div>
+                  </template>
+                </el-upload>
+              </vxe-form-item>
+              <vxe-form-item :span="24">
+                <div class="map">
+                  <baidu-map
+                    class="baidu-map"
+                    :center="center"
+                    :zoom="zoom"
+                    @click="getpoint"
+                    :scroll-wheel-zoom="true"
+                  >
+                    <bm-marker
+                      :position="points"
+                      :dragging="true"
+                      @dragend="dragend"
+                    />
+                  </baidu-map>
+                </div>
+              </vxe-form-item>
+              <vxe-form-item align="center" :span="24">
+                <template #default>
+                  <vxe-button type="submit">{{ t("sumit") }}</vxe-button>
+                  <vxe-button type="reset">{{ t("reset") }}</vxe-button>
+                </template>
+              </vxe-form-item>
+            </vxe-form>
+          </template>
+        </vxe-modal>
+      </el-tab-pane>
+      <el-tab-pane label="热表" name="second">
+        <firebuild />
+      </el-tab-pane>
+    </el-tabs>
     <!-- 右侧水司信息 -->
     <rightlist />
     <!-- 右侧区域信息 -->
@@ -469,6 +482,9 @@ import { useI18n } from "vue-i18n"; // 表头翻译
 // import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
 import { useRouter } from "vue-router"; // 导入路由模块
 import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
+import { useStore } from "@/store/logo/state";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange"; // 切换主题颜色
+import { storeToRefs } from "pinia";
 import { getlist, getregion, getcompany } from "@/api/effort";
 import {
   getbuild,
@@ -478,11 +494,32 @@ import {
   builddelete
 } from "@/api/build";
 import rightlist from "@/components/rightlist/rightlist.vue";
+import firebuild from "../components/firebuild.vue";
 
 const area = useArea();
 const { savearea } = area;
 // 使用路由
 const router = useRouter();
+
+// pinia保存当前状态值
+const name = useStore();
+const { showname } = storeToRefs(name); //解构出来的值变为ref对象
+// tab切换水/热表表格
+const { setLayoutThemeColor } = useDataThemeChange();
+// tab选择
+const activeName = ref("first");
+const handleClick = tab => {
+  // console.log(tab.props.label);
+  if (tab.props.label == "水表") {
+    setLayoutThemeColor("default");
+    showname.value = "water";
+    console.log(showname.value);
+  } else if (tab.props.label == "热表") {
+    setLayoutThemeColor("dusk");
+    showname.value = "fire";
+    console.log(showname.value);
+  }
+};
 
 const companyKey = ref(""); // 所属水司搜索词
 const companyKeyList = ref([]); // 所属水司搜索列表
@@ -566,6 +603,8 @@ const changeMappoint = val => {
   console.log(val.value, "改变小区位置");
   // 获取该小区的经纬度
   const data = {
+    company: formData.value.company,
+    region: formData.value.region,
     village: val.value
   };
   lookupregion(data).then(res => {
@@ -1136,5 +1175,8 @@ const { t } = useI18n({
 
 ::v-deep .vxe-form .vxe-form--item-inner > .align--center {
   justify-content: center;
+}
+::v-deep .el-tabs__nav {
+  margin-left: 10px;
 }
 </style>

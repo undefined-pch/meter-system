@@ -537,7 +537,7 @@
       <el-drawer
         v-model="table"
         @close="closeCompany"
-        title="全部水司信息"
+        :title="rightCompanyTitle"
         direction="rtl"
         size="40%"
         :z-index="companyDrawerZ"
@@ -588,7 +588,7 @@
             <vxe-column type="seq" width="40" />
             <vxe-column
               field="name"
-              title="所属自来水公司"
+              :title="rightCompanyTitle1"
               width="160"
               :edit-render="{}"
               sortable
@@ -610,7 +610,7 @@
             </vxe-column>
             <vxe-column
               field="address"
-              title="水司地址"
+              title="公司地址"
               :edit-render="{}"
               sortable
             >
@@ -683,7 +683,7 @@
             </vxe-column>
             <vxe-column
               field="company"
-              title="所属水司"
+              :title="rightCompanyTitle1"
               sortable
               :edit-render="{}"
               width="130px"
@@ -768,7 +768,10 @@ import {
   firecompanyadd,
   firecompanyfix,
   firecompanydelete,
-  fireregion
+  fireregion,
+  fireregionadd,
+  fireregionfix,
+  fireregiondelete
 } from "@/api/effort";
 // import { t } from "@/utils/effortlanguage/effortlanguage.js"; // 翻译词典
 import { useI18n } from "vue-i18n"; // 表头翻译
@@ -789,8 +792,8 @@ const remoteMethod = (query: string) => {
     };
     getcompany(data).then(res => {
       if (res.retcode == 200) {
-        companys.value = res.data.data;
-        searchCompanysList.value = companys.value.map(item => {
+        const companys = res.data.data;
+        searchCompanysList.value = companys.map(item => {
           return { value: item.name, label: item.name };
         });
         loading.value = false;
@@ -1256,7 +1259,7 @@ const insertCompany = async (row?: RowCompany | number) => {
 };
 
 // 获取全部水司信息
-const companys = ref([]);
+const companys = ref([]); // 右侧全部区域信息选择公司下拉框
 interface ListItem {
   value: string;
   label: string;
@@ -1268,8 +1271,8 @@ const getallCompany = () => {
   };
   getcompany(data).then(res => {
     if (res.retcode == 200) {
-      companys.value = res.data.data;
-      searchCompanysList.value = companys.value.map(item => {
+      const companys = res.data.data;
+      searchCompanysList.value = companys.map(item => {
         return { key: item._id, value: item.name, label: item.name };
       });
     }
@@ -1322,6 +1325,14 @@ const openright = menu => {
           regionData.value = res.data.data;
         }
       });
+      const data2 = {
+        company: ""
+      };
+      getcompany(data2).then(res => {
+        if (res.retcode == 200) {
+          companys.value = res.data.data;
+        }
+      });
       regiontable.value = true;
     }
   } else if (showname.value == "fire") {
@@ -1344,6 +1355,14 @@ const openright = menu => {
       fireregion(data).then(res => {
         if (res.retcode == 200) {
           regionData.value = res.data.data;
+        }
+      });
+      const data2 = {
+        company: ""
+      };
+      firecompany(data2).then(res => {
+        if (res.retcode == 200) {
+          companys.value = res.data.data;
         }
       });
       regiontable.value = true;
@@ -1501,7 +1520,7 @@ const saveEvent = () => {
       if (insert.length > 0) {
         insert.forEach(item => {
           firecount++;
-          if (item.name == "默认供热") {
+          if (item.name == "默认供热水司") {
             return ElMessage.error("请修改默认供热名称!");
           } else if (item.name.length == 0) {
             return ElMessage.error("供热公司名称不能为空!");
@@ -1609,82 +1628,162 @@ const saveRegion = () => {
     const insert = JSON.parse(JSON.stringify(insertRecords));
     const remove = JSON.parse(JSON.stringify(removeRecords));
     const update = JSON.parse(JSON.stringify(updateRecords));
-    let count = 0;
-    if (insert.length > 0) {
-      insert.forEach(item => {
-        // console.log(item);
-        count++;
-        if (item.name == "默认区域") {
-          return ElMessage.error("请修改默认区域名称!");
-        } else if (item.name.length == 0) {
-          return ElMessage.error("区域名称不能为空!");
-        } else if (item.company == null) {
-          return ElMessage.error("所属水司不能为空!");
-        } else if (count === insert.length) {
-          regionadd(insert)
-            .then(res => {
+    let count = 0; // 控制水表水司总数
+    let firecount = 0; //控制热表公司总数
+    if (showname.value == "water") {
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          // console.log(item);
+          count++;
+          if (item.name == "默认区域") {
+            return ElMessage.error("请修改默认区域名称!");
+          } else if (item.name.length == 0) {
+            return ElMessage.error("区域名称不能为空!");
+          } else if (item.company == null) {
+            return ElMessage.error("所属水司不能为空!");
+          } else if (count === insert.length) {
+            regionadd(insert)
+              .then(res => {
+                if (res.retcode == 200) {
+                  ElMessage.success(`${res.message}`);
+                  const data = {
+                    company: "",
+                    region: ""
+                  };
+                  getregion(data).then(res => {
+                    if (res.retcode == 200) {
+                      regionData.value = res.data.data;
+                    } else {
+                      ElMessage.error("新增失败，请确认区域名称是否重复！");
+                    }
+                  });
+                }
+              })
+              .catch(error => {
+                console.log(error.response);
+                if (error.response.status == 400) {
+                  ElMessage.error(`${error.response.data.message}`);
+                }
+              });
+          }
+        });
+      }
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        companydelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: ""
+            };
+            getcompany(data).then(res => {
               if (res.retcode == 200) {
-                ElMessage.success(`${res.message}`);
-                const data = {
-                  company: "",
-                  region: ""
-                };
-                getregion(data).then(res => {
-                  if (res.retcode == 200) {
-                    regionData.value = res.data.data;
-                  } else {
-                    ElMessage.error("新增失败，请确认区域名称是否重复！");
-                  }
-                });
-              }
-            })
-            .catch(error => {
-              console.log(error.response);
-              if (error.response.status == 400) {
-                ElMessage.error(`${error.response.data.message}`);
+                companyData.value = res.data.data;
               }
             });
-        }
-      });
-    }
-    if (remove.length > 0) {
-      const deleteDatas = [];
-      remove.forEach(item => {
-        deleteDatas.push(item._id);
-      });
-      const ids = deleteDatas.toString();
-      companydelete(ids).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            company: ""
-          };
-          getcompany(data).then(res => {
-            if (res.retcode == 200) {
-              companyData.value = res.data.data;
-            }
-          });
-        }
-      });
-    }
-    if (update.length > 0) {
-      const data = {
-        name: update
-      };
-      regionfix(data).then(res => {
-        if (res.retcode == 200) {
-          ElMessage.success(`${res.message}`);
-          const data = {
-            company: "",
-            region: ""
-          };
-          getregion(data).then(res => {
-            if (res.retcode == 200) {
-              companyData.value = res.data.data;
-            }
-          });
-        }
-      });
+          }
+        });
+      }
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        regionfix(data).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: "",
+              region: ""
+            };
+            getregion(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+    } else if (showname.value == "fire") {
+      if (insert.length > 0) {
+        insert.forEach(item => {
+          // console.log(item);
+          firecount++;
+          if (item.name == "默认区域") {
+            return ElMessage.error("请修改默认区域名称!");
+          } else if (item.name.length == 0) {
+            return ElMessage.error("区域名称不能为空!");
+          } else if (item.company == null) {
+            return ElMessage.error("所属供热公司不能为空!");
+          } else if (firecount === insert.length) {
+            fireregionadd(insert)
+              .then(res => {
+                if (res.retcode == 200) {
+                  ElMessage.success(`${res.message}`);
+                  const data = {
+                    company: "",
+                    region: ""
+                  };
+                  fireregion(data).then(res => {
+                    if (res.retcode == 200) {
+                      regionData.value = res.data.data;
+                    } else {
+                      ElMessage.error("新增失败，请确认区域名称是否重复！");
+                    }
+                  });
+                }
+              })
+              .catch(error => {
+                console.log(error.response);
+                if (error.response.status == 400) {
+                  ElMessage.error(`${error.response.data.message}`);
+                }
+              });
+          }
+        });
+      }
+      if (remove.length > 0) {
+        const deleteDatas = [];
+        remove.forEach(item => {
+          deleteDatas.push(item._id);
+        });
+        const ids = deleteDatas.toString();
+        fireregiondelete(ids).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: ""
+            };
+            fireregion(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
+      if (update.length > 0) {
+        const data = {
+          name: update
+        };
+        fireregionfix(data).then(res => {
+          if (res.retcode == 200) {
+            ElMessage.success(`${res.message}`);
+            const data = {
+              company: "",
+              region: ""
+            };
+            fireregion(data).then(res => {
+              if (res.retcode == 200) {
+                companyData.value = res.data.data;
+              }
+            });
+          }
+        });
+      }
     }
   }
 };
@@ -1727,6 +1826,13 @@ const handleClick = tab => {
   }
 };
 
+// 动态改变右侧水司信息、供热公司信息
+const rightCompanyTitle = computed(() => {
+  return showname.value == "water" ? "全部水司信息" : "全部供热公司信息";
+});
+const rightCompanyTitle1 = computed(() => {
+  return showname.value == "water" ? "所属自来水公司" : "所属供热公司";
+});
 // 翻译词典
 const { t } = useI18n({
   locale: "en",

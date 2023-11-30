@@ -1,328 +1,14 @@
 <template>
   <div class="table-main">
-    <div class="table-main">
-      <vxe-toolbar custom ref="toolbarRef">
-        <template #buttons>
-          <div style="margin-left: 6px">
-            水司：
-            <vxe-select
-              v-model="companyKey"
-              placeholder="请输入要查找的水司"
-              :options="companyKeyList"
-              clearable
-              filterable
-              @focus="searchCompanyList"
-              @change="gethouseholdList()"
-              @clear="clearCompanyKey()"
-            />
-            区域名称：
-            <vxe-select
-              v-model="regionKey"
-              placeholder="请输入要查找的区域"
-              :options="regionKeyList"
-              clearable
-              filterable
-              @focus="searchRegionList(true)"
-              @change="gethouseholdList()"
-              @clear="clearRegionKey()"
-            />
-            小区名称：
-            <vxe-select
-              v-model="CommunityKey"
-              placeholder="请输入要查找的小区"
-              :options="communityKeyList"
-              clearable
-              filterable
-              @focus="searchCommunityList(true)"
-              @change="gethouseholdList()"
-              @clear="clearCommunityKey()"
-            />
-            楼栋号：
-            <vxe-select
-              v-model="buildKey"
-              placeholder="请输入要查找的楼栋号"
-              :options="buildKeyList"
-              clearable
-              filterable
-              @focus="searchBuildList(true)"
-              @change="gethouseholdList()"
-              @clear="clearBuildKey()"
-            />
-          </div>
-        </template>
-        <template #tools>
-          <el-button type="primary" @click="addBuild" style="margin-left: 10px"
-            >新增</el-button
-          >
-          <el-button
-            type="danger"
-            @click="removeSelectRowEvent"
-            style="margin-left: 10px"
-            >批量删除</el-button
-          >
-          <el-button
-            type="success"
-            @click="openAccount"
-            style="margin-left: 10px"
-            >开户</el-button
-          >
-        </template>
-      </vxe-toolbar>
-      <vxe-table
-        border
-        show-overflow
-        ref="xTable"
-        height="550"
-        id="toolbar_demo6"
-        :custom-config="{ storage: true }"
-        :column-config="{ resizable: true, useKey: true }"
-        :row-config="{ isCurrent: true, keyField: 'id', useKey: true }"
-        :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
-        :data="tableData"
-        @cell-dblclick="cellDBLClickEvent"
-      >
-        <vxe-column type="checkbox" width="50" fixed="left" />
-        <vxe-column type="seq" width="50" title="序号" fixed="left" />
-        <vxe-column
-          field="company"
-          width="100"
-          title="水司名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="region"
-          width="100"
-          title="区域名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="village"
-          width="100"
-          title="小区名称"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="buildingnumber"
-          width="100"
-          title="楼栋编号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="unit"
-          width="100"
-          title="单元号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="housenumber"
-          width="100"
-          title="门牌号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="executionprice"
-          width="100"
-          title="价格编号"
-          type="html"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="userid"
-          width="100"
-          title="用户编号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="residentstatus"
-          width="100"
-          title="住户状态"
-          type="html"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="floor"
-          width="100"
-          title="楼层号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="householdperson"
-          width="100"
-          title="成员个数"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="householdsize"
-          width="100"
-          title="住户面积"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="pipelocation"
-          width="100"
-          title="管道位置"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="location"
-          width="100"
-          title="住户方位"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="roomcard"
-          width="100"
-          title="房间卡号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="changemeter"
-          width="100"
-          title="是否换过表"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="residentName"
-          width="100"
-          title="住户姓名"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="fixedtelephone"
-          width="100"
-          title="固定电话"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="mobilephone"
-          width="100"
-          title="移动电话"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="ID"
-          width="100"
-          title="身份证号"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="e-mailaddress"
-          width="100"
-          title="邮箱地址"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="founder"
-          width="100"
-          title="创建人"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="creationtime"
-          width="100"
-          title="创建时间"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="updated"
-          width="100"
-          title="最近更新人"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column
-          field="updatedtime"
-          width="100"
-          title="最近时间"
-          sortable
-          show-header-overflow
-        />
-        <vxe-column field="notes" width="100" title="备注" />
-        <vxe-column title="操作" width="100" fixed="right" show-overflow>
-          <template #default="{ row }">
-            <vxe-button
-              type="text"
-              icon="vxe-icon-edit"
-              style="color: #409eff"
-              @click="editEvent(row)"
-            />
-            <vxe-button
-              type="text"
-              icon="vxe-icon-delete"
-              style="color: #f23c3c"
-              @click="removeEvent(row)"
-            />
-          </template>
-        </vxe-column>
-      </vxe-table>
-      <div>
-        <vxe-pager
-          v-model:current-page="pageVO2.currentPage"
-          :total="pageVO2.total"
-          :page-size="10"
-          @page-change="gethousehold"
-          :layouts="[
-            'PrevJump',
-            'PrevPage',
-            'Number',
-            'NextPage',
-            'NextJump',
-            'FullJump',
-            'Total'
-          ]"
-        />
-      </div>
-      <vxe-modal
-        v-model="showEdit"
-        :title="selectRow ? '编辑&保存' : '新增&保存'"
-        width="800"
-        height="560px"
-        min-width="600"
-        min-height="300"
-        :loading="submitLoading"
-        resize
-        destroy-on-close
-      >
-        <template #default>
-          <vxe-form
-            :data="householdData"
-            :rules="formRules"
-            title-align="right"
-            title-width="100"
-            @submit="submitEvent"
-          >
-            <vxe-form-item
-              field="company"
-              title="水司名称"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
+    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tab-pane label="水表" name="first">
+        <div class="table-main">
+          <vxe-toolbar custom ref="toolbarRef">
+            <template #buttons>
+              <div style="margin-left: 6px">
+                水司：
                 <vxe-select
-                  v-model="data.company"
+                  v-model="companyKey"
                   placeholder="请输入要查找的水司"
                   :options="companyKeyList"
                   clearable
@@ -331,480 +17,273 @@
                   @change="gethouseholdList()"
                   @clear="clearCompanyKey()"
                 />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="region"
-              title="区域名称"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
+                区域名称：
                 <vxe-select
-                  v-model="data.region"
+                  v-model="regionKey"
                   placeholder="请输入要查找的区域"
                   :options="regionKeyList"
                   clearable
                   filterable
-                  @focus="searchRegionList(false)"
+                  @focus="searchRegionList(true)"
                   @change="gethouseholdList()"
                   @clear="clearRegionKey()"
                 />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="village"
-              title="小区名称"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
+                小区名称：
                 <vxe-select
-                  v-model="data.village"
+                  v-model="CommunityKey"
                   placeholder="请输入要查找的小区"
                   :options="communityKeyList"
                   clearable
                   filterable
-                  @focus="searchCommunityList(false)"
+                  @focus="searchCommunityList(true)"
                   @change="gethouseholdList()"
                   @clear="clearCommunityKey()"
                 />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="buildingnumber"
-              title="楼栋编号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
+                楼栋号：
                 <vxe-select
-                  v-model="data.buildingnumber"
+                  v-model="buildKey"
                   placeholder="请输入要查找的楼栋号"
                   :options="buildKeyList"
                   clearable
                   filterable
-                  @focus="searchBuildList(false)"
+                  @focus="searchBuildList(true)"
                   @change="gethouseholdList()"
                   @clear="clearBuildKey()"
                 />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="userid"
-              title="用户编号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.userid"
-                  placeholder="请输入用户编号"
-                  style="width: 100%"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="unit"
-              title="单元号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input v-model="data.unit" placeholder="请输入单元号" />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="housenumber"
-              title="门牌号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.housenumber"
-                  placeholder="请输入门牌号"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="floor"
-              title="楼层号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input v-model="data.floor" placeholder="请输入楼层号" />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="householdperson"
-              title="住户人数"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.householdperson"
-                  placeholder="请输入住户人数"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="householdsize"
-              title="住户面积"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.householdsize"
-                  placeholder="请输入住户面积"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="pipelocation"
-              title="管道位置"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.pipelocation"
-                  placeholder="请输入管道位置"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="location"
-              title="住方位"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input v-model="data.location" placeholder="请输入住方位" />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="roomcard"
-              title="房间卡号"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.roomcard"
-                  placeholder="请输入房间卡号"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="changemeter"
-              title="是否换表"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <!-- <el-select
-                  v-model="data.changemeter"
-                  class="m-3"
-                  placeholder="请选择是否换表"
-                >
-                  <el-option
-                    v-for="item in ismeterchange"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select> -->
-                <vxe-select
-                  v-model="data.changemeter"
-                  placeholder="请选择是否换表"
-                  :options="ismeterchange"
-                  clearable
-                  filterable
-                  @focus="searchBuildList(false)"
-                  @change="gethouseholdList()"
-                  @clear="clearBuildKey()"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="fixedtelephone"
-              title="固定电话"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.fixedtelephone"
-                  placeholder="请输入固定电话"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="mobilephone"
-              title="移动电话"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.mobilephone"
-                  placeholder="请输入移动电话"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="householdname"
-              title="住户姓名"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.householdname"
-                  placeholder="请输入住户姓名"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="residentstatus"
-              title="住户状态"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <!-- <el-select
-                  v-model="data.residentstatus"
-                  class="m-3"
-                  placeholder="请选择住户状态"
-                >
-                  <el-option
-                    v-for="item in residentstatusList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
-                  />
-                </el-select> -->
-                <vxe-select
-                  v-model="data.residentstatus"
-                  placeholder="请选择住户状态"
-                  :options="residentstatusList"
-                  clearable
-                  filterable
-                  @focus="searchBuildList(false)"
-                  @change="gethouseholdList()"
-                  @clear="clearBuildKey()"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="email"
-              title="邮箱地址"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input v-model="data.email" placeholder="请输入邮箱地址" />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="householdtype"
-              title="住户类型"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.householdtype"
-                  placeholder="请输入住户类型"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="IDcard"
-              title="身份证"
-              :span="8"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input v-model="data.IDcard" placeholder="请输入身份证" />
-              </template>
-            </vxe-form-item>
-            <!-- 执行价格就是价格编号 -->
-            <vxe-form-item
-              field="executionprice"
-              title="执行价格"
-              :span="16"
-              :item-render="{}"
-              style="position: relative"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.executionprice"
-                  placeholder="请输入执行价格"
-                  style="width: 140px"
-                />
-                <a title="查询执行价格">
-                  <svg
-                    t="1693447489138"
-                    class="icon-price"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="4078"
-                    width="30"
-                    height="30"
-                    style="position: absolute; top: 0; right: 210px"
-                    @click="lookupPrice()"
-                  >
-                    <path
-                      d="M849.2 498.2c0-193.8-157.1-351-351-351s-351 157.1-351 351 157.1 351 351 351 351-157.1 351-351z m-361 0.8H362.4c-9.4 0-17.1-7.7-17.1-17.1 0-9.4 7.7-17.1 17.1-17.1h97.4c-0.6-0.5-1.2-1-1.8-1.6L381.8 387c-6.7-6.7-6.7-17.5 0-24.2 6.7-6.7 17.5-6.7 24.2 0l76.2 76.2c6.7 6.7 6.7 17.5 0 24.2-0.6 0.6-1.2 1.1-1.8 1.6h40.8c-0.6-0.5-1.2-1-1.8-1.6-6.7-6.7-6.7-17.5 0-24.2l76.2-76.2c6.7-6.7 17.5-6.7 24.2 0 6.7 6.7 6.7 17.5 0 24.2l-76.2 76.2c-0.6 0.6-1.2 1.1-1.8 1.6h100.1c9.4 0 17.1 7.7 17.1 17.1 0 9.4-7.7 17.1-17.1 17.1H522.4v69h119.5c9.4 0 17.1 7.7 17.1 17.1 0 9.4-7.7 17.1-17.1 17.1H522.4v81.6c0 9.4-7.7 17.1-17.1 17.1-9.4 0-17.1-7.7-17.1-17.1v-81.6H362.4c-9.4 0-17.1-7.7-17.1-17.1 0-9.4 7.7-17.1 17.1-17.1h125.8v-69z m312 265l120.3 120.3c10 10 10 26.2 0 36.2-10 10-26.2 10-36.2 0L764 800.2c-70.9 62.4-163.9 100.3-265.7 100.3C276.1 900.5 96 720.4 96 498.2S276.1 96 498.2 96s402.2 180.1 402.2 402.2c0.1 101.9-37.8 194.9-100.2 265.8z"
-                      p-id="4079"
-                    />
-                  </svg>
-                </a>
-
-                <el-checkbox
-                  label="批量修改"
-                  style="position: absolute; top: 0; right: 120px"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item
-              field="remark"
-              title="备注"
-              :span="24"
-              :item-render="{}"
-            >
-              <template #default="{ data }">
-                <vxe-input
-                  v-model="data.remark"
-                  type="text"
-                  placeholder="请输入备注"
-                />
-              </template>
-            </vxe-form-item>
-            <vxe-form-item align="center" title-align="left" :span="24">
-              <template #default>
-                <vxe-button type="submit">提交</vxe-button>
-                <vxe-button type="reset">重置</vxe-button>
-              </template>
-            </vxe-form-item>
-          </vxe-form>
-        </template>
-      </vxe-modal>
-      <vxe-modal
-        v-model="showPrice"
-        title="价格选择"
-        width="860"
-        height="460px"
-        min-width="600"
-        min-height="300"
-        resize
-        destroy-on-close
-      >
-        <template #default>
+              </div>
+            </template>
+            <template #tools>
+              <el-button
+                type="primary"
+                @click="addBuild"
+                style="margin-left: 10px"
+                >新增</el-button
+              >
+              <el-button
+                type="danger"
+                @click="removeSelectRowEvent"
+                style="margin-left: 10px"
+                >批量删除</el-button
+              >
+              <el-button
+                type="success"
+                @click="openAccount"
+                style="margin-left: 10px"
+                >开户</el-button
+              >
+            </template>
+          </vxe-toolbar>
           <vxe-table
             border
-            ref="pTable"
-            height="300"
-            :data="priceData"
-            :radio-config="{ highlight: true, useKey: true }"
+            show-overflow
+            ref="xTable"
+            height="550"
+            id="toolbar_demo6"
+            :custom-config="{ storage: true }"
             :column-config="{ resizable: true, useKey: true }"
-            :row-config="{ isHover: true, useKey: true }"
-            @cell-click="priceCellClick"
-            @radio-change="priceradioChange"
+            :row-config="{ isCurrent: true, keyField: 'id', useKey: true }"
+            :checkbox-config="{ checkRowKeys: selectRowsId, reserve: true }"
+            :data="tableData"
+            @cell-dblclick="cellDBLClickEvent"
           >
-            <vxe-column type="radio" width="60">
-              <template #header>
-                <vxe-button
-                  type="text"
-                  @click="clearRadioRowEevnt"
-                  :disabled="!selectRow"
-                  >取消</vxe-button
-                >
-              </template>
-            </vxe-column>
+            <vxe-column type="checkbox" width="50" fixed="left" />
+            <vxe-column type="seq" width="50" title="序号" fixed="left" />
             <vxe-column
-              field="number"
+              field="company"
+              width="100"
+              title="水司名称"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="region"
+              width="100"
+              title="区域名称"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="village"
+              width="100"
+              title="小区名称"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="buildingnumber"
+              width="100"
+              title="楼栋编号"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="unit"
+              width="100"
+              title="单元号"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="housenumber"
+              width="100"
+              title="门牌号"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="executionprice"
+              width="100"
               title="价格编号"
-              width="100"
-              show-overflow
-            />
-            <vxe-column
-              field="type"
-              title="价格类型"
-              width="100"
-              show-overflow
-            />
-            <vxe-column
               type="html"
-              field="stepnumber"
-              title="阶梯价格编号"
-              width="110"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="name"
-              title="价格名称"
+              field="userid"
               width="100"
-              show-overflow
-            />
-            <vxe-column field="waterUnitprice" title="水费单价" width="90" />
-            <vxe-column
-              field="waterUnitpricePer"
-              title="水费标准单价百分比"
-              width="150"
+              title="用户编号"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="pollutioUnitprice"
-              title="排污费单价"
-              width="90"
+              field="residentstatus"
+              width="100"
+              title="住户状态"
+              type="html"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="pollutioUnitpricePer"
-              title="排污费单价百分比"
-              width="140"
+              field="floor"
+              width="100"
+              title="楼层号"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="pressureUnitprice"
-              title="二次加压费用单价"
-              width="140"
+              field="householdperson"
+              width="100"
+              title="成员个数"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="pressureUnitpricePre"
-              title="二次加压费用百分比"
-              width="150"
+              field="householdsize"
+              width="100"
+              title="住户面积"
+              sortable
+              show-header-overflow
             />
             <vxe-column
-              field="otherExpensesName"
-              title="其他费用名称"
-              width="110"
+              field="pipelocation"
+              width="100"
+              title="管道位置"
+              sortable
+              show-header-overflow
             />
-            <vxe-column field="otherExpenses" title="其他费用" width="90" />
             <vxe-column
-              field="otherExpensesPre"
-              title="其他费用百分比"
-              width="120"
+              field="location"
+              width="100"
+              title="住户方位"
+              sortable
+              show-header-overflow
             />
-            <vxe-column field="founder" title="创建人" width="100" />
+            <vxe-column
+              field="roomcard"
+              width="100"
+              title="房间卡号"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="changemeter"
+              width="100"
+              title="是否换过表"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="residentName"
+              width="100"
+              title="住户姓名"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="fixedtelephone"
+              width="100"
+              title="固定电话"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="mobilephone"
+              width="100"
+              title="移动电话"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="ID"
+              width="100"
+              title="身份证号"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="e-mailaddress"
+              width="100"
+              title="邮箱地址"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="founder"
+              width="100"
+              title="创建人"
+              sortable
+              show-header-overflow
+            />
             <vxe-column
               field="creationtime"
-              title="创建时间"
-              width="125"
-              show-overflow
-            />
-            <vxe-column field="updater" title="更新人" width="100" />
-            <vxe-column field="updatedtime" title="更新时间" width="100" />
-            <vxe-column
-              field="describeinformation"
-              title="描述信息"
               width="100"
+              title="创建时间"
+              sortable
+              show-header-overflow
             />
+            <vxe-column
+              field="updated"
+              width="100"
+              title="最近更新人"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column
+              field="updatedtime"
+              width="100"
+              title="最近时间"
+              sortable
+              show-header-overflow
+            />
+            <vxe-column field="notes" width="100" title="备注" />
+            <vxe-column title="操作" width="100" fixed="right" show-overflow>
+              <template #default="{ row }">
+                <vxe-button
+                  type="text"
+                  icon="vxe-icon-edit"
+                  style="color: #409eff"
+                  @click="editEvent(row)"
+                />
+                <vxe-button
+                  type="text"
+                  icon="vxe-icon-delete"
+                  style="color: #f23c3c"
+                  @click="removeEvent(row)"
+                />
+              </template>
+            </vxe-column>
           </vxe-table>
-          <div style="margin-top: 10px">
+          <div>
             <vxe-pager
               v-model:current-page="pageVO2.currentPage"
               :total="pageVO2.total"
@@ -821,37 +300,567 @@
               ]"
             />
           </div>
-          <div
-            style="
-              display: flex;
-              align-items: center; /* 垂直交叉轴居中 */
-              justify-content: center; /* 水平主轴居中 */
-            "
+          <vxe-modal
+            v-model="showEdit"
+            :title="selectRow ? '编辑&保存' : '新增&保存'"
+            width="800"
+            height="560px"
+            min-width="600"
+            min-height="300"
+            :loading="submitLoading"
+            resize
+            destroy-on-close
           >
-            <vxe-button @click="selectPrice()">确认</vxe-button>
-            <vxe-button @click="showPrice = false">取消</vxe-button>
-          </div>
-        </template>
-        <!-- <template #footer> 1 </template> -->
-      </vxe-modal>
-    </div>
-    <!-- <div>
-      <vxe-pager
-        v-model:current-page="pageVO2.currentPage"
-        :total="pageVO2.total"
-        :page-size="10"
-        @page-change="getallbuild"
-        :layouts="[
-          'PrevJump',
-          'PrevPage',
-          'Number',
-          'NextPage',
-          'NextJump',
-          'FullJump',
-          'Total'
-        ]"
-      />
-    </div> -->
+            <template #default>
+              <vxe-form
+                :data="householdData"
+                :rules="formRules"
+                title-align="right"
+                title-width="100"
+                @submit="submitEvent"
+              >
+                <vxe-form-item
+                  field="company"
+                  title="水司名称"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-select
+                      v-model="data.company"
+                      placeholder="请输入要查找的水司"
+                      :options="companyKeyList"
+                      clearable
+                      filterable
+                      @focus="searchCompanyList"
+                      @change="gethouseholdList()"
+                      @clear="clearCompanyKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="region"
+                  title="区域名称"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-select
+                      v-model="data.region"
+                      placeholder="请输入要查找的区域"
+                      :options="regionKeyList"
+                      clearable
+                      filterable
+                      @focus="searchRegionList(false)"
+                      @change="gethouseholdList()"
+                      @clear="clearRegionKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="village"
+                  title="小区名称"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-select
+                      v-model="data.village"
+                      placeholder="请输入要查找的小区"
+                      :options="communityKeyList"
+                      clearable
+                      filterable
+                      @focus="searchCommunityList(false)"
+                      @change="gethouseholdList()"
+                      @clear="clearCommunityKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="buildingnumber"
+                  title="楼栋编号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-select
+                      v-model="data.buildingnumber"
+                      placeholder="请输入要查找的楼栋号"
+                      :options="buildKeyList"
+                      clearable
+                      filterable
+                      @focus="searchBuildList(false)"
+                      @change="gethouseholdList()"
+                      @clear="clearBuildKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="userid"
+                  title="用户编号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.userid"
+                      placeholder="请输入用户编号"
+                      style="width: 100%"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="unit"
+                  title="单元号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input v-model="data.unit" placeholder="请输入单元号" />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="housenumber"
+                  title="门牌号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.housenumber"
+                      placeholder="请输入门牌号"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="floor"
+                  title="楼层号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.floor"
+                      placeholder="请输入楼层号"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="householdperson"
+                  title="住户人数"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.householdperson"
+                      placeholder="请输入住户人数"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="householdsize"
+                  title="住户面积"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.householdsize"
+                      placeholder="请输入住户面积"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="pipelocation"
+                  title="管道位置"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.pipelocation"
+                      placeholder="请输入管道位置"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="location"
+                  title="住方位"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.location"
+                      placeholder="请输入住方位"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="roomcard"
+                  title="房间卡号"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.roomcard"
+                      placeholder="请输入房间卡号"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="changemeter"
+                  title="是否换表"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <!-- <el-select
+                  v-model="data.changemeter"
+                  class="m-3"
+                  placeholder="请选择是否换表"
+                >
+                  <el-option
+                    v-for="item in ismeterchange"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select> -->
+                    <vxe-select
+                      v-model="data.changemeter"
+                      placeholder="请选择是否换表"
+                      :options="ismeterchange"
+                      clearable
+                      filterable
+                      @focus="searchBuildList(false)"
+                      @change="gethouseholdList()"
+                      @clear="clearBuildKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="fixedtelephone"
+                  title="固定电话"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.fixedtelephone"
+                      placeholder="请输入固定电话"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="mobilephone"
+                  title="移动电话"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.mobilephone"
+                      placeholder="请输入移动电话"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="householdname"
+                  title="住户姓名"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.householdname"
+                      placeholder="请输入住户姓名"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="residentstatus"
+                  title="住户状态"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <!-- <el-select
+                  v-model="data.residentstatus"
+                  class="m-3"
+                  placeholder="请选择住户状态"
+                >
+                  <el-option
+                    v-for="item in residentstatusList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.name"
+                  />
+                </el-select> -->
+                    <vxe-select
+                      v-model="data.residentstatus"
+                      placeholder="请选择住户状态"
+                      :options="residentstatusList"
+                      clearable
+                      filterable
+                      @focus="searchBuildList(false)"
+                      @change="gethouseholdList()"
+                      @clear="clearBuildKey()"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="email"
+                  title="邮箱地址"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.email"
+                      placeholder="请输入邮箱地址"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="householdtype"
+                  title="住户类型"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.householdtype"
+                      placeholder="请输入住户类型"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="IDcard"
+                  title="身份证"
+                  :span="8"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.IDcard"
+                      placeholder="请输入身份证"
+                    />
+                  </template>
+                </vxe-form-item>
+                <!-- 执行价格就是价格编号 -->
+                <vxe-form-item
+                  field="executionprice"
+                  title="执行价格"
+                  :span="16"
+                  :item-render="{}"
+                  style="position: relative"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.executionprice"
+                      placeholder="请输入执行价格"
+                      style="width: 140px"
+                    />
+                    <a title="查询执行价格">
+                      <svg
+                        t="1693447489138"
+                        class="icon-price"
+                        viewBox="0 0 1024 1024"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        p-id="4078"
+                        width="30"
+                        height="30"
+                        style="position: absolute; top: 0; right: 210px"
+                        @click="lookupPrice()"
+                      >
+                        <path
+                          d="M849.2 498.2c0-193.8-157.1-351-351-351s-351 157.1-351 351 157.1 351 351 351 351-157.1 351-351z m-361 0.8H362.4c-9.4 0-17.1-7.7-17.1-17.1 0-9.4 7.7-17.1 17.1-17.1h97.4c-0.6-0.5-1.2-1-1.8-1.6L381.8 387c-6.7-6.7-6.7-17.5 0-24.2 6.7-6.7 17.5-6.7 24.2 0l76.2 76.2c6.7 6.7 6.7 17.5 0 24.2-0.6 0.6-1.2 1.1-1.8 1.6h40.8c-0.6-0.5-1.2-1-1.8-1.6-6.7-6.7-6.7-17.5 0-24.2l76.2-76.2c6.7-6.7 17.5-6.7 24.2 0 6.7 6.7 6.7 17.5 0 24.2l-76.2 76.2c-0.6 0.6-1.2 1.1-1.8 1.6h100.1c9.4 0 17.1 7.7 17.1 17.1 0 9.4-7.7 17.1-17.1 17.1H522.4v69h119.5c9.4 0 17.1 7.7 17.1 17.1 0 9.4-7.7 17.1-17.1 17.1H522.4v81.6c0 9.4-7.7 17.1-17.1 17.1-9.4 0-17.1-7.7-17.1-17.1v-81.6H362.4c-9.4 0-17.1-7.7-17.1-17.1 0-9.4 7.7-17.1 17.1-17.1h125.8v-69z m312 265l120.3 120.3c10 10 10 26.2 0 36.2-10 10-26.2 10-36.2 0L764 800.2c-70.9 62.4-163.9 100.3-265.7 100.3C276.1 900.5 96 720.4 96 498.2S276.1 96 498.2 96s402.2 180.1 402.2 402.2c0.1 101.9-37.8 194.9-100.2 265.8z"
+                          p-id="4079"
+                        />
+                      </svg>
+                    </a>
+
+                    <el-checkbox
+                      label="批量修改"
+                      style="position: absolute; top: 0; right: 120px"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item
+                  field="remark"
+                  title="备注"
+                  :span="24"
+                  :item-render="{}"
+                >
+                  <template #default="{ data }">
+                    <vxe-input
+                      v-model="data.remark"
+                      type="text"
+                      placeholder="请输入备注"
+                    />
+                  </template>
+                </vxe-form-item>
+                <vxe-form-item align="center" title-align="left" :span="24">
+                  <template #default>
+                    <vxe-button type="submit">提交</vxe-button>
+                    <vxe-button type="reset">重置</vxe-button>
+                  </template>
+                </vxe-form-item>
+              </vxe-form>
+            </template>
+          </vxe-modal>
+          <vxe-modal
+            v-model="showPrice"
+            title="价格选择"
+            width="860"
+            height="460px"
+            min-width="600"
+            min-height="300"
+            resize
+            destroy-on-close
+          >
+            <template #default>
+              <vxe-table
+                border
+                ref="pTable"
+                height="300"
+                :data="priceData"
+                :radio-config="{ highlight: true, useKey: true }"
+                :column-config="{ resizable: true, useKey: true }"
+                :row-config="{ isHover: true, useKey: true }"
+                @cell-click="priceCellClick"
+                @radio-change="priceradioChange"
+              >
+                <vxe-column type="radio" width="60">
+                  <template #header>
+                    <vxe-button
+                      type="text"
+                      @click="clearRadioRowEevnt"
+                      :disabled="!selectRow"
+                      >取消</vxe-button
+                    >
+                  </template>
+                </vxe-column>
+                <vxe-column
+                  field="number"
+                  title="价格编号"
+                  width="100"
+                  show-overflow
+                />
+                <vxe-column
+                  field="type"
+                  title="价格类型"
+                  width="100"
+                  show-overflow
+                />
+                <vxe-column
+                  type="html"
+                  field="stepnumber"
+                  title="阶梯价格编号"
+                  width="110"
+                />
+                <vxe-column
+                  field="name"
+                  title="价格名称"
+                  width="100"
+                  show-overflow
+                />
+                <vxe-column
+                  field="waterUnitprice"
+                  title="水费单价"
+                  width="90"
+                />
+                <vxe-column
+                  field="waterUnitpricePer"
+                  title="水费标准单价百分比"
+                  width="150"
+                />
+                <vxe-column
+                  field="pollutioUnitprice"
+                  title="排污费单价"
+                  width="90"
+                />
+                <vxe-column
+                  field="pollutioUnitpricePer"
+                  title="排污费单价百分比"
+                  width="140"
+                />
+                <vxe-column
+                  field="pressureUnitprice"
+                  title="二次加压费用单价"
+                  width="140"
+                />
+                <vxe-column
+                  field="pressureUnitpricePre"
+                  title="二次加压费用百分比"
+                  width="150"
+                />
+                <vxe-column
+                  field="otherExpensesName"
+                  title="其他费用名称"
+                  width="110"
+                />
+                <vxe-column field="otherExpenses" title="其他费用" width="90" />
+                <vxe-column
+                  field="otherExpensesPre"
+                  title="其他费用百分比"
+                  width="120"
+                />
+                <vxe-column field="founder" title="创建人" width="100" />
+                <vxe-column
+                  field="creationtime"
+                  title="创建时间"
+                  width="125"
+                  show-overflow
+                />
+                <vxe-column field="updater" title="更新人" width="100" />
+                <vxe-column field="updatedtime" title="更新时间" width="100" />
+                <vxe-column
+                  field="describeinformation"
+                  title="描述信息"
+                  width="100"
+                />
+              </vxe-table>
+              <div style="margin-top: 10px">
+                <vxe-pager
+                  v-model:current-page="pageVO2.currentPage"
+                  :total="pageVO2.total"
+                  :page-size="10"
+                  @page-change="gethousehold"
+                  :layouts="[
+                    'PrevJump',
+                    'PrevPage',
+                    'Number',
+                    'NextPage',
+                    'NextJump',
+                    'FullJump',
+                    'Total'
+                  ]"
+                />
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center; /* 垂直交叉轴居中 */
+                  justify-content: center; /* 水平主轴居中 */
+                "
+              >
+                <vxe-button @click="selectPrice()">确认</vxe-button>
+                <vxe-button @click="showPrice = false">取消</vxe-button>
+              </div>
+            </template>
+            <!-- <template #footer> 1 </template> -->
+          </vxe-modal>
+        </div>
+      </el-tab-pane>
+      <el-tab-pane label="热表" name="second">
+        <firehousehold />
+      </el-tab-pane>
+    </el-tabs>
     <rightlist />
   </div>
 </template>
@@ -877,6 +886,7 @@ import {
 } from "@/api/household";
 import { getpriceset } from "@/api/price";
 import rightlist from "@/components/rightlist/rightlist.vue";
+import firehousehold from "../components/firehousehold.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 const store = useStore();
 const { change } = store;
@@ -917,6 +927,21 @@ const residentstatusList = [
     label: "销户"
   }
 ];
+
+const activeName = ref("first"); // tab标签
+const handleClick = tab => {
+  console.log(tab.props.label);
+  // if (tab.props.label == "水表") {
+  //   setLayoutThemeColor("default");
+  //   showname.value = "water";
+  //   console.log(showname.value);
+  // } else if (tab.props.label == "热表") {
+  //   setLayoutThemeColor("dusk");
+  //   showname.value = "fire";
+  //   console.log(showname.value);
+  // }
+};
+
 onMounted(() => {
   // isformArea();
   // getregion();
@@ -1514,5 +1539,8 @@ const selectPrice = () => {
 
 ::v-deep .vxe-select {
   width: 160px;
+}
+::v-deep .el-tabs__nav {
+  margin-left: 10px;
 }
 </style>

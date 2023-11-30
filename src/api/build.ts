@@ -37,6 +37,50 @@ export const lookupregion = data => {
   });
 };
 
+// 获取热表楼栋
+export const firebuild = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firebuild", {
+    data
+  });
+};
+
+// 增加热表楼栋
+export const firebuildadd = data => {
+  return httplocal.request<RefreshTokenResult>("post", "/api/firebuildadd", {
+    data
+  });
+};
+
+// 修改热表信息
+export const firebuildfix = (id, data) => {
+  return httplocal.request<RefreshTokenResult>(
+    "patch",
+    "/api/firebuildadd/" + id,
+    {
+      data
+    }
+  );
+};
+
+// 删除热表信息
+export const firebuilddelete = id => {
+  return httplocal.request<RefreshTokenResult>(
+    "delete",
+    "/api/firebuilddelete/" + id
+  );
+};
+
+// 根据小区名称去查询小区地理信息
+export const lookupfireregion = data => {
+  return httplocal.request<RefreshTokenResult>(
+    "post",
+    "/api/lookupfireregion",
+    {
+      data
+    }
+  );
+};
+
 // 设置出参类型
 export type RefreshTokenResult = {
   retcode: number;

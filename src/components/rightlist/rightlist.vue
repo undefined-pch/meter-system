@@ -10,6 +10,7 @@
           />
           <el-scrollbar style="height: 100%">
             <el-tree
+              v-if="showwater"
               :props="props"
               :load="loadNode"
               lazy
@@ -19,8 +20,19 @@
               check-strictly
               :filter-node-method="filterNode"
             />
+            <el-tree
+              v-else
+              :props="props"
+              :load="loadFireNode"
+              lazy
+              show-checkbox
+              ref="treeRef"
+              @check="select"
+              check-strictly
+              :filter-node-method="filterNode"
+            />
+            <!-- <span v-else>热表小区</span> -->
           </el-scrollbar>
-
           <div class="shift-map" @click="openmap('map')" />
         </div>
         <div v-show="!istree">
@@ -53,7 +65,14 @@
 import { ref, watch, onMounted } from "vue";
 import { ElTree } from "element-plus";
 import Map from "../../views/welcome/components/center/index.vue";
-import { getlist, getcompany, getregion } from "@/api/effort";
+import {
+  getlist,
+  getcompany,
+  getregion,
+  firecompany,
+  fireregion,
+  firevillage
+} from "@/api/effort";
 import { getbuild } from "@/api/build";
 // import { gethousehold } from "@/api/household";
 import type Node from "element-plus/es/components/tree/src/model/node";
@@ -61,12 +80,13 @@ import { getcollector } from "@/api/collector";
 // import { getlargemeter } from "@/api/largemeter";
 import { getGaugeValve } from "@/api/gaugeValve";
 // pinia获取右侧栏展开状态
-import { useStore } from "@/store/rightlist/state";
+import { useState } from "@/store/rightlist/state";
+import { useStore } from "@/store/logo/state";
 import { storeToRefs } from "pinia";
 // 创建实例
-const Text = useStore();
+const Text = useState();
 const { isshow } = storeToRefs(Text); //解构出来的值变为ref对象
-console.log(isshow.value, "进入页面右侧栏展开状态");
+// console.log(isshow.value, "进入页面右侧栏展开状态");
 
 interface Tree {
   name: string;
@@ -79,6 +99,26 @@ const props = {
   isLeaf: "leaf"
 };
 
+// pinia保存当前状态值
+const name = useStore();
+// const { showname } = storeToRefs(name); //解构出来的值变为ref对象
+// console.log(showname, "rightlist中获取到的tab值");
+const showwater = ref(true);
+watch(
+  () => name.showname,
+  newVal => {
+    // console.log(newVal, oldVal);
+    if (newVal == "water") {
+      console.log("现在在水表");
+      showwater.value = true;
+    } else if (newVal == "fire") {
+      console.log("现在在热表");
+      showwater.value = false;
+    }
+  }
+);
+
+// 加载水表子节点
 const loadNode = (node: Node, resolve) => {
   // console.log(node.label);
   if (node.level === 0) {
@@ -243,6 +283,59 @@ const loadNode = (node: Node, resolve) => {
   }
 };
 
+// 记载热表子节点
+const loadFireNode = (node: Node, resolve) => {
+  if (node.level === 0) {
+    // 展示一级供热公司
+    const data = {
+      company: ""
+    };
+    firecompany(data).then(res => {
+      if (res.retcode == 200) {
+        const newcompanyArr = [];
+        res.data.data.forEach(item => {
+          newcompanyArr.push({ name: item.name });
+        });
+        return resolve(newcompanyArr);
+      }
+    });
+  }
+  if (node.level === 1) {
+    // 展示二级区域名称
+    const data = {
+      company: node.label,
+      region: ""
+    };
+    fireregion(data).then(res => {
+      if (res.retcode == 200) {
+        const newregionArr = [];
+        res.data.data.forEach(item => {
+          newregionArr.push({ name: item.name });
+        });
+        return resolve(newregionArr);
+      }
+    });
+  }
+  if (node.level === 2) {
+    const data = {
+      page: 1,
+      pageSize: 1000,
+      company: node.parent.label,
+      region: node.label,
+      village: ""
+    };
+    firevillage(data).then(res => {
+      if (res.retcode == 200) {
+        const newvillageArr = [];
+        res.data.data.forEach(item => {
+          newvillageArr.push({ name: item.village });
+        });
+        return resolve(newvillageArr);
+      }
+    });
+  }
+};
+
 //作为组件不展示下侧bottom
 const isshowbottom = ref(false);
 
@@ -285,7 +378,9 @@ const openmap = item => {
     istree.value = true;
   }
 };
-const newArr = ref([]);
+
+const newArr = ref([]); // 保存水司信息
+// 获取水表tree信息
 const getallvillage = () => {
   const data = {
     page: 1,
@@ -299,19 +394,18 @@ const getallvillage = () => {
       res.data.data.forEach(item => {
         newArr.value.push({ name: item.village });
       });
-      // isopentip.value = true;
-      // isshow.value = true;
     }
   });
 };
 
+//
+
 // const treeRef = ref(null);
 const emit = defineEmits(["villageTree"]);
 const select = village => {
-  console.log(village.name, "点击复选框选择小区");
+  // console.log(village.name, "点击复选框选择小区");
   const res = treeRef.value.getCheckedNodes();
   console.log(res, "res");
-
   emit("villageTree", village);
 };
 
