@@ -3,7 +3,7 @@ import { getTopMenu } from "@/router/utils";
 import { useNav } from "@/layout/hooks/useNav";
 import { useI18n } from "vue-i18n";
 // pinia记录当前是水表/热表
-import { useStore } from "@/store/logo/state";
+import { useIconState } from "@/store/logo/state";
 import { storeToRefs } from "pinia";
 const { t } = useI18n();
 
@@ -13,7 +13,7 @@ const props = defineProps({
 
 const { title } = useNav();
 // pinia保存当前状态值
-const name = useStore();
+const name = useIconState();
 const { showname } = storeToRefs(name); //解构出来的值变为ref对象
 console.log(showname, "logo的值");
 </script>

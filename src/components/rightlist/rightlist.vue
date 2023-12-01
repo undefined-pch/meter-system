@@ -81,7 +81,7 @@ import { getcollector } from "@/api/collector";
 import { getGaugeValve } from "@/api/gaugeValve";
 // pinia获取右侧栏展开状态
 import { useState } from "@/store/rightlist/state";
-import { useStore } from "@/store/logo/state";
+import { useIconState } from "@/store/logo/state";
 import { storeToRefs } from "pinia";
 // 创建实例
 const Text = useState();
@@ -100,7 +100,7 @@ const props = {
 };
 
 // pinia保存当前状态值
-const name = useStore();
+const name = useIconState();
 // const { showname } = storeToRefs(name); //解构出来的值变为ref对象
 // console.log(showname, "rightlist中获取到的tab值");
 const showwater = ref(true);

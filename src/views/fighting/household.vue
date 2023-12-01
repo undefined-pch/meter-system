@@ -330,6 +330,7 @@
                       v-model="data.company"
                       placeholder="请输入要查找的水司"
                       :options="companyKeyList"
+                      :disabled="companyedit"
                       clearable
                       filterable
                       @focus="searchCompanyList"
@@ -349,6 +350,7 @@
                       v-model="data.region"
                       placeholder="请输入要查找的区域"
                       :options="regionKeyList"
+                      :disabled="regionedit"
                       clearable
                       filterable
                       @focus="searchRegionList(false)"
@@ -368,6 +370,7 @@
                       v-model="data.village"
                       placeholder="请输入要查找的小区"
                       :options="communityKeyList"
+                      :disabled="villageedit"
                       clearable
                       filterable
                       @focus="searchCommunityList(false)"
@@ -888,8 +891,20 @@ import { getpriceset } from "@/api/price";
 import rightlist from "@/components/rightlist/rightlist.vue";
 import firehousehold from "../components/firehousehold.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useIconState } from "@/store/logo/state";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange"; // 切换主题颜色
+import { storeToRefs } from "pinia";
+
+// pinia中保存的地理信息
 const store = useStore();
 const { change } = store;
+
+// pinia中保存的icon信息
+const name = useIconState();
+const { showname } = storeToRefs(name); //解构出来的值变为ref对象
+
+// tab切换水/热表表格
+const { setLayoutThemeColor } = useDataThemeChange();
 
 // const regioned = ref("");
 // const area = ref("");
@@ -931,15 +946,15 @@ const residentstatusList = [
 const activeName = ref("first"); // tab标签
 const handleClick = tab => {
   console.log(tab.props.label);
-  // if (tab.props.label == "水表") {
-  //   setLayoutThemeColor("default");
-  //   showname.value = "water";
-  //   console.log(showname.value);
-  // } else if (tab.props.label == "热表") {
-  //   setLayoutThemeColor("dusk");
-  //   showname.value = "fire";
-  //   console.log(showname.value);
-  // }
+  if (tab.props.label == "水表") {
+    setLayoutThemeColor("default");
+    showname.value = "water";
+    console.log(showname.value);
+  } else if (tab.props.label == "热表") {
+    setLayoutThemeColor("dusk");
+    showname.value = "fire";
+    console.log(showname.value);
+  }
 };
 
 onMounted(() => {
@@ -1024,6 +1039,10 @@ const addBuild = () => {
   //   householdData.company = companyed.value;
   // }
   showEdit.value = true;
+  // 可编辑供热公司、区域、小区
+  companyedit.value = false;
+  regionedit.value = false;
+  villageedit.value = false;
 };
 
 // 右侧地图显示与隐藏
@@ -1084,11 +1103,36 @@ const cellDBLClickEvent = (row: any) => {
 };
 
 // 编辑事件
+const companyedit = ref(false);
+const regionedit = ref(false);
+const villageedit = ref(false);
 const editEvent = (row: RowVO) => {
   Object.assign(householdData, row);
   selectRow.value = row;
   showEdit.value = true;
+  companyedit.value = true;
+  regionedit.value = true;
+  villageedit.value = true;
 };
+
+// 监听是编辑还是新增，显示是否可编辑供热公司、区域、小区
+// watch(
+//   () => selectRow.value,
+//   () => {
+//     if (selectRow.value) {
+//       console.log("不能修改");
+//       // 不能修改供热公司、区域、小区
+//       companyedit.value = true;
+//       regionedit.value = true;
+//       villageedit.value = true;
+//     } else {
+//       console.log("可以修改");
+//       companyedit.value = false;
+//       regionedit.value = false;
+//       villageedit.value = false;
+//     }
+//   }
+// );
 
 // 删除事件
 const removeEvent = async (row: RowVO) => {
@@ -1150,115 +1194,6 @@ const submitEvent = () => {
   }, 500);
 };
 const xTable = ref<VxeTableInstance<RowVO>>();
-
-// 改变小区
-// const changeArea = val => {
-//   console.log(val, "选中的小区");
-//   if (val == "福鼎家园") {
-//     // (tableData as any).value = fdData;
-//   } else {
-//     // (tableData as any).value = [];
-//   }
-// };
-
-// 获取区域信息
-// const selectRegion = ref([]);
-// const getregion = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000
-//   };
-//   getlist(data).then(res => {
-//     console.log(res.data, "区域数据");
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data.data;
-//     }
-//   });
-// };
-
-// 获取全部水司信息
-// const companyed = ref("");
-// const selectCompany = ref([]);
-// const getcompanyed = () => {
-//   getcompany().then(res => {
-//     if (res.retcode == 200) {
-//       // console.log(res.data, "res.data");
-//       selectCompany.value = res.data;
-//     }
-//   });
-// };
-
-// 修改水司查询区域信息
-// const selectRegion = ref([]);
-// const changeCompany = () => {
-//   let params = "";
-//   showEdit.value == true
-//     ? (params = householdData.company)
-//     : (params = companyed.value);
-//   getregion(params).then(res => {
-//     if (res.retcode == 200) {
-//       selectRegion.value = res.data;
-//       if (showEdit.value == false) {
-//         gethouseholdList();
-//       }
-//     }
-//   });
-// };
-// 筛选表格清除
-// const clearCompany = () => {
-//   console.log("清空表单");
-//   regioned.value = "";
-//   area.value = "";
-//   selectVillage.value = [];
-//   builded.value = "";
-//   selectBuild.value = [];
-// };
-// 筛选表单清除
-// const clearAddFrom = () => {
-//   householdData.company = "";
-//   householdData.region = "";
-//   householdData.village = "";
-//   householdData.buildingnumber = "";
-//   selectRegion.value = [];
-//   selectVillage.value = [];
-//   selectBuild.value = [];
-// };
-
-// 修改区域信息查询小区信息
-// const selectVillage = ref([]);
-// const changeRegion = () => {
-//   const data = { region: "" };
-//   showEdit.value == true
-//     ? (data.region = householdData.region)
-//     : (data.region = regioned.value);
-//   // const data = {
-//   //   village: regioned.value
-//   // };
-//   getvillage(data).then(res => {
-//     selectVillage.value = res.data;
-//     // console.log(selectVillage.value, "小区下拉菜单");
-//   });
-// };
-
-// 修改小区查询楼栋信息
-// const selectBuild = ref([]);
-// const changeVillage = () => {
-//   const data = {
-//     page: 1,
-//     pageSize: 1000,
-//     keyword: ""
-//   };
-//   showEdit.value == true
-//     ? (data.keyword = householdData.village)
-//     : (data.keyword = area.value);
-
-//   getbuild(data).then(res => {
-//     selectBuild.value = res.data.data;
-//   });
-// };
-
-// 楼栋信息
-// const builded = ref("");
 
 // 分页
 const pageVO2 = reactive({
@@ -1373,6 +1308,8 @@ const searchBuildList = type => {
   // true为表格筛选，false为表单筛选
   console.log(householdData, "表单选择的小区");
   const data = {
+    page: pageVO2.currentPage,
+    pageSize: 100,
     company: type === true ? companyKey.value : householdData.company,
     region: type === true ? regionKey.value : householdData.region,
     village: type === true ? CommunityKey.value : householdData.village,

@@ -482,7 +482,7 @@ import { useI18n } from "vue-i18n"; // 表头翻译
 // import { usePosition } from "@/store/modules/position"; // 从pinia中导入到村的地理位置信息
 import { useRouter } from "vue-router"; // 导入路由模块
 import { useArea } from "@/store/modules/build"; // 从pinia中导入到村的地理位置信息
-import { useStore } from "@/store/logo/state";
+import { useIconState } from "@/store/logo/state";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange"; // 切换主题颜色
 import { storeToRefs } from "pinia";
 import { getlist, getregion, getcompany } from "@/api/effort";
@@ -502,7 +502,7 @@ const { savearea } = area;
 const router = useRouter();
 
 // pinia保存当前状态值
-const name = useStore();
+const name = useIconState();
 const { showname } = storeToRefs(name); //解构出来的值变为ref对象
 // tab切换水/热表表格
 const { setLayoutThemeColor } = useDataThemeChange();

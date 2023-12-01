@@ -166,98 +166,135 @@
         </template>
       </vxe-column>
       <vxe-column
+        field="unit"
+        width="100"
+        show-header-overflow
+        sortable
+        title="单元号"
+        show-overflow
+      >
+        <template #header>
+          {{ t("unit") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="floornumber"
+        width="100"
+        show-header-overflow
+        sortable
+        title="楼层号"
+        show-overflow
+      >
+        <template #header>
+          {{ t("floornumber") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="residentnumber"
+        width="100"
+        show-header-overflow
+        sortable
+        title="住户门牌"
+        show-overflow
+      >
+        <template #header>
+          {{ t("residentnumber") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="residentOrientation"
+        width="100"
+        show-header-overflow
+        sortable
+        title="住户方位"
+        show-overflow
+      >
+        <template #header>
+          {{ t("residentOrientation") }}
+        </template>
+      </vxe-column>
+      <vxe-column
+        field="pipelineLocation"
+        width="100"
+        show-header-overflow
+        sortable
+        title="管道位置"
+        show-overflow
+      >
+        <template #header>
+          {{ t("pipelineLocation") }}
+        </template>
+      </vxe-column>
+      <vxe-column
         field="heatingarea"
         width="100"
         show-header-overflow
         sortable
-        title="供热面积"
+        title="采暖面积"
+        show-overflow
       >
         <template #header>
-          {{ t("communityarea") }}
+          {{ t("heatingarea") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="buildlevel"
+        field="roomheatcard"
         width="100"
         show-header-overflow
         sortable
-        title="楼层数"
+        title="房间热卡号"
+        show-overflow
       >
         <template #header>
-          {{ t("level") }}
+          {{ t("roomheatcard") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="heatinghouseholds"
+        field="residentname"
         width="100"
         show-header-overflow
         sortable
-        min="0"
-        title="供热户数"
+        title="住户姓名"
+        show-overflow
       >
         <template #header>
-          {{ t("heatingHouseholds") }}
+          {{ t("residentname") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="heatMetering"
+        field="heatingtype"
         width="100"
         show-header-overflow
         sortable
-        min="0"
-        title="计量方式"
+        title="供热类型"
+        show-overflow
       >
         <template #header>
-          {{ t("measuring") }}
-        </template>
-      </vxe-column>
-      <vxe-column field="attr3" title="icon" width="70" tree-node>
-        <template #default>
-          <img src="@/assets/iconfont/mapicon.png" height="40" width="40" />
+          {{ t("heatingtype") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="founder"
+        field="fixedtelephone"
         width="100"
         show-header-overflow
         sortable
-        title="创建人"
+        title="固定电话"
+        show-overflow
       >
         <template #header>
-          {{ t("founder") }}
+          {{ t("fixedtelephone") }}
         </template>
       </vxe-column>
       <vxe-column
-        field="creationtime"
+        field="mobilephone"
         width="100"
         show-header-overflow
         sortable
-        title="创建时间"
+        title="移动电话"
+        show-overflow
       >
         <template #header>
-          {{ t("creationtime") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updater"
-        width="100"
-        show-header-overflow
-        sortable
-        title="最近更新人"
-      >
-        <template #header>
-          {{ t("lastupdater") }}
-        </template>
-      </vxe-column>
-      <vxe-column
-        field="updatetime"
-        show-header-overflow
-        sortable
-        width="100"
-        title="最近更新时间"
-      >
-        <template #header>
-          {{ t("lastupdated") }}
+          {{ t("mobilephone") }}
         </template>
       </vxe-column>
       <vxe-column title="操作" width="100" fixed="right" show-overflow>
@@ -371,18 +408,6 @@
               {{ t("communityname") }}
             </template>
             <template #default="{ data }">
-              <!-- <vxe-input v-model="data.village" placeholder="请输入小区名称">
-                <template #suffix>
-                  <el-tooltip
-                    class="box-item"
-                    effect="dark"
-                    content="点击在地图上搜索该小区名"
-                    placement="top"
-                  >
-                    <i class="vxe-icon-location" @click="lookupvillage()" />
-                  </el-tooltip>
-                </template>
-              </vxe-input> -->
               <el-select-v2
                 v-model="data.village"
                 style="width: 100%"
@@ -410,16 +435,63 @@
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="buildlevel" :span="12" :item-render="{}">
+          <vxe-form-item field="unit" :span="12" :item-render="{}">
             <template #title>
-              {{ t("buildlevel") }}
+              {{ t("unit") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input v-model="data.unit" placeholder="请输入单元号" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="floornumber" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("floornumber") }}
             </template>
             <template #default="{ data }">
               <vxe-input
-                v-model="data.buildlevel"
+                v-model="data.floornumber"
                 type="integer"
                 min="0"
-                placeholder="请输入楼层数"
+                placeholder="请输入楼层号"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="residentnumber" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("residentnumber") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.residentnumber"
+                placeholder="请输入住户门牌"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item
+            field="residentOrientation"
+            :span="12"
+            :item-render="{}"
+          >
+            <template #title>
+              {{ t("residentOrientation") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.residentOrientation"
+                type="integer"
+                min="0"
+                placeholder="请输入住户方位"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="pipelineLocation" :span="12" :item-render="{}">
+            <template #title>
+              {{ t("pipelineLocation") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-input
+                v-model="data.pipelineLocation"
+                placeholder="请输入管道位置"
               />
             </template>
           </vxe-form-item>
@@ -430,51 +502,86 @@
             <template #default="{ data }">
               <vxe-input
                 v-model="data.heatingarea"
-                placeholder="请输入供热面积"
+                placeholder="请输入采暖面积"
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="heatinghouseholds" :span="12" :item-render="{}">
+          <vxe-form-item field="roomheatcard" :span="24" :item-render="{}">
             <template #title>
-              {{ t("heatinghouseholds") }}
+              {{ t("roomheatcard") }}
             </template>
             <template #default="{ data }">
-              <vxe-input
-                v-model="data.heatinghouseholds"
+              <vxe-textarea
+                v-model="data.roomheatcard"
                 type="integer"
                 min="0"
-                placeholder="请输入供热户数"
+                placeholder="请输入房间热卡号"
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="buildtype" :span="12" :item-render="{}">
+          <vxe-form-item field="residentname" :span="24" :item-render="{}">
             <template #title>
-              {{ t("buildtype") }}
+              {{ t("residentname") }}
             </template>
             <template #default="{ data }">
-              <vxe-input
-                v-model="data.buildtype"
-                placeholder="请输入楼栋类型"
+              <vxe-textarea
+                v-model="data.residentname"
+                type="integer"
+                min="0"
+                placeholder="请输入住户姓名"
               />
             </template>
           </vxe-form-item>
-          <vxe-form-item field="heatMetering" :span="12" :item-render="{}">
+          <vxe-form-item field="heatingtype" :span="24" :item-render="{}">
             <template #title>
-              {{ t("measuring") }}
+              {{ t("heatingtype") }}
             </template>
             <template #default="{ data }">
-              <!-- <vxe-input v-model="data.area" placeholder="请输入计量方式" /> -->
-              <vxe-select
-                v-model="data.heatMetering"
-                placeholder="请选择计量方式"
-              >
-                <vxe-option
-                  v-for="(num, index) in heatMeteringList"
-                  :key="index"
-                  :value="num.value"
-                  :label="num.label"
-                />
-              </vxe-select>
+              <vxe-textarea
+                v-model="data.heatingtype"
+                type="integer"
+                min="0"
+                placeholder="请输入供热类型"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="fixedtelephone" :span="24" :item-render="{}">
+            <template #title>
+              {{ t("fixedtelephone") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-textarea
+                v-model="data.fixedtelephone"
+                type="integer"
+                min="0"
+                placeholder="请输入固定电话"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="mobilephone" :span="24" :item-render="{}">
+            <template #title>
+              {{ t("mobilephone") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-textarea
+                v-model="data.mobilephone"
+                type="integer"
+                min="0"
+                placeholder="请输入移动电话"
+              />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item field="email" :span="24" :item-render="{}">
+            <template #title>
+              {{ t("email") }}
+            </template>
+            <template #default="{ data }">
+              <vxe-textarea
+                v-model="data.email"
+                type="integer"
+                min="0"
+                placeholder="请输入邮箱"
+              />
             </template>
           </vxe-form-item>
           <vxe-form-item field="notes" :span="24" :item-render="{}">
@@ -482,51 +589,13 @@
               {{ t("notes") }}
             </template>
             <template #default="{ data }">
-              <vxe-textarea
+              <vxe-textareas
                 v-model="data.notes"
                 type="integer"
                 min="0"
                 placeholder="请输入描述信息"
               />
             </template>
-          </vxe-form-item>
-          <!-- 修改之前的表单 -->
-          <vxe-form-item field="jd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("jd") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.jd" placeholder="请输入经度" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item field="wd" :span="12" :item-render="{}">
-            <template #title>
-              {{ t("wd") }}
-            </template>
-            <template #default="{ data }">
-              <vxe-input v-model="data.wd" placeholder="请输入纬度" transfer />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item :span="24">
-            <div class="map">
-              <baidu-map
-                class="baidu-map"
-                :center="center"
-                :zoom="zoom"
-                @click="getpoint"
-                :scroll-wheel-zoom="true"
-              >
-                <bm-local-search
-                  :keyword="villagekeyword"
-                  :auto-viewport="true"
-                />
-                <bm-marker
-                  :position="points"
-                  :dragging="true"
-                  @dragend="dragend"
-                />
-              </baidu-map>
-            </div>
           </vxe-form-item>
           <vxe-form-item align="center" :span="24">
             <template #default>
@@ -850,45 +919,10 @@ const formData = ref<FormDataVO>({
   wd: 0
 });
 
-const heatMeteringList = ref([
-  { value: "1", label: "通断时间面积法" },
-  { value: "2", label: "热量表法" }
-]);
-
 const selectList = ref([]);
 const selectRowsId = computed(() => {
   return selectList.value.map(item => item.id);
 });
-
-// 地图定位小区信息
-const villagekeyword = ref("");
-// const lookupvillage = () => {
-//   villagekeyword.value = formData.value.village;
-// };
-
-// 地图相关配置
-const center = ref({ lng: 0, lat: 0 });
-const zoom = ref(3);
-const points = ref({ lng: 0, lat: 0 }); // 小区定位点icon
-
-// 绘制点
-const getpoint = ({ point }: any) => {
-  const jd = point.lng;
-  const wd = point.lat;
-  points.value.lng = point.lng;
-  points.value.lat = point.lat;
-  formData.value.jd = jd;
-  formData.value.wd = wd;
-};
-// 拖拽结束将坐标更新
-const dragend = ({ point }) => {
-  const jd = point.lng;
-  const wd = point.lat;
-  points.value.lng = point.lng;
-  points.value.lat = point.lat;
-  formData.value.jd = jd;
-  formData.value.wd = wd;
-};
 
 // 选择框
 const radio1 = ref("1");
@@ -1244,6 +1278,7 @@ const selectaddress = (a, b) => {
       companyKey.value = b.label.split("-")[0];
       regionKey.value = b.label.split("-")[1];
       villageKey.value = b.label.split("-")[2];
+      buildKey.value = b.label.split("-")[3];
       geteffortlist();
       break;
   }

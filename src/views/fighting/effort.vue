@@ -775,7 +775,7 @@ import {
 } from "@/api/effort";
 // import { t } from "@/utils/effortlanguage/effortlanguage.js"; // 翻译词典
 import { useI18n } from "vue-i18n"; // 表头翻译
-import { useStore } from "@/store/logo/state";
+import { useIconState } from "@/store/logo/state";
 import { storeToRefs } from "pinia";
 // 导入热表表格
 import fireVillage from "../components/fireVillage.vue";
@@ -1808,7 +1808,7 @@ nextTick(() => {
 });
 
 // pinia保存当前状态值
-const name = useStore();
+const name = useIconState();
 const { showname } = storeToRefs(name); //解构出来的值变为ref对象
 // tab切换水/热表表格
 const { setLayoutThemeColor } = useDataThemeChange();
