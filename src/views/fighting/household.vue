@@ -732,18 +732,14 @@
                 ref="pTable"
                 height="300"
                 :data="priceData"
-                :radio-config="{ highlight: true, useKey: true }"
+                :radio-config="{ highlight: true }"
                 :column-config="{ resizable: true, useKey: true }"
                 :row-config="{ isHover: true, useKey: true }"
-                @cell-click="priceCellClick"
                 @radio-change="priceradioChange"
               >
                 <vxe-column type="radio" width="60">
                   <template #header>
-                    <vxe-button
-                      type="text"
-                      @click="clearRadioRowEevnt"
-                      :disabled="!selectRow"
+                    <vxe-button type="text" :disabled="!selectRow"
                       >取消</vxe-button
                     >
                   </template>
@@ -1099,7 +1095,7 @@ const submitLoading = ref(false);
 const cellDBLClickEvent = (row: any) => {
   // 前往户表信息
   console.log(row.data, "row");
-  router.push({ path: "/basicInformation/build" });
+  // router.push({ path: "/basicInformation/build" });
 };
 
 // 编辑事件
@@ -1403,7 +1399,7 @@ const openAccount = () => {
             gethouseholdList();
           } else {
             ElMessage({
-              type: "danger",
+              type: "error",
               message: "开户失败"
             });
           }

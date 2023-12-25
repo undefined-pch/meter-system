@@ -15,6 +15,9 @@ import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { removeToken } from "@/utils/auth";
 import { ElMessage } from "element-plus";
+// const { VITE_PUBLIC_PATH } = import.meta.env;
+// console.log("当前环境变量VITE_PUBLIC_PATH为：", VITE_PUBLIC_PATH);
+console.log(process.env.NODE_ENV, "当前环境");
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {

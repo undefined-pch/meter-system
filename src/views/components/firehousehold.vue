@@ -759,7 +759,7 @@ const searchVillageloading = ref(false);
 // 将小区进行模糊搜索
 const remoteVillageMethod = (query: string) => {
   if (query !== "") {
-    searchVillageList.value = true;
+    // searchVillageList.value = true;
     const data = {
       company:
         showEdit.value == true ? formData.value.company : companyKey.value,
@@ -828,6 +828,11 @@ const downloadExcel = () => {
   a.click();
   a.remove();
 };
+
+const center = ref({ lng: 0, lat: 0 });
+const zoom = ref(3);
+
+const villagekeyword = ref("");
 
 // 新增按钮
 const insertEvent = () => {
@@ -979,6 +984,7 @@ interface RowVO {
 }
 
 const fixedid = ref("");
+const points = ref({ lng: 0, lat: 0 }); // 小区定位点icon
 const editEvent = (row: RowVO) => {
   center.value.lng = Number(row.jd);
   center.value.lat = Number(row.wd);
@@ -1283,12 +1289,15 @@ const selectaddress = (a, b) => {
       break;
   }
 };
-
+interface Tree {
+  name: string;
+  leaf?: boolean;
+}
 // 模糊筛选
 const filterNode = (value: string, data: Tree) => {
   if (!value) return true;
   console.log(data, "过滤数据");
-  return data.label.includes(value);
+  return data.name.includes(value);
 };
 
 onMounted(() => {

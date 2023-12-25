@@ -15,7 +15,7 @@ const { title } = useNav();
 // pinia保存当前状态值
 const name = useIconState();
 const { showname } = storeToRefs(name); //解构出来的值变为ref对象
-console.log(showname, "logo的值");
+// console.log(showname, "logo的值");
 </script>
 
 <template>
@@ -77,13 +77,14 @@ console.log(showname, "logo的值");
       display: inline-block;
       height: 32px;
       margin: 2px 0 0 12px;
-      overflow: hidden;
+      // overflow: hidden;
       font-size: 18px;
       font-weight: 600;
       line-height: 32px;
       color: $subMenuActiveText;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-shadow: 0.2px 0px 1px rgba(0, 0, 255, 0.5);
     }
   }
 }

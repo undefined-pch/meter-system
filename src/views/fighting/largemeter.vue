@@ -608,7 +608,6 @@
       </vxe-modal>
       <el-drawer
         v-model="table"
-        @close="closeRightList"
         title="全部协议信息"
         direction="rtl"
         size="40%"

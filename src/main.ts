@@ -26,7 +26,7 @@ import "./assets/iconfont/iconfont.js";
 import "./assets/iconfont/iconfont.css";
 
 // 引入echarts注册组件
-import * as chart from "@/components/chart";
+// import * as chart from "@/components/chart";
 
 import VXETable from "vxe-table";
 import "vxe-table/lib/style.css";
@@ -75,7 +75,6 @@ getServerConfig(app).then(async config => {
     })
     .use(MotionPlugin)
     .use(useI18n)
-    .use(chart)
     .use(useTable);
   // .use(Table);
   // .use(PureDescriptions);

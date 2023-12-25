@@ -755,20 +755,13 @@
             ref="pTable"
             height="300"
             :data="priceData"
-            :radio-config="{ highlight: true, useKey: true }"
+            :radio-config="{ highlight: true }"
             :column-config="{ resizable: true, useKey: true }"
             :row-config="{ isHover: true, useKey: true }"
-            @cell-click="priceCellClick"
-            @radio-change="priceradioChange"
           >
             <vxe-column type="radio" width="60">
               <template #header>
-                <vxe-button
-                  type="text"
-                  @click="clearRadioRowEevnt"
-                  :disabled="!selectRow"
-                  >取消</vxe-button
-                >
+                <vxe-button type="text" :disabled="!selectRow">取消</vxe-button>
               </template>
             </vxe-column>
             <vxe-column
@@ -852,7 +845,6 @@
               v-model:current-page="pageVO2.currentPage"
               :total="pageVO2.total"
               :page-size="10"
-              @page-change="getallbuild"
               :layouts="[
                 'PrevJump',
                 'PrevPage',
@@ -871,7 +863,7 @@
               justify-content: center; /* 水平主轴居中 */
             "
           >
-            <vxe-button @click="selectPrice()">确认</vxe-button>
+            <!-- <vxe-button @click="selectPrice()">确认</vxe-button> -->
             <vxe-button @click="showPrice = false">取消</vxe-button>
           </div>
         </template>
@@ -883,7 +875,6 @@
         v-model:current-page="pageVO2.currentPage"
         :total="pageVO2.total"
         :page-size="10"
-        @page-change="getallbuild"
         :layouts="[
           'PrevJump',
           'PrevPage',
@@ -957,6 +948,9 @@ import rightlist from "@/components/rightlist/rightlist.vue";
 //     name: "24"
 //   }
 // ];
+const showPrice = ref(false); // 展示价格弹框
+
+const priceData = ref([]); // 获取价格设置信息
 
 // 工作模式
 const workModeList = [{ value: 1, label: "水表法" }];
@@ -1118,7 +1112,7 @@ const submitLoading = ref(false);
 const cellDBLClickEvent = (row: any) => {
   // 前往户表信息
   console.log(row.data, "row");
-  router.push({ path: "/basicInformation/build" });
+  // router.push({ path: "/basicInformation/build" });
 };
 
 // 编辑事件
@@ -1336,7 +1330,7 @@ const searchBuildList = type => {
 // 清除小区关键词
 const clearBuildKey = () => {
   buildKey.value = "";
-  gethouseholdList();
+  // gethouseholdList();
 };
 </script>
 <style lang="scss" scoped>
