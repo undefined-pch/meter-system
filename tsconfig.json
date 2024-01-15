@@ -37,6 +37,6 @@
     "src/**/*.vue",
     "types/*.d.ts",
     "vite.config.ts"
-  ],
+, "src/api/collector.js", "src/api/gaugeValve.js"  ],
   "exclude": ["dist", "**/*.js", "node_modules"]
 }

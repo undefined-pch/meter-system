@@ -385,6 +385,10 @@ onBeforeMount(() => {
       </li>
     </ul>
 
+    <el-divider>版本号</el-divider>
+    <p style="text-align: center; line-height: 60px; margin-bottom: -30px">
+      V1.1.0
+    </p>
     <el-divider />
     <el-button
       type="danger"

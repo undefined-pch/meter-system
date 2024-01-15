@@ -29,38 +29,113 @@
         <el-card shadow="always" style="height: 100%; white-space: nowrap">
           <el-scrollbar>
             <template v-for="item in modules" :key="item.name">
-              <div class="content_box" :style="item.backStyle">
+              <div class="content_box" :style="[item.backStyle, item.width]">
                 <img class="icon" :src="item.icon" alt="" />
                 <span class="title">{{ item.name }}</span>
-                <div class="count">
-                  <div class="count_item">
-                    <span class="label">总数：</span>
-                    <span class="input_total">{{ item.total }}</span>
+                <div v-if="item.showItem == 4" class="count">
+                  <el-row>
+                    <el-col :span="12"
+                      ><p>
+                        <span class="label">总数量：</span
+                        ><span class="input_total">{{ item.total }}</span>
+                      </p></el-col
+                    >
+                    <el-col :span="12"
+                      ><p>
+                        <span class="label">故障数：</span
+                        ><span class="input_fault">{{ item.fault }}</span>
+                      </p></el-col
+                    >
+                  </el-row>
+                  <el-row>
+                    <el-col :span="12"
+                      ><p>
+                        <span class="label">抄读成功：</span>
+                        <span class="input_success">{{
+                          item.readoutSuccess
+                        }}</span>
+                      </p></el-col
+                    >
+                    <el-col :span="12"
+                      ><p>
+                        <span class="label">抄读失败：</span
+                        ><span class="input_error">{{ item.readoutFail }}</span>
+                      </p></el-col
+                    >
+                  </el-row>
+                </div>
+                <div v-else class="count">
+                  <div v-if="item.type == 'meter'">
+                    <el-row>
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">总数量：</span
+                          ><span class="input_total">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">故障数：</span
+                          ><span class="input_fault">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">抄读成功：</span
+                          ><span class="input_success">12</span>
+                        </p></el-col
+                      >
+                    </el-row>
+                    <el-row>
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">关阀数：</span
+                          ><span class="input_total">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">抄读失败：</span
+                          ><span class="input_error">12</span>
+                        </p></el-col
+                      >
+                    </el-row>
                   </div>
-                  <div class="count_item" v-if="item.showItem == 4">
-                    <span class="label">在线数：</span>
-                    <span class="input_online">{{ item.online }}</span>
-                  </div>
-                  <div class="count_item" v-if="item.showItem == 4">
-                    <span class="label">掉电数：</span>
-                    <span class="input_powerDown">{{ item.powerDown }}</span>
-                  </div>
-                  <div class="count_item" v-if="item.showItem == 4">
-                    <span class="label">离线数：</span>
-                    <span class="input_outline">{{ item.outline }}</span>
-                  </div>
-                  <div class="count_item" v-if="item.showItem == 3">
-                    <span class="label">热表：</span>
-                    <span class="household_hotMeter">{{ item.outline }}</span>
-                  </div>
-                  <div class="count_item" v-if="item.showItem == 3">
-                    <span class="label">水表：</span>
-                    <span class="household_WaterMeter">{{ item.outline }}</span>
-                  </div>
-                  <div class="count_item" v-if="item.showItem == 2" />
-                  <div class="count_item" v-if="item.showItem == 2">
-                    <span class="label">关阀数：</span>
-                    <span class="input_outline">{{ item.outline }}</span>
+                  <div v-else>
+                    <el-row>
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">总数量：</span
+                          ><span class="input_total">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">水表：</span
+                          ><span class="input_fault">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">热表：</span
+                          ><span class="input_success">12</span>
+                        </p></el-col
+                      >
+                    </el-row>
+                    <el-row>
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">燃气表：</span
+                          ><span class="input_total">12</span>
+                        </p></el-col
+                      >
+                      <el-col :span="8"
+                        ><p>
+                          <span class="label">电表：</span
+                          ><span class="input_error">12</span>
+                        </p></el-col
+                      >
+                    </el-row>
                   </div>
                 </div>
               </div>
@@ -76,7 +151,7 @@
           <el-col :span="15">
             <el-card shadow="always" style="height: 270px">
               <p style="font-size: 15px">
-                <el-divider direction="vertical" />近30天预警信息
+                <el-divider direction="vertical" />及时缴费监测
               </p>
               <div class="alarm_table">
                 <el-scrollbar height="200px">
@@ -85,33 +160,57 @@
                     height="200"
                     stripe
                     style="width: 100%"
+                    :row-style="{ height: '0' }"
+                    :cell-style="{ padding: '4px' }"
                   >
-                    <el-table-column prop="date" label="日期" width="100" />
-                    <el-table-column prop="meterId" label="表号" width="150" />
                     <el-table-column
-                      prop="message"
-                      label="告警信息"
-                      width="160"
+                      prop="roomName"
+                      label="房间号"
+                      width="100"
                       show-overflow-tooltip
                     />
                     <el-table-column
-                      prop="alarmLevel"
-                      label="告警等级"
+                      prop="meterType"
+                      label="表类型"
                       width="100"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="meterId"
+                      label="表号"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="chargingMode"
+                      label="扣费模式"
+                      width="100"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="warning"
+                      label="预警余额值"
+                      width="100"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="isPay"
+                      label="是否缴费"
+                      width="100"
+                      show-overflow-tooltip
                     >
-                      <template #default="{ row }">
-                        <el-tag type="danger" v-if="row.alarmLevel == 1"
-                          >高</el-tag
+                      <template #default="scope">
+                        <el-tag v-if="scope.row.isPay" type="success">
+                          是</el-tag
                         >
-                        <el-tag type="warning" v-else-if="row.alarmLevel == 2"
-                          >中</el-tag
-                        >
-                        <el-tag type="info" v-else-if="row.alarmLevel == 3"
-                          >底</el-tag
-                        >
+                        <el-tag v-else type="danger"> 否</el-tag>
                       </template>
                     </el-table-column>
-                    <el-table-column prop="address" label="地址 " />
+                    <el-table-column
+                      prop="date"
+                      label="预警时间"
+                      width="100"
+                      show-overflow-tooltip
+                    />
                   </el-table>
                 </el-scrollbar>
               </div>
@@ -152,101 +251,117 @@ const modules = ref([
   {
     name: "采集器(个)",
     total: 12,
-    online: 0,
-    powerDown: 0,
-    outline: 12,
+    fault: 0, // 故障数
+    readoutSuccess: 4, // 抄读成功
+    readoutFail: 12, // 抄读失败
     icon: `/src/assets/welcome/collector_white.png`,
     showItem: 4,
+    type: "meter",
+    width: "width:230px;",
     backStyle:
       "background-image: linear-gradient(to right bottom,  #6f86d6,#48c6ef);"
   },
   {
     name: "4G模块(个)",
     total: 0,
-    online: 0,
-    powerDown: 0,
-    outline: 0,
+    fault: 0,
+    readoutSuccess: 0,
+    readoutFail: 0,
     icon: `/src/assets/welcome/4G_white.png`,
     showItem: 4,
+    width: "width:230px;",
+    type: "meter",
     backStyle:
       "background-image: linear-gradient(to right bottom,  #ef9ea9,  #fedee2 );"
   },
   {
     name: "NB热表(个)",
     total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
+    fault: 0, // 抄表成功
+    readoutSuccess: 0, // 故障数
+    readoutFail: 2, // 抄表失败
     icon: `/src/assets/welcome/hotmeter_white.png`,
-    showItem: 4,
+    showItem: 5,
+    type: "meter",
+    width: "width:322px;",
     backStyle:
       "background-image: linear-gradient(to right bottom, #7690c1 ,   #c2daee );"
   },
   {
     name: "NB水表(个)",
     total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
+    fault: 0,
+    readoutSuccess: 0,
+    readoutFail: 2,
     icon: `/src/assets/welcome/watermeter_white.png`,
-    showItem: 4,
+    showItem: 5,
+    type: "meter",
+    width: "width:322px;",
     backStyle:
       "background-image: linear-gradient(to right bottom,   #b3afaa,#f3f0e9);"
   },
   {
+    name: "普通热表(个)",
+    total: 2,
+    fault: 0,
+    readoutSuccess: 0,
+    readoutFail: 2,
+    icon: `/src/assets/welcome/hotmeter_white.png`,
+    showItem: 5,
+    type: "meter",
+    width: "width:322px;",
+    backStyle:
+      "background-image: linear-gradient(to right bottom,  #6f86d6,#48c6ef);"
+  },
+  {
+    name: "普通水表(个)",
+    total: 2,
+    fault: 0,
+    readoutSuccess: 0,
+    readoutFail: 2,
+    icon: `/src/assets/welcome/watermeter_white.png`,
+    showItem: 5,
+    type: "meter",
+    width: "width:322px;",
+    backStyle:
+      "background-image: linear-gradient(to right bottom,  #ef9ea9,  #fedee2 );"
+  },
+  {
     name: "管理住户数量",
     total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
+    waterMeter: 18, // 水表
+    hotMeter: 0, // 热表
     icon: `/src/assets/welcome/household_white.png`,
-    showItem: 3,
+    showItem: 5,
+    type: "region",
+    width: "width:322px;",
     backStyle:
       "background-image: linear-gradient(to right bottom,  #c1dfc4,  #deecdd );"
   },
   {
     name: "管理楼栋数量",
     total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
+    waterMeter: 18, // 水表
+    hotMeter: 0, // 热表
     icon: `/src/assets/welcome/build_white.png`,
-    showItem: 3,
+    showItem: 5,
+    type: "region",
+    width: "width:322px;",
     backStyle:
       "background-image: linear-gradient(to right bottom,   #a18cd1, #fbc2eb );"
   },
   {
     name: "管理小区数量",
     total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
+    fault: 0,
+    readoutSuccess: 0,
+    readoutFail: 2,
     icon: `/src/assets/welcome/village_white.png`,
-    showItem: 3,
+    showItem: 5,
+    type: "region",
+    width: "width:322px;",
     backStyle:
       "background-image: linear-gradient(to right bottom,  #6f86d6,#48c6ef);"
-  },
-  {
-    name: "热表关阀",
-    total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
-    icon: `/src/assets/welcome/faclose.png`,
-    showItem: 2,
-    backStyle:
-      "background-image: linear-gradient(to right bottom,  #ef9ea9,  #fedee2 );"
-  },
-  {
-    name: "水表关阀",
-    total: 2,
-    online: 0,
-    powerDown: 0,
-    outline: 2,
-    icon: `/src/assets/welcome/faclose.png`,
-    showItem: 2,
-    backStyle:
-      "background-image: linear-gradient(to right bottom, #7690c1 ,   #c2daee );"
   }
 ]);
 
@@ -319,39 +434,49 @@ const allCost = computed(() => {
 // 表格信息
 const tableData = [
   {
-    date: "2023-12-22",
+    roomName: "测试区域->测试小区->测试楼栋->101",
+    meterType: "预付费水表",
     meterId: "12345678900(水表)",
-    message: "流量传感器故障或空管",
-    alarmLevel: 1,
-    address: "万利大厦-2单元-201"
+    chargingMode: "预付费",
+    warning: "0",
+    isPay: true,
+    date: "2023-12-22"
   },
   {
-    date: "2023-12-22",
-    meterId: "12345678901(热表)",
-    message: "温度传感器故障",
-    alarmLevel: 2,
-    address: "万利大厦-2单元-301"
+    roomName: "测试区域->测试小区->测试楼栋->201",
+    meterType: "普通水表",
+    meterId: "12345678901(水表)",
+    chargingMode: "后付费",
+    warning: "-100",
+    isPay: false,
+    date: "2023-12-22"
   },
   {
-    date: "2023-12-21",
+    roomName: "测试区域->测试小区->测试楼栋->301",
+    meterType: "预付费水表",
+    meterId: "12345678902(水表)",
+    chargingMode: "预付费",
+    warning: "0",
+    isPay: true,
+    date: "2023-12-22"
+  },
+  {
+    roomName: "测试区域->测试小区->测试楼栋->401",
+    meterType: "远传水表",
     meterId: "12345678903(水表)",
-    message: "水管泄露故障",
-    alarmLevel: 1,
-    address: "万利大厦-2单元-401"
+    chargingMode: "后付费",
+    warning: "-100",
+    isPay: false,
+    date: "2023-12-22"
   },
   {
-    date: "2023-12-20",
+    roomName: "测试区域->测试小区->测试楼栋->501",
+    meterType: "预付费水表",
     meterId: "12345678904(水表)",
-    message: "水管爆裂故障",
-    alarmLevel: 3,
-    address: "万利大厦-2单元-501"
-  },
-  {
-    date: "2023-12-20",
-    meterId: "12345678905(水表)",
-    message: "阀门异常",
-    alarmLevel: 1,
-    address: "万利大厦-2单元-601"
+    chargingMode: "预付费",
+    warning: "0",
+    isPay: true,
+    date: "2023-12-22"
   }
 ];
 // 绘制近30天费用占比
@@ -435,20 +560,50 @@ const driveCostChart = () => {
 };
 
 // 费用数据
-const incomeData = ref([
-  { value: 1628, name: "水表" },
-  { value: 1219, name: "热表" }
-]);
+// const incomeData = ref([
+//   { value: 1628, name: "水表" },
+//   { value: 1219, name: "热表" }
+// ]);
+const data = [
+  {
+    name: "水表",
+    value: 40,
+    children: [
+      {
+        name: "退费",
+        value: 10
+      },
+      {
+        name: "预存",
+        value: 30
+      }
+    ]
+  },
+  {
+    name: "热表",
+    value: 50,
+    children: [
+      {
+        name: "退费",
+        value: 10
+      },
+      {
+        name: "预存",
+        value: 40
+      }
+    ]
+  }
+];
 // 绘制近30天收费类别占比
 const driveIncomeCategory = () => {
   const myChart = echarts.init(document.getElementById("driveIncomeCategory"));
   const option = {
     title: {
       // 设置饼图标题，位置设为顶部居中
-      text: `总金额   |   ￥${allCost.value}`,
+      text: `缴费类型`,
       orient: "vertical",
       top: "10px",
-      left: "0px"
+      left: "10px"
     },
     tooltip: {
       trigger: "item",
@@ -456,65 +611,26 @@ const driveIncomeCategory = () => {
         return "￥" + value;
       }
     },
-    legend: {
-      orient: "vertical",
-      top: "42px",
-      left: "0px",
-      formatter: name => {
-        //该函数用于设置图例显示后的百分比
-        let total = 0;
-        let value;
-        // debugger;
-        incomeData.value.forEach(item => {
-          total += Number(item.value);
-          if (item.name == name) {
-            value = item.value;
-          }
-        });
-        const p = Math.round((value / total) * 100); //求出百分比
-        if (name.length == 2) {
-          return `${name}     |      ${p}%`; //返回出图例所显示的内容是名称+百分比
-        } else if (name.length == 3) {
-          return `${name}  |      ${p}%`; //返回出图例所显示的内容是名称+百分比
-        }
-      }
-    },
     grid: {
-      left: "3%",
+      left: "10%",
       right: "4%",
       top: "2%",
       containLabel: false
     },
-    series: [
-      {
-        name: "费用占比",
-        type: "pie",
-        radius: ["65%", "95%"],
-        center: ["50%", "50%"],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: "#fff",
-          borderWidth: 2
-        },
-        left: 150,
-        label: {
-          show: false,
-          position: "center"
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: "bold"
-          }
-        },
-        labelLine: {
-          show: false
-        },
-        data: incomeData.value
+    series: {
+      type: "sunburst",
+      data: data,
+      radius: [40, "90%"],
+      center: ["60%", "50%"],
+      itemStyle: {
+        borderRadius: 7,
+        borderWidth: 1
+      },
+      label: {
+        show: true,
+        rotate: "radial"
       }
-    ]
+    }
   };
   option && myChart.setOption(option);
 };
@@ -545,7 +661,7 @@ onMounted(() => {
 
       .content_box {
         position: relative;
-        width: 220px;
+        // width: 277px;
         height: 100px;
         display: inline-block;
         border-radius: 5px;
@@ -572,53 +688,72 @@ onMounted(() => {
         }
 
         .count {
-          width: 90%;
+          width: 95%;
           height: 70px;
           position: absolute;
           top: 30px;
           // background-color: pink;
           padding: 6px;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          grid-template-rows: 1fr 1fr;
-          grid-gap: 10px;
-
-          .count_item {
+          p {
+            line-height: 30px;
             .label {
               font-size: 12px;
               color: rgba(255, 255, 255, 1);
             }
-
             .input_total {
               font-size: 16px;
               color: rgba(255, 255, 255, 1);
             }
-
-            .input_online {
-              font-size: 16px;
-              color: #95d475;
-            }
-
-            .input_powerDown {
+            .input_fault {
               font-size: 16px;
               color: #eebe77;
             }
-
-            .input_outline {
+            .input_success {
+              font-size: 16px;
+              color: #95d475;
+            }
+            .input_error {
               font-size: 16px;
               color: #f56c6c;
             }
-
-            .household_hotMeter {
-              font-size: 16px;
-              color: rgba(255, 255, 255, 1);
-            }
-
-            .household_WaterMeter {
-              font-size: 16px;
-              color: rgba(255, 255, 255, 1);
-            }
           }
+
+          //   .count_item {
+          //     .label {
+          //       font-size: 12px;
+          //       color: rgba(255, 255, 255, 1);
+          //     }
+
+          //     .input_total {
+          //       font-size: 16px;
+          //       color: rgba(255, 255, 255, 1);
+          //     }
+
+          //     .input_ fault {
+          //       font-size: 16px;
+          //       color: #95d475;
+          //     }
+
+          //     .input_readoutSuccess {
+          //       font-size: 16px;
+          //       color: #eebe77;
+          //     }
+
+          //     .input_readoutFail {
+          //       font-size: 16px;
+          //       color: #f56c6c;
+          //     }
+
+          //     .household_hotMeter {
+          //       font-size: 16px;
+          //       color: rgba(255, 255, 255, 1);
+          //     }
+
+          //     .household_WaterMeter {
+          //       font-size: 16px;
+          //       color: rgba(255, 255, 255, 1);
+          //     }
+          //   }
         }
 
         .line {

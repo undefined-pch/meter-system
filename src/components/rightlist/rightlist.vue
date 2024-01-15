@@ -487,4 +487,12 @@ onMounted(() => {
 ::v-deep(.el-card__body) {
   padding: 0 !important;
 }
+
+::v-deep {
+  .is-leaf::before {
+    // 隐藏或加透明都可以
+    // display: none;
+    opacity: 0;
+  }
+}
 </style>
