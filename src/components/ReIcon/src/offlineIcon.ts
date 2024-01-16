@@ -12,6 +12,7 @@ import alarmIcon from "@iconify-icons/icon-park-twotone/alarm";
 import tagPriceLinear from "@iconify-icons/solar/tag-price-linear";
 import baseInformation from "@iconify-icons/maki/village";
 import keyicon from "@iconify-icons/ep/key";
+import consticon from "@iconify-icons/ep/wallet-filled";
 
 addIcon("homeFilled", HomeFilled);
 addIcon("informationLine", InformationLine);
@@ -20,3 +21,4 @@ addIcon("alarmIcon", alarmIcon);
 addIcon("tagPriceLinear", tagPriceLinear);
 addIcon("baseInformation", baseInformation);
 addIcon("keyicon", keyicon);
+addIcon("consticon", consticon);

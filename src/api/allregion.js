@@ -19,3 +19,10 @@ export const allregionfix = (id, data) => {
     data
   });
 };
+
+// 批量子级
+export const batchRegion = data => {
+  return httplocal.request("post", "/api/batchRegion", {
+    data
+  });
+};

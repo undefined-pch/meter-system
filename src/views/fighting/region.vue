@@ -29,11 +29,11 @@
             <vxe-button @click="getRemoveEvent">获取删除</vxe-button>
             <vxe-button @click="getUpdateEvent">获取修改</vxe-button> -->
             <el-button @click="insertEvent" type="primary" plain
-              >批量同级</el-button
-            >
-            <el-button @click="batchChildEvent" type="primary" plain
               >批量子级</el-button
             >
+            <!-- <el-button @click="batchChildEvent" type="primary" plain
+              >批量子级</el-button
+            > -->
             <el-button type="danger" plain>批量删除</el-button>
           </template>
         </vxe-toolbar>
@@ -173,7 +173,7 @@
           <el-input v-model="form.name" autocomplete="off" />
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
+          <el-select v-model="form.type" placeholder="请选择类型" class="qz">
             <el-option
               v-for="item in childLeveloptions"
               :key="item.value"
@@ -235,20 +235,21 @@
       </template>
     </el-dialog>
     <!-- 批量同级 -->
-    <el-dialog v-model="batchSameLevel" title="批量同级" width="30%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+    <el-dialog v-model="batchSameLevel" title="批量子级" width="30%" top="4%">
+      <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
         <el-form-item
           label="所属区域"
           :label-width="formLabelWidth"
-          prop="name"
+          prop="region"
         >
           <el-row>
             <el-col :span="24">
               <el-tree-select
-                v-model="form.parentName"
+                v-model="batchForm.region"
                 :props="props"
                 :data="batchSameList"
                 :load="loadFireNode"
+                @node-click="regionSelect"
                 lazy
                 node-key="id"
                 check-strictly
@@ -257,62 +258,84 @@
             </el-col>
           </el-row>
         </el-form-item>
+        <el-form-item label="类型" :label-width="formLabelWidth" prop="type">
+          <el-row>
+            <el-col :span="24">
+              <el-select v-model="batchForm.type" placeholder="请选择类型">
+                <el-option
+                  v-for="item in batchoptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item label="区间前缀" :label-width="formLabelWidth">
+          <el-row>
+            <el-col :span="24">
+              <el-input
+                v-model="batchForm.fullName"
+                autocomplete="off"
+                style="width: 216px"
+              />
+            </el-col>
+          </el-row>
+        </el-form-item>
         <el-space fill>
           <el-alert type="info" show-icon :closable="false">
-            <p>例如：A-c区，单位是区，就添加A区、B区、C区</p>
+            <p>例如：A-C区，单位是区，就添加A区、B区、C区（支持字母和数字）</p>
+            <p>
+              （可选）例如：花果园A-花果园C区，区间前缀是花果园，单位是区，就添加花果园A区、花果园B区、花果园C区
+            </p>
           </el-alert>
-          <el-form-item label="区间" :label-width="formLabelWidth">
-            <!-- <el-input v-model="form.name" autocomplete="off" /> -->
+          <el-form-item
+            label="区间"
+            :label-width="formLabelWidth"
+            prop="interval"
+          >
             <el-row>
               <el-col :span="10">
-                <el-input v-model="form.startNumber" autocomplete="off" />
+                <el-form-item prop="min">
+                  <el-input v-model="batchForm.min" autocomplete="off" />
+                </el-form-item>
               </el-col>
               <el-col :span="4" class="text-center">
                 <span class="text-gray-500">-</span>
               </el-col>
               <el-col :span="10">
-                <el-input v-model="form.endNumber" autocomplete="off" />
+                <el-form-item prop="max">
+                  <el-input v-model="batchForm.max" autocomplete="off" />
+                </el-form-item>
               </el-col>
             </el-row>
           </el-form-item>
         </el-space>
-
-        <!-- <el-form-item :label-width="formLabelWidth"
-          >tip:例如：A-c区，单位是区，就添加A区、B区、C区</el-form-item
-        > -->
-        <el-form-item label="单位" :label-width="formLabelWidth">
+        <el-form-item label="单位" :label-width="formLabelWidth" prop="unit">
           <el-col :span="10">
-            <el-input v-model="form.unit" autocomplete="off" />
+            <el-input v-model="batchForm.unit" autocomplete="off" />
           </el-col>
         </el-form-item>
-        <el-form-item label="类型" :label-width="formLabelWidth" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
-            <el-option
-              v-for="item in childLeveloptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
         <el-form-item label="备注" :label-width="formLabelWidth" prop="notes">
-          <el-input v-model="form.notes" type="textarea" autocomplete="off" />
+          <el-input
+            v-model="batchForm.notes"
+            type="textarea"
+            autocomplete="off"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="batchSameLevel = false">取消</el-button>
-          <el-button
-            type="primary"
-            @click="submitForm(ruleFormRef, 'toplevel')"
-          >
+          <el-button type="primary" @click="submitBatch(batchFormRef)">
             新增
           </el-button>
         </span>
       </template>
     </el-dialog>
     <!-- 批量子级 -->
-    <el-dialog v-model="batchChildLevel" title="批量子级" width="30%">
+    <el-dialog v-model="batchChildLevel" title="批量子级" width="30%" top="4%">
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-form-item
           label="所属区域"
@@ -339,7 +362,6 @@
             <p>例如：11-13栋，单位是栋，就添加11栋、12栋、13栋</p>
           </el-alert>
           <el-form-item label="区间" :label-width="formLabelWidth">
-            <!-- <el-input v-model="form.name" autocomplete="off" /> -->
             <el-row>
               <el-col :span="10">
                 <el-input v-model="form.startNumber" autocomplete="off" />
@@ -424,7 +446,12 @@
 import { ref, reactive, nextTick, onMounted } from "vue";
 // import { VXETable } from "vxe-table";
 import { ElMessage, ElInput } from "element-plus";
-import { allregion, allregionadd, allregionfix } from "@/api/allregion.js";
+import {
+  allregion,
+  allregionadd,
+  allregionfix,
+  batchRegion
+} from "@/api/allregion.js";
 // 菜单选择
 // const activeIndex = ref("1");
 // const handleSelect = (key, keyPath) => {
@@ -491,9 +518,9 @@ const insertEvent = () => {
 // 批量子级弹框
 const batchChildLevel = ref(false);
 // 批量子级
-const batchChildEvent = () => {
-  batchChildLevel.value = true;
-};
+// const batchChildEvent = () => {
+//   batchChildLevel.value = true;
+// };
 
 const props = {
   label: "name",
@@ -521,7 +548,8 @@ const loadFireNode = (node, resolve) => {
         newcompanyArr.push({
           name: item.name,
           id: item._id,
-          hasChild: item.hasChild
+          hasChild: item.hasChild,
+          type: item.type
         });
       });
       return resolve(newcompanyArr);
@@ -540,7 +568,8 @@ const loadFireNode = (node, resolve) => {
           newvillageArr.push({
             name: item.name,
             id: item._id,
-            hasChild: item.hasChild
+            hasChild: item.hasChild,
+            type: item.type
           });
         });
         return resolve(newvillageArr);
@@ -557,7 +586,12 @@ const loadFireNode = (node, resolve) => {
       if (res.retcode == 200) {
         const newvillageArr = [];
         res.data.data.forEach(item => {
-          newvillageArr.push({ name: item.name, id: item._id });
+          newvillageArr.push({
+            name: item.name,
+            id: item._id,
+            hasChild: item.hasChild,
+            type: item.type
+          });
         });
         return resolve(newvillageArr);
       }
@@ -573,7 +607,12 @@ const loadFireNode = (node, resolve) => {
       if (res.retcode == 200) {
         const newvillageArr = [];
         res.data.data.forEach(item => {
-          newvillageArr.push({ name: item.name, id: item._id });
+          newvillageArr.push({
+            name: item.name,
+            id: item._id,
+            hasChild: item.hasChild,
+            type: item.type
+          });
         });
         return resolve(newvillageArr);
       }
@@ -591,12 +630,64 @@ const form = reactive({
   hasParent: false,
   notes: ""
 });
+
+// 批量表单
+const batchForm = reactive({
+  region: "",
+  parentName: "",
+  min: "",
+  max: "",
+  unit: "",
+  type: "",
+  notes: "",
+  fullName: ""
+});
+
 // 同级表单规则
 const rules = reactive({
   name: [
     {
       required: true,
+      message: "请选择区域名称",
+      trigger: "blur"
+    }
+  ]
+});
+
+// 批量同级表单规则
+const batchRules = reactive({
+  region: [
+    {
+      required: true,
       message: "请输入区域名称",
+      trigger: "blur"
+    }
+  ],
+  type: [
+    {
+      required: true,
+      message: "请选择类型",
+      trigger: "blur"
+    }
+  ],
+  min: [
+    {
+      required: true,
+      message: "请输入开始值",
+      trigger: "blur"
+    }
+  ],
+  max: [
+    {
+      required: true,
+      message: "请输入结束值",
+      trigger: "blur"
+    }
+  ],
+  unit: [
+    {
+      required: true,
+      message: "请输入单位",
       trigger: "blur"
     }
   ]
@@ -716,6 +807,44 @@ const submitForm = async (formEl, level) => {
   });
 };
 
+const batchFormRef = ref();
+// 批量子级
+const submitBatch = async formEl => {
+  if (!formEl) return;
+  await formEl.validate(valid => {
+    if (valid) {
+      console.log("新增");
+      batchRegion(batchForm).then(res => {
+        if (res.retcode == 200) {
+          ElMessage({
+            showClose: true,
+            message: res.message,
+            type: "success"
+          });
+          batchSameLevel.value = false;
+          batchFormRef.value.resetFields();
+          findList();
+        } else {
+          ElMessage({
+            showClose: true,
+            message: res.message,
+            type: "error"
+          });
+        }
+      });
+    } else {
+      ElMessage({
+        showClose: true,
+        message: "新增失败！",
+        type: "error"
+      });
+    }
+  });
+};
+
+// 批量子级区域限定
+const batchoptions = ref([]);
+
 // 修改区域数据
 const fixRow = row => {
   console.log(row);
@@ -758,6 +887,24 @@ const fixForm = async formEl => {
 // const selectRegion = () => {
 //   console.log("惦记了");
 // };
+
+// 选择区域展示不同类型
+const regionSelect = node => {
+  // console.log(node, "批量子级信息");
+  batchForm.parentName = node.name;
+  if (node.type == "区域") {
+    batchoptions.value = [
+      { id: 1, label: "区域", value: "区域" },
+      { id: 2, label: "小区", value: "小区" },
+      { id: 3, label: "楼栋", value: "楼栋" }
+    ];
+  } else if (node.type == "小区") {
+    batchoptions.value = [
+      { id: 2, label: "小区", value: "小区" },
+      { id: 3, label: "楼栋", value: "楼栋" }
+    ];
+  }
+};
 
 nextTick(() => {
   // 将表格和工具栏进行关联
