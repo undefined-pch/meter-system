@@ -14,13 +14,7 @@
             <el-menu-item index="2">热表</el-menu-item>
           </el-menu>
         </div> -->
-        <vxe-toolbar
-          ref="toolbarRef"
-          :refresh="{ queryMethod: searchMethod }"
-          export
-          print
-          custom
-        >
+        <vxe-toolbar ref="toolbarRef" export print custom>
           <template #buttons>
             <el-button @click="addTopLevel()" type="primary" plain
               >新增顶级</el-button
@@ -37,86 +31,87 @@
             <el-button type="danger" plain>批量删除</el-button>
           </template>
         </vxe-toolbar>
-        <vxe-table
-          show-overflow
-          keep-source
-          ref="tableRef"
-          :row-config="{ keyField: '_id' }"
-          :column-config="{ resizable: true }"
-          :print-config="{}"
-          :export-config="{}"
-          :loading="loading"
-          :tree-config="{
-            transform: true,
-            rowField: '_id',
-            parentField: 'parentId'
-          }"
-          :data="tableData"
-          size="small"
-        >
-          <vxe-column type="checkbox" width="60" />
-          <vxe-column
-            field="name"
-            title="区域"
-            tree-node
-            :edit-render="{}"
-            width="250"
-          />
-          <vxe-column field="type" title="类型" width="100">
-            <template #default="{ row }">
-              <el-tag v-if="row.type">{{ row.type }}</el-tag>
-              <span v-else>{{ row.type }}</span>
-            </template>
-          </vxe-column>
-          <vxe-column
-            field="date"
-            title="创建时间"
-            :edit-render="{}"
-            width="160"
-          />
-          <vxe-column
-            field="founder"
-            title="创建人"
-            width="100"
-            :edit-render="{}"
-          />
-          <vxe-column field="notes" title="备注" :edit-render="{}">
-            <template #edit="{ row }">
-              <vxe-input v-model="row.size" type="text" />
-            </template>
-          </vxe-column>
-          <vxe-column title="操作" width="280" align="center">
-            <template #default="{ row }">
-              <div v-if="row.type !== '房间'">
-                <vxe-button
-                  type="text"
-                  status="primary"
-                  @click="addSameLevel(row)"
-                  >新增同级</vxe-button
-                >
-                <!-- <vxe-button
+        <div style="height: calc(100vh - 210px)">
+          <vxe-table
+            show-overflow
+            keep-source
+            ref="tableRef"
+            :row-config="{ keyField: '_id' }"
+            :column-config="{ resizable: true }"
+            :print-config="{}"
+            :export-config="{}"
+            :loading="loading"
+            :data="tableData"
+            :tree-config="treeConfig"
+            size="small"
+          >
+            <vxe-column type="checkbox" width="60" />
+            <vxe-column
+              field="name"
+              title="区域"
+              tree-node
+              :edit-render="{}"
+              width="250"
+            />
+            <vxe-column field="type" title="类型" width="100">
+              <template #default="{ row }">
+                <el-tag v-if="row.type">{{ row.type }}</el-tag>
+                <span v-else>{{ row.type }}</span>
+              </template>
+            </vxe-column>
+            <vxe-column
+              field="date"
+              title="创建时间"
+              :edit-render="{}"
+              width="160"
+            />
+            <vxe-column
+              field="founder"
+              title="创建人"
+              width="100"
+              :edit-render="{}"
+            />
+            <vxe-column field="notes" title="备注" :edit-render="{}">
+              <template #edit="{ row }">
+                <vxe-input v-model="row.size" type="text" />
+              </template>
+            </vxe-column>
+            <vxe-column title="操作" width="280" align="center">
+              <template #default="{ row }">
+                <div v-if="row.type !== '房间'">
+                  <vxe-button
+                    type="text"
+                    status="primary"
+                    @click="addSameLevel(row)"
+                    >新增同级</vxe-button
+                  >
+                  <!-- <vxe-button
                 type="text"
                 status="primary"
                 @click="insertNextRow(row, 'current')"
                 >下一行位置插入新节点</vxe-button
               > -->
-                <vxe-button
-                  type="text"
-                  status="primary"
-                  @click="addChildLevel(row)"
-                  :disabled="row.type == '楼栋'"
-                  >新增子级</vxe-button
-                >
-                <vxe-button type="text" status="primary" @click="fixRow(row)"
-                  >修改</vxe-button
-                >
-                <vxe-button type="text" status="danger" @click="removeRow(row)"
-                  >删除节点</vxe-button
-                >
-              </div>
-            </template>
-          </vxe-column>
-        </vxe-table>
+                  <vxe-button
+                    type="text"
+                    status="primary"
+                    @click="addChildLevel(row)"
+                    :disabled="row.type == '楼栋'"
+                    >新增子级</vxe-button
+                  >
+                  <vxe-button type="text" status="primary" @click="fixRow(row)"
+                    >修改</vxe-button
+                  >
+                  <vxe-button
+                    type="text"
+                    status="danger"
+                    @click="removeRow(row)"
+                    >删除节点</vxe-button
+                  >
+                </div>
+              </template>
+            </vxe-column>
+          </vxe-table>
+        </div>
       </el-card>
     </div>
     <!-- 新增同级弹框 -->
@@ -463,6 +458,14 @@ const tableData = ref([]);
 const tableRef = ref();
 const toolbarRef = ref();
 
+// 表格配置
+const treeConfig = reactive({
+  transform: true,
+  rowField: "_id",
+  parentField: "parentId",
+  hasChild: "hasChild"
+});
+
 // 新增top级下拉框
 const topLeveloptions = ref([
   { id: 1, label: "区域", value: "区域" },
@@ -490,15 +493,15 @@ const findList = () => {
     }
   });
 };
-const searchMethod = () => {
-  const $table = tableRef.value;
-  if ($table) {
-    // 清除所有状态
-    $table.clearAll();
-    return findList();
-  }
-  return Promise.resolve();
-};
+// const searchMethod = () => {
+//   const $table = tableRef.value;
+//   if ($table) {
+//     // 清除所有状态
+//     $table.clearAll();
+//     return findList();
+//   }
+//   return Promise.resolve();
+// };
 const removeRow = async row => {
   const $table = tableRef.value;
   if ($table) {
@@ -692,6 +695,7 @@ const batchRules = reactive({
     }
   ]
 });
+// const defaultExpandKeys = ref([659f52b9e89e97d863ad2691]); // 默认展开数的id
 
 const ruleFormRef = ref();
 // 展示显示同级弹框
@@ -915,8 +919,21 @@ nextTick(() => {
   }
   findList();
 });
+
+// 默认展开第一行
+// const expandEvent1 = () => {
+//   debugger;
+//   const $table = tableRef.value;
+//   if ($table) {
+//     $table.toggleTreeExpand(tableData.value[0]);
+//   }
+// };
 onMounted(() => {
   findList();
+  setTimeout(() => {
+    const a = document.getElementsByClassName("vxe-tree--btn-wrapper");
+    a[0].click();
+  }, 1000);
 });
 </script>
 

@@ -28,20 +28,14 @@
                   @select="handleSelect"
                   style="height: 40px; border-radius: 5px"
                 >
-                  <el-menu-item index="1">采集器</el-menu-item>
-                  <el-menu-item index="2">水表</el-menu-item>
+                  <el-menu-item index="1" id="info-btn1">采集器</el-menu-item>
+                  <el-menu-item index="2" id="info-btn3">水表</el-menu-item>
                   <el-menu-item index="3">热表</el-menu-item>
-                  <el-menu-item index="4">房间信息</el-menu-item>
+                  <el-menu-item index="4" id="info-btn2">房间信息</el-menu-item>
                   <!-- <el-menu-item index="5">业主信息</el-menu-item> -->
                 </el-menu>
                 <div class="collector_content" v-if="showCollector">
-                  <vxe-toolbar
-                    ref="toolbarRef"
-                    :refresh="{ queryMethod: searchMethod }"
-                    export
-                    print
-                    custom
-                  >
+                  <vxe-toolbar ref="toolbarRef" export print custom>
                     <template #buttons>
                       <el-button @click="addPrice" type="primary" plain
                         >添加</el-button
@@ -69,6 +63,7 @@
                         title="采集器编号"
                         width="110"
                         fixed="left"
+                        sortable
                       />
                       <vxe-column
                         field="fullRegion"
@@ -94,6 +89,7 @@
                         field="collectorCycle"
                         title="采集周期（小时）"
                         width="100"
+                        sortable
                       />
                       <vxe-column
                         field="serverAddress"
@@ -269,10 +265,7 @@
               :label-width="formLabelWidth"
               prop="collectroId"
             >
-              <el-input
-                v-model="form.collectroId"
-                @input="fnShareCapacityInput"
-                autocomplete="off"
+              <el-input v-model="form.collectroId" autocomplete="off"
                 ><template #suffix>
                   <el-tooltip
                     class="box-item"
@@ -545,10 +538,17 @@
       title="批量导入采集器"
       width="30%"
     >
-      <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
+      <el-form :model="batchForm" ref="batchFormRef">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="所属区域" :label-width="80" prop="region">
+            <el-form-item label="模板文件" :label-width="80">
+              <el-button type="primary">下载模板</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="所属区域" :label-width="80">
               <el-tree-select
                 v-model="batchForm.region"
                 :props="props"
@@ -564,7 +564,7 @@
           </el-col>
         </el-row>
         <el-row :span="24">
-          <el-form-item label="选择文件" :label-width="80" prop="region">
+          <el-form-item label="选择文件" :label-width="80">
             <el-upload
               ref="upload"
               class="upload-demo"
@@ -596,7 +596,25 @@
           </el-form-item>
         </el-row>
       </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchCollectorVisible = false">取消</el-button>
+        </span>
+      </template>
     </el-dialog>
+    <Tour
+      :steps="steps"
+      mask
+      arrow
+      v-model:show="show"
+      v-model:current="current"
+      :padding="{ x: 10, y: 6 }"
+      :global-theme-overrides="{
+        common: {
+          primaryColor: '#e6a23c'
+        }
+      }"
+    />
   </div>
 </template>
 
@@ -612,6 +630,7 @@ import {
 import meterInfo from "./meterInfo.vue";
 import roomInfo from "./roomInfo.vue";
 import owner from "./owner.vue";
+import { Tour, TourStep } from "vue3-quick-tour";
 import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
 
 const showCollector = ref(true); // 展示采集器内容
@@ -699,7 +718,7 @@ const form = reactive({
   fullRegion: ""
 });
 // 同级表单规则
-const rules = reactive({
+const rules = reactive<any>({
   region: [
     {
       required: true,
@@ -758,20 +777,6 @@ const rules = reactive({
       trigger: "blur"
     }
   ],
-  // middlewareAddress: [
-  //   {
-  //     required: true,
-  //     message: "请输入中间件地址",
-  //     trigger: "blur"
-  //   }
-  // ],
-  // middlewarePort: [
-  //   {
-  //     required: true,
-  //     message: "请输入中间件端口",
-  //     trigger: "blur"
-  //   }
-  // ],
   dateOfManufacture: [
     {
       required: true,
@@ -823,9 +828,9 @@ const rules = reactive({
   ]
 });
 // 判断采集器id输入的是否为字符
-const fnShareCapacityInput = () => {
-  console.log(event.target.value, "event");
-};
+// const fnShareCapacityInput = () => {
+//   console.log(event.target.value, "event");
+// };
 
 // 工作模式列表
 const workModeList = ref([{ id: 1, value: "水表法", label: "水表法" }]);
@@ -865,7 +870,7 @@ const props = {
   children: "child",
   // isLeaf: true
   isLeaf: data => {
-    if (data.type == "楼栋") {
+    if (data.hasChild === false || data.type == "楼栋") {
       return true;
     } else {
       return false;
@@ -1133,8 +1138,66 @@ const onUploadChange = item => {
   formData.value.append("region", batchForm.region);
 };
 
+// 分页相关
+const currentPage4 = ref(4);
+const pageSize4 = ref(100);
+const small = ref(false);
+const background = ref(false);
+const disabled = ref(false);
+const handleCurrentChange = (val: number) => {
+  console.log(`current page: ${val}`);
+};
+
+const addCollectorList = ref([]);
+
+// 漫游引导配置
+const show = ref(false);
+const current = ref(0);
+// 漫游引导
+const steps: TourStep[] = [
+  {
+    el: () => document.getElementById("info-btn1") as HTMLElement,
+    title: "第一步：录入采集器信息",
+    message: "将采集器信息关联到楼栋下",
+    mask: {
+      color: "rgba(0, 0, 0, .5)"
+    },
+    placement: "top"
+  },
+  {
+    el: () => document.getElementById("info-btn2") as HTMLElement,
+    title: "第二步：录入房间信息",
+    message: "在楼栋下关联房间信息和住户信息",
+    mask: {
+      color: "rgba(0, 0, 0, .5)"
+    },
+    placement: "top"
+  },
+  {
+    el: () => document.getElementById("info-btn3") as HTMLElement,
+    title: "第三步：录入表阀信息",
+    message: "关联采集器和房间等信息",
+    mask: {
+      color: "rgba(0, 0, 0, .5)"
+    },
+    placement: "top"
+  }
+];
+
+const handleOpenTour = () => {
+  current.value = 0;
+  show.value = true;
+};
+
 onMounted(() => {
   getcollectorList();
+  setTimeout(() => {
+    const a: any = document.getElementsByClassName(
+      "el-icon el-tree-node__expand-icon"
+    );
+    a[0].click();
+    handleOpenTour();
+  }, 1000);
 });
 
 const showUpload = ref(true);
@@ -1274,5 +1337,9 @@ watch(
   border-radius: 6px;
   border: 1px solid #9fceff;
   color: #409eff;
+}
+
+::v-deep .el-form-item__label {
+  font-weight: 400;
 }
 </style>

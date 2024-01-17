@@ -175,17 +175,25 @@
               </template>
             </vxe-column>
             <vxe-column
-              field="sex"
+              field="isSteps"
               title="是否为阶梯水价"
-              width="120"
+              width="140"
               align="center"
+              :filters="isSepOptions"
+              :filter-multiple="false"
             >
               <template #default="{ row }">
                 <el-tag v-if="row.isSteps" type="success">是</el-tag>
                 <el-tag v-else type="info">否</el-tag>
               </template>
             </vxe-column>
-            <vxe-column field="steps" title="阶梯数" width="80" align="center">
+            <vxe-column
+              field="steps"
+              title="阶梯数"
+              width="80"
+              align="center"
+              sortable
+            >
               <template #default="{ row }">
                 <span v-if="row.isSteps"> {{ row.steps }}</span>
                 <span v-else>- </span>
@@ -663,13 +671,22 @@ const handleCurrentChange = val => {
   console.log(`current page: ${val}`);
 };
 
+// 筛选是否为阶梯水价
+const isSepOptions = ref([
+  { label: "是", value: true },
+  {
+    label: "否",
+    value: false
+  }
+]);
+
 // 切换是否为阶梯价
 watch(
   () => form.isSteps,
   newVal => {
     // console.log(newVal, oldVal);
     if (newVal == true) {
-      form.steps = "1";
+      form.steps = "2";
       form.unitPrice = "";
       form.notes = "";
     } else {

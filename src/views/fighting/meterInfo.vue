@@ -556,7 +556,7 @@ const props = {
   },
   children: "child",
   isLeaf: data => {
-    if (data.type == "楼栋") {
+    if (data.hasChild === false || data.type == "楼栋") {
       return true;
     } else {
       return false;

@@ -12,7 +12,7 @@
                 <vxe-button @click="getRemoveEvent">获取删除</vxe-button>
                 <vxe-button @click="getUpdateEvent">获取修改</vxe-button> -->
         <el-button @click="addsRoom" type="primary" plain>添加</el-button>
-        <el-button @click="addsMeter" type="primary" plain>批量导入</el-button>
+        <el-button @click="batchRoom" type="primary" plain>批量导入</el-button>
         <el-button type="danger" plain>批量删除</el-button>
       </template>
     </vxe-toolbar>
@@ -34,28 +34,6 @@
         <vxe-column field="phone" title="联络方式" width="110" />
         <vxe-column field="unit" title="单元号" width="110" />
         <vxe-column field="level" title="楼层" width="110" />
-        <!-- <vxe-column field="hotMeter" title="关联热表" width="110">
-          <template #default="{ row }">
-            <el-tag v-if="row.hotMeter.length !== 0" type="success">{{
-              row.hotMeter
-            }}</el-tag>
-            <el-tag v-else type="info">未关联</el-tag>
-          </template>
-        </vxe-column> -->
-        <!-- <vxe-column field="waterMeter" title="关联水表" width="220">
-          <template #default="{ row }">
-            <template v-if="row.waterMeter.length !== 0">
-              <template
-                v-for="(item, index) in row.waterMeterName"
-                :key="index"
-              >
-                <el-tag type="success">{{ item }}</el-tag>
-                <span v-if="index !== row.waterMeterName.length - 1">、</span>
-              </template>
-            </template>
-            <el-tag v-else type="info">未关联</el-tag>
-          </template>
-        </vxe-column> -->
         <vxe-column field="date" title="添加时间" width="110" />
         <vxe-column field="founder" title="创建人" width="110" />
         <vxe-column field="notes" title="备注" width="180" />
@@ -80,14 +58,9 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <!-- 新增房间 -->
     <el-dialog v-model="addRoomVisible" title="新增房间信息" width="40%">
-      <!-- <el-steps :active="active" finish-status="success" align-center>
-        <el-step title="填写房间信息" />
-        <el-step title="绑定表计" />
-        <el-step title="完成" />
-      </el-steps> -->
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
-        <!-- <div v-show="active == 0"> -->
         <el-row>
           <el-col :span="24">
             <el-form-item
@@ -122,7 +95,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item
-              label="面积"
+              label="面积(m³)"
               :label-width="formLabelWidth"
               prop="area"
             >
@@ -186,8 +159,6 @@
               :label-width="formLabelWidth"
               prop="phone"
             >
-              <!-- <el-input v-model="form.sex" autocomplete="off"
-            /> -->
               <el-radio-group v-model="form.sex" class="ml-4">
                 <el-radio label="男">男</el-radio>
                 <el-radio label="女">女</el-radio>
@@ -210,81 +181,6 @@
           >合并缴费方案</el-divider
         >
         <p>开发中......</p>
-        <!-- <div v-show="active == 1" class="binding_page">
-          <el-row>
-            <el-col :span="24">
-              <el-alert
-                title="水表热表一旦保存，将不允许修改，如需修改请先销表！"
-                type="info"
-                style="margin-bottom: 10px"
-              />
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24">
-              <el-form-item label="添加水表" :label-width="formLabelWidth">
-                <el-select
-                  v-model="form.waterMeter"
-                  multiple
-                  @change="changeMeterId"
-                  placeholder="请选择水表表号"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="item in waterMeterList"
-                    :key="item._id"
-                    :label="item.meterId"
-                    :value="item._id"
-                  />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <p v-if="form.waterMeter.length == 0">暂无水表信息</p>
-          <div v-else class="meter_info">
-            <el-table :data="selectWaterMeterList" style="width: 100%">
-              <el-table-column prop="meterId" label="表号" width="180" />
-              <el-table-column prop="meterType" label="表类型" width="180" />
-              <el-table-column prop="feeScheme" label="收费方案" />
-            </el-table>
-          </div>
-          <el-row>
-            <el-col :span="24">
-              <el-form-item label="添加热表" :label-width="formLabelWidth">
-                <el-select
-                  v-model="form.hotMeter"
-                  multiple
-                  placeholder="请选择热表表号"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="item in hotMeterList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  /> </el-select
-              ></el-form-item>
-            </el-col>
-          </el-row>
-          <p>暂无热表信息</p>
-        </div> -->
-        <!-- <div v-show="active == 2" class="binding_page">
-          <img
-            src="@/assets/submitsuccess.png"
-            alt=""
-            style="margin: auto; margin-top: 40px"
-          />
-          <p
-            style="
-              text-align: center;
-              line-height: 40px;
-              font-size: 17px;
-              color: #53a7ff;
-            "
-          >
-            新增房间信息完成
-          </p>
-        </div> -->
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -297,17 +193,84 @@
         </span>
       </template>
     </el-dialog>
+    <!-- 批量新增房间 -->
+    <el-dialog v-model="batchRoomVisible" title="批量导入房间信息" width="30%">
+      <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="模板文件" :label-width="80">
+              <el-button type="primary">下载模板</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="所属区域" :label-width="80" prop="region">
+              <el-tree-select
+                v-model="batchForm.region"
+                :props="props"
+                :data="batchSameList"
+                :load="loadFireNode"
+                lazy
+                node-key="id"
+                check-strictly
+                :render-after-expand="false"
+                class="region_select"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :span="24">
+          <el-form-item label="选择文件" :label-width="80" prop="region">
+            <el-upload
+              ref="upload"
+              class="upload-demo"
+              action=""
+              :limit="1"
+              :on-exceed="handleExceed"
+              :auto-upload="false"
+              :on-change="onUploadChange"
+            >
+              <template #trigger>
+                <el-button type="primary" :disabled="showUpload"
+                  >选取文件</el-button
+                >
+              </template>
+              <el-button
+                class="ml-3"
+                type="success"
+                :disabled="showUpload"
+                @click="submitUpload"
+              >
+                上传
+              </el-button>
+              <template #tip>
+                <div class="el-upload__tip text-red">
+                  选择区域后选取文件，只允许上传1个xlsx文件
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchRoomVisible = false">取消</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, watch, onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElLoading } from "element-plus";
 import { allregion } from "@/api/allregion.js";
 import { getGaugeValve } from "@/api/gaugeValve.js";
 import { roomAdd, getroom } from "@/api/room.js";
 
-const addRoomVisible = ref(false);
+const addRoomVisible = ref(false); // 新增弹框显示
+const batchRoomVisible = ref(false); // 批量弹框展示
 const formLabelWidth = "100px"; // 表单文字宽度
 
 // const nowSelectRegion = ref(""); //当前选中的区域信息
@@ -319,7 +282,7 @@ const props = {
   },
   children: "child",
   isLeaf: data => {
-    if (data.type == "楼栋") {
+    if (data.hasChild === false || data.type == "楼栋") {
       return true;
     } else {
       return false;
@@ -642,6 +605,29 @@ watch(
 //   });
 // };
 
+const batchRoom = () => {
+  batchRoomVisible.value = true;
+};
+// 批量导入表单
+const batchForm = reactive({
+  region: ""
+});
+
+const formData = ref();
+const onUploadChange = item => {
+  console.log(item, "上传文件信息");
+  if (batchForm.region == "") {
+    return ElMessage({
+      showClose: true,
+      message: "请先选择区域后导入文件！",
+      type: "error"
+    });
+  }
+  formData.value = new FormData();
+  formData.value.append("file", item.raw);
+  formData.value.append("region", batchForm.region);
+};
+
 const region_select = ref();
 
 const tableData = ref([]);
@@ -656,6 +642,46 @@ const getroomInfo = () => {
     }
   });
 };
+
+// 上传文件
+const submitUpload = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: "Loading",
+    background: "rgba(0, 0, 0, 0.7)"
+  });
+  batchCollectorExcel(formData.value).then(res => {
+    if (res.retcode == 200) {
+      ElMessage({
+        showClose: true,
+        message: res.message,
+        type: "success"
+      });
+      batchCollectorVisible.value = false;
+      loading.close();
+      getcollectorList();
+    } else {
+      ElMessage({
+        showClose: true,
+        message: res.message,
+        type: "error"
+      });
+      batchCollectorVisible.value = false;
+      loading.close();
+      getcollectorList();
+    }
+  });
+};
+const showUpload = ref(true);
+watch(
+  () => batchForm.region,
+  (newVal, oldVal) => {
+    console.log(newVal, oldVal, "新旧值");
+    if (newVal) {
+      showUpload.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   getroomInfo();
@@ -685,9 +711,9 @@ onMounted(() => {
 .demo-pagination-block {
   margin-top: 10px;
 }
-::v-deep .el-dialog__body {
-  padding: 4px 20px;
-}
+// ::v-deep .el-dialog__body {
+//   padding: 4px 20px;
+// }
 ::v-deep .el-step__title {
   font-size: 14px;
 }
