@@ -70,7 +70,7 @@
             >
               <el-tree-select
                 v-model="form.region"
-                :props="props"
+                :props="treeProps"
                 :data="batchSameList"
                 :load="loadFireNode"
                 lazy
@@ -194,7 +194,7 @@
       </template>
     </el-dialog>
     <!-- 批量新增房间 -->
-    <el-dialog v-model="batchRoomVisible" title="批量导入房间信息" width="30%">
+    <el-dialog v-model="batchRoomVisible" title="批量导入房间信息" width="25%">
       <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
         <el-row>
           <el-col :span="24">
@@ -208,7 +208,7 @@
             <el-form-item label="所属区域" :label-width="80" prop="region">
               <el-tree-select
                 v-model="batchForm.region"
-                :props="props"
+                :props="treeProps"
                 :data="batchSameList"
                 :load="loadFireNode"
                 lazy
@@ -246,7 +246,8 @@
               </el-button>
               <template #tip>
                 <div class="el-upload__tip text-red">
-                  选择区域后选取文件，只允许上传1个xlsx文件
+                  <p>选择区域后选取文件</p>
+                  只允许上传1个xlsx文件
                 </div>
               </template>
             </el-upload>
@@ -274,9 +275,11 @@ const batchRoomVisible = ref(false); // 批量弹框展示
 const formLabelWidth = "100px"; // 表单文字宽度
 
 // const nowSelectRegion = ref(""); //当前选中的区域信息
+const props = defineProps(["selectedRegionId"]);
+console.log(props.selectedRegionId, "区域点击的值");
 
 const batchSameList = ref([]); // 所属区域树形
-const props = {
+const treeProps = {
   label: node => {
     return `${node.name}  -  ${node.type}`;
   },
@@ -631,16 +634,30 @@ const onUploadChange = item => {
 const region_select = ref();
 
 const tableData = ref([]);
-const getroomInfo = () => {
-  const data = {
-    page: 1,
-    pageSize: 1000
-  };
-  getroom(data).then(res => {
-    if (res.retcode == 200) {
-      tableData.value = res.data.data;
-    }
-  });
+const getroomInfo = regionid => {
+  // debugger;
+  if (regionid) {
+    const data = {
+      page: 1,
+      pageSize: 1000,
+      vagueName: regionid
+    };
+    getroom(data).then(res => {
+      if (res.retcode == 200) {
+        tableData.value = res.data.data;
+      }
+    });
+  } else {
+    const data = {
+      page: 1,
+      pageSize: 1000
+    };
+    getroom(data).then(res => {
+      if (res.retcode == 200) {
+        tableData.value = res.data.data;
+      }
+    });
+  }
 };
 
 // 上传文件
@@ -684,7 +701,15 @@ watch(
 );
 
 onMounted(() => {
-  getroomInfo();
+  if (props.selectedRegionId) {
+    getroomInfo(props.selectedRegionId);
+  } else {
+    getroomInfo();
+  }
+});
+
+defineExpose({
+  getroomInfo
 });
 </script>
 

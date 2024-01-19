@@ -12,7 +12,9 @@
                 <vxe-button @click="getRemoveEvent">获取删除</vxe-button>
                 <vxe-button @click="getUpdateEvent">获取修改</vxe-button> -->
         <el-button @click="addsMeter" type="primary" plain>添加</el-button>
-        <el-button @click="addsMeter" type="primary" plain>批量导入</el-button>
+        <el-button @click="batchWaterMeter" type="primary" plain
+          >批量导入</el-button
+        >
         <el-button type="danger" plain>批量删除</el-button>
       </template>
     </vxe-toolbar>
@@ -474,11 +476,117 @@
         </span>
       </template>
     </el-dialog>
+    <el-dialog
+      v-model="batchWaterMeterVisible"
+      title="批量导入水表（户表）信息"
+      width="25%"
+    >
+      <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="模板文件" :label-width="90">
+              <el-button type="primary">下载模板</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="所属区域" :label-width="90" prop="region">
+              <el-tree-select
+                v-model="batchForm.region"
+                :props="treeProps"
+                :data="batchSameList"
+                :load="loadFireNode"
+                lazy
+                node-key="id"
+                check-strictly
+                :render-after-expand="false"
+                class="region_select1"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item
+              label="有无采集器"
+              :label-width="90"
+              prop="hasCollector"
+            >
+              <el-switch
+                v-model="batchForm.hasCollector"
+                @change="changeBatchCollector"
+                inline-prompt
+                active-text="有"
+                inactive-text="无"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="所属采集器" :label-width="90" prop="region">
+              <el-select
+                v-model="batchForm.collector"
+                class="region_select1"
+                :disabled="!batchForm.hasCollector"
+                @focus="searchCollector(true)"
+              >
+                <el-option
+                  v-for="item in collectorList"
+                  :key="item._id"
+                  :label="item.collectroId"
+                  :value="item.collectroId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :span="24">
+          <el-form-item label="选择文件" :label-width="90" prop="region">
+            <el-upload
+              ref="upload"
+              class="upload-demo"
+              action=""
+              :limit="1"
+              :on-exceed="handleExceed"
+              :auto-upload="false"
+              :on-change="onUploadChange"
+            >
+              <template #trigger>
+                <el-button type="primary" :disabled="showUpload"
+                  >选取文件</el-button
+                >
+              </template>
+              <el-button
+                class="ml-3"
+                type="success"
+                :disabled="showUpload"
+                @click="submitUpload"
+              >
+                上传
+              </el-button>
+              <template #tip>
+                <div class="el-upload__tip text-red">
+                  <p>选择区域、采集器信息后选取文件</p>
+                  只允许上传1个xlsx文件
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchWaterMeterVisible = false">取消</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { allregion } from "@/api/allregion.js";
 import { getcollector } from "@/api/collector.js";
@@ -530,6 +638,36 @@ const form = reactive({
   faulttype: "0", // 故障类型号
   notes: "" // 备注
 });
+
+// 批量导入表单
+const batchForm = reactive({
+  region: "",
+  hasCollector: true,
+  collector: ""
+});
+const treeProps = {
+  label: node => {
+    return `${node.name}  -  ${node.type}`;
+  },
+  children: "child",
+  isLeaf: data => {
+    if (data.hasChild === false || data.type == "楼栋") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+// 批量导入改变有无采集器状态
+const changeBatchCollector = type => {
+  console.log(type, "转态");
+  if (type == true) {
+    return;
+  } else {
+    batchForm.collector = "";
+  }
+};
 
 // const nowSelectRegion = ref(""); //当前选中的区域信息
 // 请选择表类型
@@ -705,20 +843,14 @@ const loadFireNode = (node, resolve) => {
   }
 };
 
-// const handleNodeClick = node => {
-//   nowSelectRegion.value += "-" + node.name;
-//   form.fullRegion = nowSelectRegion.value;
-//   // console.log(form.region, "form.region");
-// };
-
 // 所属采集器列表
 const collectorList = ref([]);
-const searchCollector = () => {
-  console.log("点击了采集器");
+const searchCollector = batch => {
+  // console.log("点击了采集器");
   const data = {
     page: 1,
     pageSize: 100,
-    region: form.region // regionId
+    region: batch ? batchForm.region : form.region // regionId
   };
   getcollector(data).then(res => {
     if (res.retcode == 200) {
@@ -854,6 +986,68 @@ const getmeterInfo = () => {
     }
   });
 };
+
+const batchWaterMeterVisible = ref(false); // 水表批量框的展示、隐藏
+// 点击批量导入水表
+const batchWaterMeter = () => {
+  batchWaterMeterVisible.value = true;
+};
+
+// 上传批量水表
+const formData = ref();
+const onUploadChange = item => {
+  console.log(item, "上传文件信息");
+  if (batchForm.region == "") {
+    return ElMessage({
+      showClose: true,
+      message: "请先选择区域后导入文件！",
+      type: "error"
+    });
+  }
+  formData.value = new FormData();
+  formData.value.append("file", item.raw);
+  formData.value.append("region", batchForm.region);
+};
+
+// 上传文件
+const submitUpload = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: "Loading",
+    background: "rgba(0, 0, 0, 0.7)"
+  });
+  batchCollectorExcel(formData.value).then(res => {
+    if (res.retcode == 200) {
+      ElMessage({
+        showClose: true,
+        message: res.message,
+        type: "success"
+      });
+      batchCollectorVisible.value = false;
+      loading.close();
+      getcollectorList();
+    } else {
+      ElMessage({
+        showClose: true,
+        message: res.message,
+        type: "error"
+      });
+      batchCollectorVisible.value = false;
+      loading.close();
+      getcollectorList();
+    }
+  });
+};
+const showUpload = ref(true);
+watch(
+  () => batchForm.region,
+  (newVal, oldVal) => {
+    console.log(newVal, oldVal, "新旧值");
+    if (newVal) {
+      showUpload.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   getmeterInfo();

@@ -44,6 +44,7 @@
             :data="tableData"
             :tree-config="treeConfig"
             size="small"
+            height="auto"
           >
             <vxe-column type="checkbox" width="60" />
             <vxe-column

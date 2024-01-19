@@ -180,7 +180,10 @@
                 </div>
                 <div class="fire_content" v-if="showFireContent">热表信息</div>
                 <div class="fire_content" v-if="showHouse">
-                  <roomInfo />
+                  <roomInfo
+                    :selectedRegionId="selectedRegionId"
+                    ref="roomInfoComponent"
+                  />
                 </div>
                 <div class="fire_content" v-if="showOwner">
                   <owner />
@@ -217,9 +220,9 @@
                         :load="loadFireNode"
                         lazy
                         node-key="id"
-                        check-strictly
                         highlight-current
                         :render-after-expand="false"
+                        @node-click="handleCheckChange"
                         ref="treeNode"
                       />
                     </div>
@@ -536,7 +539,7 @@
     <el-dialog
       v-model="batchCollectorVisible"
       title="批量导入采集器"
-      width="30%"
+      width="25%"
     >
       <el-form :model="batchForm" ref="batchFormRef">
         <el-row>
@@ -589,7 +592,8 @@
               </el-button>
               <template #tip>
                 <div class="el-upload__tip text-red">
-                  选择区域后选取文件，只允许上传1个xlsx文件
+                  <p>选择区域后选取文件</p>
+                  只允许上传1个xlsx文件
                 </div>
               </template>
             </el-upload>
@@ -640,8 +644,8 @@ const showHouse = ref(false); // 展示房间信息
 const showOwner = ref(false); // 展示采集器内容
 // 菜单选择
 const activeIndex = ref("1");
-const handleSelect = (key, keyPath) => {
-  console.log(key, keyPath);
+const handleSelect = key => {
+  // console.log(key, keyPath);
   switch (key) {
     case "1":
       showCollector.value = true;
@@ -649,6 +653,11 @@ const handleSelect = (key, keyPath) => {
       showFireContent.value = false;
       showHouse.value = false;
       showOwner.value = false;
+      if (selectedRegionId.value.length > 0) {
+        getcollectorList(selectedRegionId.value);
+      } else {
+        getcollectorList();
+      }
       break;
     case "2":
       showCollector.value = false;
@@ -731,7 +740,7 @@ const rules = reactive<any>({
       required: true,
       message: "请输入9位采集器编号",
       trigger: "blur",
-      pattern: /^[0]?\d{8}$/
+      pattern: /^[0]?\d{9}$/
     },
     { min: 9, max: 9, message: "请输入9位数字", trigger: "blur" }
   ],
@@ -1038,21 +1047,33 @@ const submitForm = async formEl => {
 const batchCollectorVisible = ref(false);
 // 批量导入采集器
 const batchCollector = () => {
-  // console.log("批量导入");
   batchCollectorVisible.value = true;
 };
 
 // 获取采集器信息
-const getcollectorList = () => {
-  const data = {
-    page: 1,
-    pageSize: 100
-  };
-  getcollector(data).then(res => {
-    if (res.retcode == 200) {
-      tableData.value = res.data.data;
-    }
-  });
+const getcollectorList = regionId => {
+  if (regionId) {
+    const data = {
+      page: 1,
+      pageSize: 100,
+      vagueName: regionId
+    };
+    getcollector(data).then(res => {
+      if (res.retcode == 200) {
+        tableData.value = res.data.data;
+      }
+    });
+  } else {
+    const data = {
+      page: 1,
+      pageSize: 100
+    };
+    getcollector(data).then(res => {
+      if (res.retcode == 200) {
+        tableData.value = res.data.data;
+      }
+    });
+  }
 };
 
 const leftItemWidth = ref(20); // 内容显示区
@@ -1090,7 +1111,7 @@ const handleExceed: UploadProps["onExceed"] = files => {
 const submitUpload = () => {
   const loading = ElLoading.service({
     lock: true,
-    text: "Loading",
+    text: "批量导入中，请稍后......",
     background: "rgba(0, 0, 0, 0.7)"
   });
   // upload.value!.submit();
@@ -1187,6 +1208,42 @@ const steps: TourStep[] = [
 const handleOpenTour = () => {
   current.value = 0;
   show.value = true;
+};
+
+const roomInfoComponent = ref(null); // 子组件dom
+const selectedRegionId = ref(""); // 当前选中的区域id
+// 选中区域信息的节点数据
+const handleCheckChange = node => {
+  console.log(node, "node");
+  if (node.id) {
+    selectedRegionId.value = node.id;
+    if (showCollector.value == true) {
+      const data = {
+        page: 1,
+        pageSize: 100,
+        vagueName: node.id
+      };
+      getcollector(data).then(res => {
+        if (res.retcode == 200) {
+          tableData.value = res.data.data;
+        }
+      });
+    } else if (showHouse.value == true) {
+      // const data = {
+      //   page: 1,
+      //   pageSize: 100,
+      //   vagueName: node.id
+      // };
+      // getroom(data).then(res => {
+      //   if (res.retcode == 200) {
+      //     roomsData.value = res.data.data;
+      //   }
+      // });
+      roomInfoComponent.value.getroomInfo(node.id);
+    }
+  } else {
+    return;
+  }
 };
 
 onMounted(() => {
