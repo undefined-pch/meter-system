@@ -138,7 +138,7 @@
               <el-select
                 v-model="form.collector"
                 class="region_select1"
-                @focus="searchCollector"
+                @focus="searchCollector(false)"
               >
                 <el-option
                   v-for="item in collectorList"
@@ -257,7 +257,7 @@
                   v-for="item in feeSchemeList"
                   :key="item._id"
                   :label="item.name"
-                  :value="item.name"
+                  :value="item._id"
                 />
               </el-select>
             </el-form-item>
@@ -587,15 +587,20 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElLoading } from "element-plus";
 import { allregion } from "@/api/allregion.js";
 import { getcollector } from "@/api/collector.js";
-import { getGaugeValve, gaugeValveadd } from "@/api/gaugeValve.js";
+import {
+  getGaugeValve,
+  gaugeValveadd,
+  batchWaterMeterExcel
+} from "@/api/gaugeValve.js";
 import { waterPrice } from "@/api/price.js";
 import { getroom } from "@/api/room.js";
 
 const addMeterVisible = ref(false); //新增采集器弹框展示
 const addsMeter = () => {
+  clear(form);
   addMeterVisible.value = true;
   // 获取收费方案列表
   const data = {
@@ -609,6 +614,32 @@ const addsMeter = () => {
   });
 };
 const feeSchemeList = ref([]); // 收费方案表单
+
+// 表单重置
+const clear = info => {
+  const keys = Object.keys(info);
+  const obj = {};
+  keys.forEach(item => {
+    if (item == "meterType") {
+      obj[item] = "普通水表";
+    } else if (item == "bandrate") {
+      obj[item] = "2400";
+    } else if (item == "databit") {
+      obj[item] = "8";
+    } else if (item == "checkbit") {
+      obj[item] = "2";
+    } else if (item == "stopbit") {
+      obj[item] = "2";
+    } else if (item == "hasCollector") {
+      obj[item] = true;
+    } else if (item == "hasValve") {
+      obj[item] = true;
+    } else {
+      obj[item] = "";
+    }
+  });
+  Object.assign(info, obj);
+};
 
 const formLabelWidth = "110px"; // 表单文字宽度
 
@@ -661,7 +692,7 @@ const treeProps = {
 
 // 批量导入改变有无采集器状态
 const changeBatchCollector = type => {
-  console.log(type, "转态");
+  // console.log(type, "转态");
   if (type == true) {
     return;
   } else {
@@ -990,6 +1021,7 @@ const getmeterInfo = () => {
 const batchWaterMeterVisible = ref(false); // 水表批量框的展示、隐藏
 // 点击批量导入水表
 const batchWaterMeter = () => {
+  clear(batchForm);
   batchWaterMeterVisible.value = true;
 };
 
@@ -1007,6 +1039,8 @@ const onUploadChange = item => {
   formData.value = new FormData();
   formData.value.append("file", item.raw);
   formData.value.append("region", batchForm.region);
+  formData.value.append("hasCollector", batchForm.hasCollector);
+  formData.value.append("collector", batchForm.collector);
 };
 
 // 上传文件
@@ -1016,25 +1050,25 @@ const submitUpload = () => {
     text: "Loading",
     background: "rgba(0, 0, 0, 0.7)"
   });
-  batchCollectorExcel(formData.value).then(res => {
+  batchWaterMeterExcel(formData.value).then(res => {
     if (res.retcode == 200) {
       ElMessage({
         showClose: true,
         message: res.message,
         type: "success"
       });
-      batchCollectorVisible.value = false;
+      batchWaterMeterVisible.value = false;
       loading.close();
-      getcollectorList();
+      getmeterInfo();
     } else {
       ElMessage({
         showClose: true,
         message: res.message,
         type: "error"
       });
-      batchCollectorVisible.value = false;
+      batchWaterMeterVisible.value = false;
       loading.close();
-      getcollectorList();
+      getmeterInfo();
     }
   });
 };

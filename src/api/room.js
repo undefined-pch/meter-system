@@ -13,3 +13,19 @@ export const getroom = data => {
     data
   });
 };
+
+// 批量增加房间
+export const batchRooms = data => {
+  return httplocal.request(
+    "post",
+    "/api/batchRooms",
+    {
+      data
+    },
+    {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  );
+};

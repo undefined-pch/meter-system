@@ -440,7 +440,7 @@ const tableData = [
     chargingMode: "预付费",
     warning: "0",
     isPay: true,
-    date: "2023-12-22"
+    date: "2023-01-22"
   },
   {
     roomName: "测试区域->测试小区->测试楼栋->201",
@@ -449,7 +449,7 @@ const tableData = [
     chargingMode: "后付费",
     warning: "-100",
     isPay: false,
-    date: "2023-12-22"
+    date: "2023-01-22"
   },
   {
     roomName: "测试区域->测试小区->测试楼栋->301",
@@ -458,7 +458,7 @@ const tableData = [
     chargingMode: "预付费",
     warning: "0",
     isPay: true,
-    date: "2023-12-22"
+    date: "2023-01-22"
   },
   {
     roomName: "测试区域->测试小区->测试楼栋->401",
@@ -467,7 +467,7 @@ const tableData = [
     chargingMode: "后付费",
     warning: "-100",
     isPay: false,
-    date: "2023-12-22"
+    date: "2023-01-22"
   },
   {
     roomName: "测试区域->测试小区->测试楼栋->501",
@@ -476,7 +476,7 @@ const tableData = [
     chargingMode: "预付费",
     warning: "0",
     isPay: true,
-    date: "2023-12-22"
+    date: "2023-01-22"
   }
 ];
 // 绘制近30天费用占比

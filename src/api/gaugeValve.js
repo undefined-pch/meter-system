@@ -25,6 +25,22 @@ export const gaugeValvedelete = id => {
   return httplocal.request("delete", "/api/gaugeValvedelete/" + id);
 };
 
+// 批量上传水表信息
+export const batchWaterMeterExcel = data => {
+  return httplocal.request(
+    "post",
+    "/api/batchWaterMeter",
+    {
+      data
+    },
+    {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  );
+};
+
 // 设置出参类型
 // export type RefreshTokenResult = {
 //   retcode: number;

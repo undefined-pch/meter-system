@@ -163,6 +163,12 @@ const calendar = ref([
     type: "warning"
   },
   {
+    id: 3,
+    endTime: "2024-01-10",
+    title: "告警数:5",
+    type: "warning"
+  },
+  {
     id: 2,
     endTime: "2024-01-22",
     title: "待缴费水费用户:13",

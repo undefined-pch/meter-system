@@ -13,6 +13,7 @@
                 <vxe-button @click="getUpdateEvent">获取修改</vxe-button> -->
         <el-button @click="addsRoom" type="primary" plain>添加</el-button>
         <el-button @click="batchRoom" type="primary" plain>批量导入</el-button>
+        <el-button @click="batchRoom" type="primary" plain>批量开户</el-button>
         <el-button type="danger" plain>批量删除</el-button>
       </template>
     </vxe-toolbar>
@@ -28,17 +29,50 @@
         height="auto"
       >
         <vxe-column type="checkbox" width="60" fixed="left" />
-        <vxe-column field="roomName" title="房间号" width="110" fixed="left" />
-        <vxe-column field="fullRegion" title="所属区域" width="110" />
-        <vxe-column field="householder" title="业主姓名" width="110" />
+        <vxe-column field="roomName" title="房间号" width="60" fixed="left" />
+        <vxe-column field="fullRegion" title="所属区域" width="140" />
+        <vxe-column
+          field="householder"
+          title="业主姓名"
+          width="90"
+          :filters="ageOptions"
+          :filter-method="filterAgeMethod"
+          :filter-recover-method="filterAgeRecoverMethod"
+        >
+          <template #filter="{ $panel, column }">
+            <input
+              class="my-input"
+              type="type"
+              v-for="(option, index) in column.filters"
+              :key="index"
+              v-model="option.data"
+              @input="$panel.changeOption($event, !!option.data, option)"
+              @keyup.enter="$panel.confirmFilter()"
+              placeholder="按回车确认筛选"
+            />
+          </template>
+        </vxe-column>
         <vxe-column field="phone" title="联络方式" width="110" />
-        <vxe-column field="unit" title="单元号" width="110" />
-        <vxe-column field="level" title="楼层" width="110" />
+        <vxe-column field="unit" title="单元号" width="70" />
+        <vxe-column field="level" title="楼层" width="70" />
         <vxe-column field="date" title="添加时间" width="110" />
         <vxe-column field="founder" title="创建人" width="110" />
         <vxe-column field="notes" title="备注" width="180" />
-        <vxe-column title="操作" width="110" fixed="right" align="center">
-          <template #default>
+        <vxe-column field="status" title="开户状态" width="80" fixed="right">
+          <template #default="{ row }">
+            <el-tag type="success" v-if="row.status">已开户</el-tag>
+            <el-tag type="danger" v-else>未开户</el-tag>
+          </template>
+        </vxe-column>
+        <vxe-column title="操作" width="240" fixed="right" align="center">
+          <template #default="{ row }">
+            <vxe-button type="text" status="primary" v-if="row.status"
+              >关户</vxe-button
+            >
+            <vxe-button type="text" status="primary" v-else>开户</vxe-button>
+            <vxe-button type="text" status="primary" @click="lookHousehold(row)"
+              >查看户主信息</vxe-button
+            >
             <vxe-button type="text" status="primary">修改</vxe-button>
             <vxe-button type="text" status="danger">删除</vxe-button>
           </template>
@@ -59,7 +93,12 @@
       />
     </div>
     <!-- 新增房间 -->
-    <el-dialog v-model="addRoomVisible" title="新增房间信息" width="40%">
+    <el-dialog
+      v-model="addRoomVisible"
+      title="新增房间信息"
+      width="40%"
+      top="3%"
+    >
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-row>
           <el-col :span="24">
@@ -79,6 +118,7 @@
                 :render-after-expand="false"
                 @change="handleChange"
                 class="region_select"
+                placeholder="请选择所属区域"
                 ref="region_select"
             /></el-form-item>
           </el-col>
@@ -90,7 +130,10 @@
               :label-width="formLabelWidth"
               prop="roomName"
             >
-              <el-input v-model="form.roomName" autocomplete="off"
+              <el-input
+                v-model="form.roomName"
+                autocomplete="off"
+                placeholder="请输入房间号"
             /></el-form-item>
           </el-col>
           <el-col :span="12">
@@ -99,7 +142,10 @@
               :label-width="formLabelWidth"
               prop="area"
             >
-              <el-input v-model="form.area" autocomplete="off"
+              <el-input
+                v-model="form.area"
+                autocomplete="off"
+                placeholder="请输入面积"
             /></el-form-item>
           </el-col>
         </el-row>
@@ -110,7 +156,10 @@
               :label-width="formLabelWidth"
               prop="people"
             >
-              <el-input v-model="form.people" autocomplete="off"
+              <el-input
+                v-model="form.people"
+                autocomplete="off"
+                placeholder="请输入房间人数"
             /></el-form-item>
           </el-col>
           <el-col :span="12">
@@ -119,7 +168,10 @@
               :label-width="formLabelWidth"
               prop="unit"
             >
-              <el-input v-model="form.unit" autocomplete="off"
+              <el-input
+                v-model="form.unit"
+                autocomplete="off"
+                placeholder="请输入单元号"
             /></el-form-item>
           </el-col>
         </el-row>
@@ -130,7 +182,10 @@
               :label-width="formLabelWidth"
               prop="level"
             >
-              <el-input v-model="form.level" autocomplete="off"
+              <el-input
+                v-model="form.level"
+                autocomplete="off"
+                placeholder="请输入楼层"
             /></el-form-item>
           </el-col>
           <el-col :span="12">
@@ -139,7 +194,10 @@
               :label-width="formLabelWidth"
               prop="householder"
             >
-              <el-input v-model="form.householder" autocomplete="off"
+              <el-input
+                v-model="form.householder"
+                autocomplete="off"
+                placeholder="请输入户主姓名"
             /></el-form-item>
           </el-col>
         </el-row>
@@ -150,14 +208,17 @@
               :label-width="formLabelWidth"
               prop="phone"
             >
-              <el-input v-model="form.phone" autocomplete="off"
+              <el-input
+                v-model="form.phone"
+                autocomplete="off"
+                placeholder="请输入联络方式"
             /></el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item
               label="户主性别"
               :label-width="formLabelWidth"
-              prop="phone"
+              prop="sex"
             >
               <el-radio-group v-model="form.sex" class="ml-4">
                 <el-radio label="男">男</el-radio>
@@ -166,6 +227,43 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item
+              label="身份证号"
+              :label-width="formLabelWidth"
+              prop="identificationCard"
+            >
+              <el-input
+                v-model="form.identificationCard"
+                autocomplete="off"
+                placeholder="请输入身份证号"
+            /></el-form-item>
+          </el-col>
+        </el-row>
+        <!-- <el-row>
+          <el-col :span="12">
+            <el-form-item
+              label="移动端账号"
+              :label-width="formLabelWidth"
+              prop="username"
+            >
+              <el-input
+                v-model="form.username"
+                autocomplete="off"
+                placeholder="请输入移动端"
+            /></el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="移动端密码"
+              :label-width="formLabelWidth"
+              prop="password"
+            >
+              <el-input v-model="form.password" autocomplete="off"
+            /></el-form-item>
+          </el-col>
+        </el-row> -->
         <el-row>
           <el-col :span="24">
             <el-form-item
@@ -247,7 +345,8 @@
               <template #tip>
                 <div class="el-upload__tip text-red">
                   <p>选择区域后选取文件</p>
-                  只允许上传1个xlsx文件
+                  <p>只允许上传1个xlsx文件</p>
+                  <p>批量导入的手机号将自动开户</p>
                 </div>
               </template>
             </el-upload>
@@ -260,6 +359,74 @@
         </span>
       </template>
     </el-dialog>
+    <!-- 户主信息 -->
+    <el-dialog
+      v-model="householderVisible"
+      label-class-name="my-label"
+      class-name="my-content"
+      title="户主信息"
+      width="40%"
+    >
+      <el-row type="flex" justify="center">
+        <el-avatar
+          size="large"
+          src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+        />
+      </el-row>
+      <el-descriptions :title="householdInfo.householder" :column="2" border>
+        <el-descriptions-item
+          label="账号"
+          label-align="left"
+          width="150px"
+          align="center"
+          >{{ householdInfo.username }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="密码"
+          label-align="left"
+          width="150px"
+          align="center"
+          >{{ householdInfo.password }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="关联房间数"
+          label-align="left"
+          align="center"
+          width="150px"
+          span="1"
+          >{{ householdInfo.roomsTotal }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="开户房间数"
+          label-align="left"
+          align="center"
+          width="150px"
+          span="1"
+          >{{ householdInfo.roomsOpenTotal }}</el-descriptions-item
+        >
+        <el-descriptions-item label="关联房间号" span="2">
+          <template
+            v-for="(item, index) in householdInfo.roomInfo"
+            :key="index"
+          >
+            {{ item }}
+          </template>
+        </el-descriptions-item>
+        <el-descriptions-item label="关联表号" span="2">
+          <template
+            v-for="(item, index) in householdInfo.waterMeterId"
+            :key="index"
+          >
+            {{ item }}
+          </template>
+        </el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="householderVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -268,15 +435,16 @@ import { ref, reactive, watch, onMounted } from "vue";
 import { ElMessage, ElLoading } from "element-plus";
 import { allregion } from "@/api/allregion.js";
 import { getGaugeValve } from "@/api/gaugeValve.js";
-import { roomAdd, getroom } from "@/api/room.js";
+import { roomAdd, getroom, batchRooms } from "@/api/room.js";
 
 const addRoomVisible = ref(false); // 新增弹框显示
 const batchRoomVisible = ref(false); // 批量弹框展示
+const householderVisible = ref(false); // 查看户主信息弹框
 const formLabelWidth = "100px"; // 表单文字宽度
 
 // const nowSelectRegion = ref(""); //当前选中的区域信息
 const props = defineProps(["selectedRegionId"]);
-console.log(props.selectedRegionId, "区域点击的值");
+// console.log(props.selectedRegionId, "区域点击的值");
 
 const batchSameList = ref([]); // 所属区域树形
 const treeProps = {
@@ -436,6 +604,7 @@ const loadFireNode = (node, resolve) => {
 // 添加房间按钮
 const addsRoom = () => {
   console.log("新增房间信息");
+  clear(form);
   addRoomVisible.value = true;
 };
 
@@ -450,11 +619,12 @@ const form = reactive({
   level: 1, // 楼层数
   householder: "",
   phone: "",
+  status: false, // 默认不开户
+  identificationCard: "", // 身份证号
+  // username: "", // 小程序登陆账号
+  // password: "", // 小程序登陆密码
   sex: "男",
-  // waterMeter: [], // 绑定的水表
-  // hotMeter: [], // 绑定的热表
   notes: "" // 备注
-  // waterMeterName: [] // 选中水表信息
 });
 
 // 表单规则
@@ -514,7 +684,35 @@ const rules = reactive({
       message: "请输入联络方式",
       trigger: "blur"
     }
+  ],
+  sex: [
+    {
+      required: true,
+      message: "请选择性别",
+      trigger: "blur"
+    }
+  ],
+  identificationCard: [
+    {
+      required: true,
+      message: "请输入身份证号",
+      trigger: "blur"
+    }
   ]
+  // username: [
+  //   {
+  //     required: true,
+  //     message: "请输入登陆小程序的账号",
+  //     trigger: "blur"
+  //   }
+  // ],
+  // password: [
+  //   {
+  //     required: true,
+  //     message: "请输入登陆小程序的密码",
+  //     trigger: "blur"
+  //   }
+  // ]
 });
 
 const active = ref(0); // 当前步骤
@@ -609,6 +807,7 @@ watch(
 // };
 
 const batchRoom = () => {
+  clear(batchForm);
   batchRoomVisible.value = true;
 };
 // 批量导入表单
@@ -616,7 +815,7 @@ const batchForm = reactive({
   region: ""
 });
 
-const formData = ref();
+const formData = new FormData();
 const onUploadChange = item => {
   console.log(item, "上传文件信息");
   if (batchForm.region == "") {
@@ -626,9 +825,10 @@ const onUploadChange = item => {
       type: "error"
     });
   }
-  formData.value = new FormData();
-  formData.value.append("file", item.raw);
-  formData.value.append("region", batchForm.region);
+  formData.delete("file");
+  formData.delete("region");
+  formData.append("file", item.raw);
+  formData.append("region", batchForm.region);
 };
 
 const region_select = ref();
@@ -664,31 +864,86 @@ const getroomInfo = regionid => {
 const submitUpload = () => {
   const loading = ElLoading.service({
     lock: true,
-    text: "Loading",
+    text: "批量上传中，请稍后......",
     background: "rgba(0, 0, 0, 0.7)"
   });
-  batchCollectorExcel(formData.value).then(res => {
+  batchRooms(formData).then(res => {
     if (res.retcode == 200) {
       ElMessage({
         showClose: true,
         message: res.message,
         type: "success"
       });
-      batchCollectorVisible.value = false;
+      batchRoomVisible.value = false;
       loading.close();
-      getcollectorList();
+      getroomInfo();
     } else {
       ElMessage({
         showClose: true,
         message: res.message,
         type: "error"
       });
-      batchCollectorVisible.value = false;
+      batchRoomVisible.value = false;
       loading.close();
-      getcollectorList();
+      getroomInfo();
     }
   });
 };
+
+// 户主信息详情
+const householdInfo = reactive({
+  householder: "",
+  username: "",
+  password: "",
+  roomsTotal: 0,
+  roomsOpenTotal: 0,
+  roomInfo: [],
+  waterMeterId: "",
+  IdentificationCard: ""
+});
+
+// 查看户主信息
+// 查询水表里的表号
+// 查找房间信息里同一身份证所关联的房间号
+const lookHousehold = row => {
+  clear(householdInfo);
+  householdInfo.username = row.username;
+  householdInfo.password = row.password;
+  if (row.sex == "男") {
+    householdInfo.householder = row.householder + "（先生）";
+  } else {
+    householdInfo.householder = row.householder + "（女士）";
+  }
+  householdInfo.roomsTotal = 1;
+  householdInfo.roomsOpenTotal = 0;
+  householdInfo.roomInfo = row.fullRegion;
+  const data = {
+    page: 1,
+    pageSize: 100,
+    belongRoom: row.fullRegion
+  };
+  getGaugeValve(data).then(res => {
+    if (res.retcode == 200) {
+      householdInfo.waterMeterId = res.data.data[0].meterId;
+    }
+  });
+  householderVisible.value = true;
+};
+
+// 重置
+const clear = info => {
+  const keys = Object.keys(info);
+  const obj = {};
+  keys.forEach(item => {
+    if (item == "sex") {
+      obj[item] = "男";
+    } else {
+      obj[item] = "";
+    }
+  });
+  Object.assign(info, obj);
+};
+
 const showUpload = ref(true);
 watch(
   () => batchForm.region,
@@ -699,6 +954,16 @@ watch(
     }
   }
 );
+
+// 筛选业主姓名
+const ageOptions = ref([{ data: "" }]);
+const filterAgeMethod = ({ option, row }) => {
+  return row.householder === option.data;
+};
+const filterAgeRecoverMethod = ({ option }) => {
+  // 如果是自定义筛选模板，当为点击确认时，该选项将被恢复为默认值
+  option.data = "";
+};
 
 onMounted(() => {
   if (props.selectedRegionId) {
@@ -772,5 +1037,12 @@ defineExpose({
 /*边角，即两个滚动条的交汇处*/
 .mytable-scrollbar ::-webkit-scrollbar-corner {
   background-color: #ffffff;
+}
+
+:deep(.my-label) {
+  background: var(--el-color-success-light-9) !important;
+}
+:deep(.my-content) {
+  background: var(--el-color-danger-light-9);
 }
 </style>

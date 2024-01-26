@@ -1,5 +1,21 @@
 <template>
   <div class="meterArchives">
+    <Transition>
+      <el-alert
+        v-if="isShowBatchresult"
+        :title="BatchresultTitle"
+        :type="BatchresultType"
+        :description="BatchresultInfo"
+        show-icon
+        style="
+          position: fixed;
+          top: 5%;
+          z-index: 999;
+          width: 50%;
+          margin-left: -100px;
+        "
+      />
+    </Transition>
     <div class="open_tip">
       <el-tooltip
         class="box-item"
@@ -258,6 +274,7 @@
                 node-key="id"
                 check-strictly
                 :render-after-expand="false"
+                placeholder="请选择所属区域"
                 class="region_select" /></el-form-item
           ></el-col>
         </el-row>
@@ -268,7 +285,10 @@
               :label-width="formLabelWidth"
               prop="collectroId"
             >
-              <el-input v-model="form.collectroId" autocomplete="off"
+              <el-input
+                v-model="form.collectroId"
+                autocomplete="off"
+                placeholder="请输入9位采集器编号"
                 ><template #suffix>
                   <el-tooltip
                     class="box-item"
@@ -371,7 +391,11 @@
               :label-width="formLabelWidth"
               prop="serverAddress"
             >
-              <el-input v-model="form.serverAddress" autocomplete="off" />
+              <el-input
+                v-model="form.serverAddress"
+                autocomplete="off"
+                placeholder="请输入服务器地址"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -382,7 +406,11 @@
               :label-width="formLabelWidth"
               prop="serverPort"
             >
-              <el-input v-model="form.serverPort" autocomplete="off" />
+              <el-input
+                v-model="form.serverPort"
+                autocomplete="off"
+                placeholder="请输入服务器端口"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -391,7 +419,11 @@
               :label-width="formLabelWidth"
               prop="middlewareAddress"
             >
-              <el-input v-model="form.middlewareAddress" autocomplete="off" />
+              <el-input
+                v-model="form.middlewareAddress"
+                autocomplete="off"
+                placeholder="请输入中间件地址"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -402,7 +434,11 @@
               :label-width="formLabelWidth"
               prop="middlewarePort"
             >
-              <el-input v-model="form.middlewarePort" autocomplete="off" />
+              <el-input
+                v-model="form.middlewarePort"
+                autocomplete="off"
+                placeholder="请输入中间件端口"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -463,7 +499,11 @@
               :label-width="formLabelWidth"
               prop="SIMcard"
             >
-              <el-input v-model="form.SIMcard" autocomplete="off" />
+              <el-input
+                v-model="form.SIMcard"
+                autocomplete="off"
+                placeholder="请输入SIM卡号"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -506,7 +546,11 @@
               :label-width="formLabelWidth"
               prop="installPosition"
             >
-              <el-input v-model="form.installPosition" autocomplete="off" />
+              <el-input
+                v-model="form.installPosition"
+                autocomplete="off"
+                placeholder="请输入安装位置"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -521,6 +565,7 @@
                 v-model="form.notes"
                 type="textarea"
                 autocomplete="off"
+                placeholder="请输入备注"
               />
             </el-form-item>
           </el-col>
@@ -623,7 +668,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, Ref } from "vue";
 import { ElMessage, genFileId, ElLoading } from "element-plus";
 import { allregion } from "@/api/allregion.js";
 import {
@@ -695,10 +740,20 @@ const handleSelect = key => {
 // 表格信息
 const tableData = ref([]);
 
+// 表单重置
+const clear = info => {
+  const keys = Object.keys(info);
+  const obj = {};
+  keys.forEach(item => {
+    obj[item] = "";
+  });
+  Object.assign(info, obj);
+};
+
 const addCollectorVisible = ref(false); //新增采集器弹框展示
 // 新增采集器
 const addPrice = () => {
-  console.log("显示新增表单");
+  clear(form);
   addCollectorVisible.value = true;
 };
 
@@ -1047,11 +1102,12 @@ const submitForm = async formEl => {
 const batchCollectorVisible = ref(false);
 // 批量导入采集器
 const batchCollector = () => {
+  clear(batchForm);
   batchCollectorVisible.value = true;
 };
 
 // 获取采集器信息
-const getcollectorList = regionId => {
+const getcollectorList = (regionId?: String) => {
   if (regionId) {
     const data = {
       page: 1,
@@ -1107,6 +1163,10 @@ const handleExceed: UploadProps["onExceed"] = files => {
   upload.value!.handleStart(file);
 };
 
+const isShowBatchresult = ref(false);
+const BatchresultType: Ref<any> = ref("");
+const BatchresultTitle = ref("");
+const BatchresultInfo = ref("");
 // 上传文件
 const submitUpload = () => {
   const loading = ElLoading.service({
@@ -1115,13 +1175,25 @@ const submitUpload = () => {
     background: "rgba(0, 0, 0, 0.7)"
   });
   // upload.value!.submit();
-  batchCollectorExcel(formData.value).then(res => {
-    if (res.retcode == 200) {
-      ElMessage({
-        showClose: true,
-        message: res.message,
-        type: "success"
-      });
+  batchCollectorExcel(formData).then(res => {
+    if (res.retcode == 201) {
+      // ElMessage({
+      //   showClose: true,
+      //   message: res.message,
+      //   type: "success"
+      // });
+      BatchresultTitle.value = "部分上传成功";
+      BatchresultType.value = "warning";
+      BatchresultInfo.value = res.message;
+      isShowBatchresult.value = true;
+      batchCollectorVisible.value = false;
+      loading.close();
+      getcollectorList();
+    } else if (res.retcode == 200) {
+      BatchresultTitle.value = "上传成功";
+      BatchresultType.value = "success";
+      BatchresultInfo.value = res.message;
+      isShowBatchresult.value = true;
       batchCollectorVisible.value = false;
       loading.close();
       getcollectorList();
@@ -1144,7 +1216,7 @@ const batchForm = reactive({
   region: ""
 });
 
-const formData = ref();
+const formData = new FormData();
 const onUploadChange = item => {
   console.log(item, "上传文件信息");
   if (batchForm.region == "") {
@@ -1154,9 +1226,10 @@ const onUploadChange = item => {
       type: "error"
     });
   }
-  formData.value = new FormData();
-  formData.value.append("file", item.raw);
-  formData.value.append("region", batchForm.region);
+  formData.delete("file");
+  formData.delete("region");
+  formData.append("file", item.raw);
+  formData.append("region", batchForm.region);
 };
 
 // 分页相关
@@ -1398,5 +1471,16 @@ watch(
 
 ::v-deep .el-form-item__label {
   font-weight: 400;
+}
+
+/* 下面我们会解释这些 class 是做什么的 */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.7s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

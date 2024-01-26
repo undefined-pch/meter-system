@@ -464,7 +464,8 @@ const treeConfig = reactive({
   transform: true,
   rowField: "_id",
   parentField: "parentId",
-  hasChild: "hasChild"
+  hasChild: "hasChild",
+  expandAll: true
 });
 
 // 新增top级下拉框
@@ -931,10 +932,10 @@ nextTick(() => {
 // };
 onMounted(() => {
   findList();
-  setTimeout(() => {
-    const a = document.getElementsByClassName("vxe-tree--btn-wrapper");
-    a[0].click();
-  }, 1000);
+  // setTimeout(() => {
+  //   const a = document.getElementsByClassName("vxe-tree--btn-wrapper");
+  //   a[0].click();
+  // }, 1000);
 });
 </script>
 
