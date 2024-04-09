@@ -23,6 +23,8 @@ import Lock from "@iconify-icons/ri/lock-fill";
 import Check from "@iconify-icons/ep/check";
 import User from "@iconify-icons/ri/user-3-fill";
 
+import Vcode from "vue3-puzzle-vcode"; // 拼图验证
+
 defineOptions({
   name: "Login"
 });
@@ -44,6 +46,19 @@ const ruleForm = reactive({
   password: ""
 });
 
+const isShow = ref(false); // 拼图验证框显示
+const onShow = () => {
+  isShow.value = true;
+};
+const onClose = () => {
+  isShow.value = false;
+};
+const onSuccess = () => {
+  onClose(); // 验证成功，需要手动关闭模态框
+  onLogin(ruleFormRef.value);
+};
+
+// 登陆接口
 const onLogin = async (formEl: FormInstance | undefined) => {
   loading.value = true;
   if (!formEl) return;
@@ -74,7 +89,8 @@ const onLogin = async (formEl: FormInstance | undefined) => {
 /** 使用公共函数，避免`removeEventListener`失效 */
 function onkeypress({ code }: KeyboardEvent) {
   if (code === "Enter") {
-    onLogin(ruleFormRef.value);
+    // onLogin(ruleFormRef.value);
+    onShow();
   }
 }
 
@@ -187,7 +203,7 @@ onBeforeUnmount(() => {
                 size="default"
                 type="primary"
                 :loading="loading"
-                @click="onLogin(ruleFormRef)"
+                @click="onShow"
               >
                 {{ t("login.login") }}
               </el-button>
@@ -196,6 +212,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+    <Vcode :show="isShow" @success="onSuccess" @close="onClose" />
   </div>
 </template>
 

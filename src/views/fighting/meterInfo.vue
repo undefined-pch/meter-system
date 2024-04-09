@@ -74,7 +74,13 @@
       />
     </div>
     <!-- 新增水表弹框 -->
-    <el-dialog v-model="addMeterVisible" title="新增水表" width="44%" top="1%">
+    <el-dialog
+      v-model="addMeterVisible"
+      title="新增水表"
+      width="44%"
+      top="1%"
+      @close="cancelAddForm(ruleFormRef)"
+    >
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-row>
           <el-col :span="12">
@@ -469,7 +475,8 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="addMeterVisible = false">取消</el-button>
+          <!-- <el-button @click="addMeterVisible = false">取消</el-button> -->
+          <el-button @click="cancelAddForm(ruleFormRef)"> 取消 </el-button>
           <el-button type="primary" @click="submitForm(ruleFormRef)">
             新增
           </el-button>
@@ -900,6 +907,17 @@ const searchRooms = () => {
     regionId: form.region
   };
   getroom(data).then(res => {
+    // roomsList.value = res.data.data;
+    res.data.data.forEach(item => {
+      // console.log(item.fullRegion, "item.fullRegion");
+      const index = item.fullRegion.lastIndexOf("-");
+      const fullRoom = item.fullRegion.substring(
+        index + 1,
+        item.fullRegion.length
+      );
+      item.roomName = fullRoom;
+    });
+    // console.log(res.data.data, "1");
     roomsList.value = res.data.data;
   });
 };
@@ -991,6 +1009,7 @@ const submitForm = async formEl => {
           });
           addMeterVisible.value = false;
           getmeterInfo();
+          formEl.resetFields();
           // console.log(demo3.tableData, "tableData");
         }
       });
@@ -1002,6 +1021,12 @@ const submitForm = async formEl => {
       });
     }
   });
+};
+
+// 取消新增水表弹框
+const cancelAddForm = formEl => {
+  addMeterVisible.value = false;
+  formEl.resetFields();
 };
 
 const tableData = ref([]);

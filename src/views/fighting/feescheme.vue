@@ -212,16 +212,19 @@
             </vxe-column>
             <vxe-column field="date" title="创建时间" width="180" />
             <vxe-column field="founder" title="创建人" width="100" />
-            <vxe-column field="notes" title="备注" />
-            <vxe-column title="操作" width="110" align="center">
-              <template #default>
-                <vxe-button type="text" status="primary">修改</vxe-button>
+            <vxe-column field="fixDate" title="最近修改时间" width="180" />
+            <vxe-column field="fixFounder" title="最近修改人" width="100" />
+            <vxe-column field="notes" title="备注" width="100" />
+            <vxe-column title="操作" width="110" align="center" fixed="right">
+              <template #default="{ row }">
+                <vxe-button type="text" status="primary" @click="fixRow(row)"
+                  >修改</vxe-button
+                >
                 <vxe-button type="text" status="danger">删除</vxe-button>
               </template>
             </vxe-column>
           </vxe-table>
         </div>
-
         <div class="demo-pagination-block">
           <el-pagination
             v-model:current-page="currentPage4"
@@ -238,7 +241,12 @@
       </el-card>
     </div>
     <!-- 新增价格方案弹框 -->
-    <el-dialog v-model="addFormVisible" title="新增水价" width="50%">
+    <el-dialog
+      v-model="addFormVisible"
+      title="新增水价"
+      width="50%"
+      @close="cancelForm(ruleFormRef)"
+    >
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-form-item
           label="水价名称"
@@ -276,7 +284,7 @@
           prop="steps"
           v-else
         >
-          <el-input
+          <!-- <el-input
             class="steps_input"
             v-model="form.steps"
             autocomplete="off"
@@ -292,9 +300,23 @@
                   alt=""
                   style="width: 18px; margin-right: 4px"
               /></el-tooltip> </template></el-input
-          ><el-button style="margin-left: 4px" @click="confirmSteps"
+          ><el-button style="margin-left: 4px" @click="confirmSteps(form.steps)"
             >确认</el-button
+          > -->
+          <el-select
+            v-model="form.steps"
+            @change="confirmSteps(form.steps)"
+            class="m-2"
+            placeholder="请选择阶梯数"
+            style="width: 240px; margin-top: -1px; margin-left: -1px"
           >
+            <el-option
+              v-for="item in stepsOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-row v-if="isShowFirstStep">
           <el-col :span="10">
@@ -466,16 +488,286 @@
             </el-form-item>
           </el-col>
         </el-row>
-
         <el-form-item label="备注" :label-width="formLabelWidth" prop="notes">
           <el-input v-model="form.notes" type="textarea" autocomplete="off" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="addFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm(ruleFormRef)">
+          <!-- <el-button @click="addFormVisible = false">取消</el-button> -->
+          <el-button @click="cancelForm(ruleFormRef)"> 取消 </el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef, 'add')">
             新增
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 修改弹框 -->
+    <el-dialog v-model="fixFormVisible" title="修改收费方案" width="50%">
+      <el-form :model="fixForm" ref="fixFormRef">
+        <el-form-item
+          label="水价名称"
+          :label-width="formLabelWidth"
+          prop="notes"
+        >
+          <el-input v-model="fixForm.name" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="是否为阶梯价" :label-width="formLabelWidth">
+          <el-radio-group v-model="fixForm.isSteps">
+            <el-radio
+              v-for="item in isStepsList"
+              :key="item.id"
+              :label="item.value"
+              >{{ item.text }}</el-radio
+            >
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item
+          label="单价"
+          :label-width="formLabelWidth"
+          prop="unitPrice"
+          v-if="!fixForm.isSteps"
+        >
+          <el-input
+            v-model="fixForm.unitPrice"
+            autocomplete="off"
+            style="width: 194px"
+            ><template #append>(元/m³)</template></el-input
+          >
+        </el-form-item>
+        <el-form-item
+          label="阶梯数"
+          :label-width="formLabelWidth"
+          prop="steps"
+          v-else
+        >
+          <!-- <el-input
+            class="steps_input"
+            v-model="fixForm.steps"
+            autocomplete="off"
+            style="width: 130px"
+            ><template #suffix>
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                content="请输入2-5之间的数字"
+                placement="top"
+                ><img
+                  src="@/assets/feescheme/tip.png"
+                  alt=""
+                  style="width: 18px; margin-right: 4px"
+              /></el-tooltip> </template></el-input
+          ><el-button
+            style="margin-left: 4px"
+            @click="confirmSteps(fixForm.steps)"
+            >确认</el-button
+          > -->
+          <el-select
+            v-model="fixForm.steps"
+            @change="confirmSteps(fixForm.steps)"
+            class="m-2"
+            placeholder="请选择阶梯数"
+            style="width: 240px; margin-top: -1px; margin-left: -1px"
+          >
+            <el-option
+              v-for="item in stepsOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-row v-if="fixForm.isSteps && fixForm.steps >= 2">
+          <el-col :span="10">
+            <el-form-item
+              label="阶梯一"
+              :label-width="formLabelWidth"
+              prop="firstStepStart"
+            >
+              <el-input
+                v-model="fixForm.firstStepStart"
+                autocomplete="off"
+                disabled
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" class="text-center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label-width="0" prop="firstStepEnd">
+              <el-input v-model="fixForm.firstStepEnd" autocomplete="off"
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="7">
+            <el-form-item label="单价" :label-width="50" prop="firstStepPrice">
+              <el-input v-model="fixForm.firstStepPrice" autocomplete="off"
+                ><template #append>(元/m³)</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="fixForm.isSteps && fixForm.steps >= 2">
+          <el-col :span="10">
+            <el-form-item
+              label="阶梯二"
+              :label-width="formLabelWidth"
+              prop="secondStepStart"
+            >
+              <el-input
+                v-model="fixForm.firstStepEnd"
+                autocomplete="off"
+                disabled
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" class="text-center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label-width="0" prop="secondStepEnd">
+              <el-input
+                v-model="fixForm.secondStepEnd"
+                autocomplete="off"
+                :disabled="fixForm.steps == 2"
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="7">
+            <el-form-item label="单价" :label-width="50" prop="secondStepPrice">
+              <el-input v-model="fixForm.secondStepPrice" autocomplete="off"
+                ><template #append>(元/m³)</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="fixForm.isSteps && fixForm.steps >= 3">
+          <el-col :span="10">
+            <el-form-item
+              label="阶梯三"
+              :label-width="formLabelWidth"
+              prop="thirdStepStart"
+            >
+              <el-input
+                v-model="fixForm.secondStepEnd"
+                autocomplete="off"
+                disabled
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" class="text-center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label-width="0" prop="thirdStepEnd">
+              <el-input
+                v-model="fixForm.thirdStepEnd"
+                autocomplete="off"
+                :disabled="fixForm.steps == 3"
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="7">
+            <el-form-item label="单价" :label-width="50" prop="thirdStep">
+              <el-input v-model="fixForm.thirdStepPrice" autocomplete="off"
+                ><template #append>(元/m³)</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="fixForm.isSteps && fixForm.steps >= 4">
+          <el-col :span="10">
+            <el-form-item
+              label="阶梯四"
+              :label-width="formLabelWidth"
+              prop="fourthStepStart"
+            >
+              <el-input
+                v-model="fixForm.thirdStepEnd"
+                autocomplete="off"
+                disabled
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" class="text-center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label-width="0" prop="fourthStepEnd">
+              <el-input
+                v-model="fixForm.fourthStepEnd"
+                autocomplete="off"
+                :disabled="fixForm.steps == 4"
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="7">
+            <el-form-item label="单价" :label-width="50" prop="fourthStep">
+              <el-input v-model="fixForm.fourthStepPrice" autocomplete="off"
+                ><template #append>(元/m³)</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="fixForm.isSteps && fixForm.steps >= 5">
+          <el-col :span="10">
+            <el-form-item
+              label="阶梯五"
+              :label-width="formLabelWidth"
+              prop="fifthStepStart"
+            >
+              <el-input
+                v-model="fixForm.fourthStepEnd"
+                autocomplete="off"
+                disabled
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" class="text-center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label-width="0" prop="thirdStepEnd">
+              <el-input
+                v-model="fixForm.fifthStepEnd"
+                autocomplete="off"
+                :disabled="fixForm.steps == 5"
+                ><template #append>m³</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+          <el-col :span="7">
+            <el-form-item label="单价" :label-width="50" prop="fifthStep">
+              <el-input v-model="fixForm.fifthStepPrice" autocomplete="off"
+                ><template #append>(元/m³)</template></el-input
+              >
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="备注" :label-width="formLabelWidth" prop="notes">
+          <el-input
+            v-model="fixForm.notes"
+            type="textarea"
+            autocomplete="off"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
+          <el-button @click="fixFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitForm(fixFormRef, 'fix')">
+            确认
           </el-button>
         </span>
       </template>
@@ -486,7 +778,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { reactive } from "vue";
-import { waterPrice, waterPriceAdd } from "@/api/price.js";
+import { waterPrice, waterPriceAdd, waterPriceFix } from "@/api/price.js";
 import { ElMessage } from "element-plus";
 // import { VxeTablePropTypes } from 'vxe-table'
 // 菜单选择
@@ -573,11 +865,68 @@ const isTwoStep = ref(false); // 阶梯二时展示正无穷
 const isThreeStep = ref(false); // 阶梯三时展示正无穷
 const isFourStep = ref(false); // 阶梯四时展示正无穷
 const isFiveStep = ref(false); // 阶梯四时展示正无穷
+
+// 展示修改弹框
+const fixFormVisible = ref(false);
+
+// 修改区域数据
+const fixRow = row => {
+  console.log(row, "row");
+  // fixForm = row;
+  Object.assign(fixForm, row);
+  // console.log(fixForm, "fixForm");
+  // fixForm.name = row.name;
+  // fixForm.type = row.type;
+  // fixForm.notes = row.notes;
+  // form.parentId = row.parentId;
+  // form.parentName = row.parentName;
+  fixFormVisible.value = true;
+};
+
+const fixForm = reactive({
+  _id: "",
+  name: "", // 水表名称
+  isSteps: false, // 是否为阶梯水价
+  steps: 0, // 阶梯数
+  firstStepStart: "0", // 一级水量开始
+  firstStepEnd: "", // 一级水量结束
+  firstStepPrice: "", // 一级单价
+  secondStepEnd: "", // 二级水量结束
+  secondStepPrice: "", // 二级单价
+  thirdStepEnd: "", // 三级水量结束
+  thirdStepPrice: "", // 三级单价
+  fourthStepEnd: "", // 四级水量结束
+  fourthStepPrice: "", // 四级单价
+  fifthStepEnd: "", // 五级水量结束
+  fifthStepPrice: "", // 五级单价
+  unitPrice: "", // 单一水价单价
+  notes: "" // 备注
+});
+
+const stepsOptions = [
+  {
+    value: "2",
+    label: "2"
+  },
+  {
+    value: "3",
+    label: "3"
+  },
+  {
+    value: "4",
+    label: "4"
+  },
+  {
+    value: "5",
+    label: "5"
+  }
+];
+
 // 确认水价阶梯数
-const confirmSteps = () => {
-  console.log(form.steps, "阶梯数");
+const confirmSteps = steps => {
+  // console.log(form.steps, "阶梯数");
   // debuggers;
-  switch (Number(form.steps)) {
+  switch (Number(steps)) {
     case 2:
       isShowFirstStep.value = true;
       isShowSecondStep.value = true;
@@ -586,6 +935,7 @@ const confirmSteps = () => {
       isShowFifthStep.value = false;
       isTwoStep.value = true;
       form.secondStepEnd = "+∞";
+      fixForm.secondStepEnd = "+∞";
       break;
     case 3:
       isShowFirstStep.value = true;
@@ -597,6 +947,7 @@ const confirmSteps = () => {
       isThreeStep.value = true;
       form.secondStepEnd = "";
       form.thirdStepEnd = "+∞";
+      fixForm.thirdStepEnd = "+∞";
       break;
     case 4:
       isShowFirstStep.value = true;
@@ -610,6 +961,7 @@ const confirmSteps = () => {
       form.secondStepEnd = "";
       form.thirdStepEnd = "";
       form.fourthStepEnd = "+∞";
+      fixForm.fourthStepEnd = "+∞";
       break;
     case 5:
       isShowFirstStep.value = true;
@@ -625,6 +977,7 @@ const confirmSteps = () => {
       form.thirdStepEnd = "";
       form.fourthStepEnd = "";
       form.fifthStepEnd = "+∞";
+      fixForm.fifthStepEnd = "+∞";
       break;
     default:
       ElMessage.error("请输入合法的字符！");
@@ -633,24 +986,44 @@ const confirmSteps = () => {
 };
 
 const ruleFormRef = ref(); // 表单ref
+const fixFormRef = ref(); // 修改表单ref
 // 新增水价
-const submitForm = async formEl => {
+const submitForm = async (formEl, type) => {
   // console.log("新增水价");
+  // debugger;
   if (!formEl) return;
   await formEl.validate(valid => {
     if (valid) {
-      waterPriceAdd(form).then(res => {
-        if (res.retcode == 200) {
-          ElMessage({
-            showClose: true,
-            message: res.message,
-            type: "success"
-          });
-          addFormVisible.value = false;
-          getFeeScheme();
-          console.log(demo3.tableData, "tableData");
-        }
-      });
+      if (type == "add") {
+        waterPriceAdd(form).then(res => {
+          if (res.retcode == 200) {
+            ElMessage({
+              showClose: true,
+              message: res.message,
+              type: "success"
+            });
+            addFormVisible.value = false;
+            formEl.resetFields();
+            getFeeScheme();
+            // console.log(demo3.tableData, "tableData");
+          }
+        });
+      } else if (type == "fix") {
+        // console.log(fixForm, "fixForm");
+        waterPriceFix(fixForm).then(res => {
+          if (res.retcode == 200) {
+            ElMessage({
+              showClose: true,
+              message: res.message,
+              type: "success"
+            });
+            fixFormVisible.value = false;
+            // formEl.resetFields();
+            getFeeScheme();
+            // console.log(demo3.tableData, "tableData");
+          }
+        });
+      }
     } else {
       ElMessage({
         showClose: true,
@@ -659,6 +1032,13 @@ const submitForm = async formEl => {
       });
     }
   });
+};
+
+// 取消新增水价弹框
+const cancelForm = formEl => {
+  console.log("取消事件");
+  addFormVisible.value = false;
+  formEl.resetFields();
 };
 
 // 分页
@@ -683,6 +1063,34 @@ const isSepOptions = ref([
 // 切换是否为阶梯价
 watch(
   () => form.isSteps,
+  newVal => {
+    // console.log(newVal, oldVal);
+    if (newVal == true) {
+      form.steps = "";
+      form.unitPrice = "";
+      form.notes = "";
+    } else {
+      form.steps = "";
+      form.firstStep = "";
+      form.firstStepPrice = "";
+      form.secondStep = "";
+      form.secondStepPrice = "";
+      form.thirdStep = "";
+      form.thirdStepPrice = "";
+      form.fourthStep = "";
+      form.fourthStepPrice = "";
+      form.fifthStep = "";
+      form.fifthStepPrice = "";
+      form.notes = "";
+      // 表单重置
+      isShowFirstStep.value = false;
+      isShowSecondStep.value = false;
+      isShowThirdStep.value = false;
+      isShowFourthStep.value = false;
+      isShowFifthStep.value = false;
+    }
+  },
+  () => fixForm.isSteps,
   newVal => {
     // console.log(newVal, oldVal);
     if (newVal == true) {

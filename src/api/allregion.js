@@ -14,10 +14,15 @@ export const allregion = data => {
 };
 
 // 修改区域信息
-export const allregionfix = (id, data) => {
-  return httplocal.request("patch", "/api/allRegionFix/" + id, {
+export const allregionfix = data => {
+  return httplocal.request("post", "/api/allRegionFix", {
     data
   });
+};
+
+// 删除区域信息
+export const allregionDelete = id => {
+  return httplocal.request("delete", "/api/allRegionDelete/" + id);
 };
 
 // 批量子级

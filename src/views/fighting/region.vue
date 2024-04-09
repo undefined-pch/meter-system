@@ -28,7 +28,9 @@
             <!-- <el-button @click="batchChildEvent" type="primary" plain
               >批量子级</el-button
             > -->
-            <el-button type="danger" plain>批量删除</el-button>
+            <el-button type="danger" plain @click="getSelectEvent()"
+              >批量删除</el-button
+            >
           </template>
         </vxe-toolbar>
         <div style="height: calc(100vh - 210px)">
@@ -43,16 +45,18 @@
             :loading="loading"
             :data="tableData"
             :tree-config="treeConfig"
+            :checkbox-config="checkboxConfig"
             size="small"
             height="auto"
           >
-            <vxe-column type="checkbox" width="60" />
+            <vxe-column type="checkbox" width="60" fixed="left" />
             <vxe-column
               field="name"
               title="区域"
               tree-node
               :edit-render="{}"
               width="250"
+              fixed="left"
             />
             <vxe-column field="type" title="类型" width="100">
               <template #default="{ row }">
@@ -72,12 +76,29 @@
               width="100"
               :edit-render="{}"
             />
-            <vxe-column field="notes" title="备注" :edit-render="{}">
-              <template #edit="{ row }">
-                <vxe-input v-model="row.size" type="text" />
-              </template>
-            </vxe-column>
-            <vxe-column title="操作" width="280" align="center">
+            <template #edit="{ row }">
+              <vxe-input v-model="row.size" type="text" />
+            </template>
+
+            <vxe-column
+              field="fixDate"
+              title="最近修改时间"
+              :edit-render="{}"
+              width="160"
+            />
+            <vxe-column
+              field="fixFounder"
+              title="最近修改人"
+              width="100"
+              :edit-render="{}"
+            />
+            <vxe-column
+              field="notes"
+              title="备注"
+              width="100"
+              :edit-render="{}"
+            />
+            <vxe-column title="操作" width="280" align="center" fixed="right">
               <template #default="{ row }">
                 <div v-if="row.type !== '房间'">
                   <vxe-button
@@ -102,12 +123,19 @@
                   <vxe-button type="text" status="primary" @click="fixRow(row)"
                     >修改</vxe-button
                   >
-                  <vxe-button
-                    type="text"
-                    status="danger"
-                    @click="removeRow(row)"
-                    >删除节点</vxe-button
+                  <el-popconfirm
+                    title="确认删除此区域节点吗?"
+                    @confirm="removeRow(row)"
                   >
+                    <template #reference>
+                      <vxe-button
+                        type="text"
+                        status="danger"
+                        :disabled="row.hasChild == true"
+                        >删除节点</vxe-button
+                      >
+                    </template>
+                  </el-popconfirm>
                 </div>
               </template>
             </vxe-column>
@@ -117,7 +145,7 @@
     </div>
     <!-- 新增同级弹框 -->
     <el-dialog v-model="dialogFormVisible" title="新增同级" width="30%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+      <el-form :model="form" :rules="rules" ref="sameLevelFormRef">
         <el-form-item
           label="区域名称"
           :label-width="formLabelWidth"
@@ -141,10 +169,13 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
+          <el-button @click="cancelDilog(sameLevelFormRef, 'samelevel')"
+            >取消</el-button
+          >
           <el-button
             type="primary"
-            @click="submitForm(ruleFormRef, 'samelevel')"
+            @click="submitForm(sameLevelFormRef, 'samelevel')"
           >
             新增
           </el-button>
@@ -153,7 +184,7 @@
     </el-dialog>
     <!-- 新增子级弹框 -->
     <el-dialog v-model="childFormVisible" title="新增子级" width="30%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+      <el-form :model="form" :rules="rules" ref="childLevelFormRef">
         <el-form-item
           label="所属父级"
           :label-width="formLabelWidth"
@@ -184,10 +215,13 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="childFormVisible = false">取消</el-button>
+          <!-- <el-button @click="childFormVisible = false">取消</el-button> -->
+          <el-button @click="cancelDilog(childLevelFormRef, 'childlevel')"
+            >取消</el-button
+          >
           <el-button
             type="primary"
-            @click="submitForm(ruleFormRef, 'childlevel')"
+            @click="submitForm(childLevelFormRef, 'childlevel')"
           >
             新增
           </el-button>
@@ -196,7 +230,7 @@
     </el-dialog>
     <!-- 新增顶级区域 -->
     <el-dialog v-model="topFormVisible" title="新增顶级" width="30%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+      <el-form :model="form" :rules="rules" ref="topLevelFormRef">
         <el-form-item
           label="区域名称"
           :label-width="formLabelWidth"
@@ -220,19 +254,26 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="topFormVisible = false">取消</el-button>
+          <!-- <el-button @click="topFormVisible = false">取消</el-button> -->
+          <el-button @click="cancelDilog(topLevelFormRef, 'toplevel')"
+            >取消</el-button
+          >
           <el-button
             type="primary"
-            @click="submitForm(ruleFormRef, 'toplevel')"
+            @click="submitForm(topLevelFormRef, 'toplevel')"
           >
             新增
           </el-button>
         </span>
       </template>
     </el-dialog>
-    <!-- 批量同级 -->
+    <!-- 批量子级 -->
     <el-dialog v-model="batchSameLevel" title="批量子级" width="30%" top="4%">
-      <el-form :model="batchForm" :rules="batchRules" ref="batchFormRef">
+      <el-form
+        :model="batchForm"
+        :rules="batchRules"
+        ref="batchSameLevelFormRef"
+      >
         <el-form-item
           label="所属区域"
           :label-width="formLabelWidth"
@@ -323,16 +364,18 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="batchSameLevel = false">取消</el-button>
-          <el-button type="primary" @click="submitBatch(batchFormRef)">
+          <el-button @click="cancelDilog(batchSameLevelFormRef, 'batchFormRef')"
+            >取消</el-button
+          >
+          <el-button type="primary" @click="submitBatch(batchSameLevelFormRef)">
             新增
           </el-button>
         </span>
       </template>
     </el-dialog>
     <!-- 批量子级 -->
-    <el-dialog v-model="batchChildLevel" title="批量子级" width="30%" top="4%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+    <!-- <el-dialog v-model="batchChildLevel" title="批量子级" width="30%" top="4%">
+      <el-form :model="form" :rules="rules" ref="batchChildLevelFormRef">
         <el-form-item
           label="所属区域"
           :label-width="formLabelWidth"
@@ -392,28 +435,35 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="batchSameLevel = false">取消</el-button>
+          <el-button
+            @click="
+              cancelDilog(batchChildLevelFormRef, 'batchChildLevelFormRef')
+            "
+            >取消</el-button
+          >
           <el-button
             type="primary"
-            @click="submitForm(ruleFormRef, 'toplevel')"
+            @click="
+              submitForm(batchChildLevelFormRef, 'batchChildLevelFormRef')
+            "
           >
             新增
           </el-button>
         </span>
       </template>
-    </el-dialog>
+    </el-dialog> -->
     <!-- 修改弹框 -->
-    <el-dialog v-model="fixFormVisible" title="修改" width="30%">
-      <el-form :model="form" :rules="rules" ref="ruleFormRef">
+    <el-dialog v-model="fixFormVisible" title="修改区域信息" width="30%">
+      <el-form :model="fixForm" :rules="fixFormRules" ref="fixFormRef">
         <el-form-item
           label="区域名称"
           :label-width="formLabelWidth"
           prop="name"
         >
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="fixForm.name" autocomplete="off" />
         </el-form-item>
         <el-form-item label="类型" :label-width="formLabelWidth" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
+          <el-select v-model="fixForm.type" placeholder="请选择类型" disabled>
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -423,13 +473,18 @@
           </el-select>
         </el-form-item>
         <el-form-item label="备注" :label-width="formLabelWidth" prop="notes">
-          <el-input v-model="form.notes" type="textarea" autocomplete="off" />
+          <el-input
+            v-model="fixForm.notes"
+            type="textarea"
+            autocomplete="off"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="fixForm(ruleFormRef)">
+          <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
+          <el-button @click="fixFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitForm(fixFormRef, 'fix')">
             确认
           </el-button>
         </span>
@@ -446,6 +501,7 @@ import {
   allregion,
   allregionadd,
   allregionfix,
+  allregionDelete,
   batchRegion
 } from "@/api/allregion.js";
 // 菜单选择
@@ -466,6 +522,14 @@ const treeConfig = reactive({
   parentField: "parentId",
   hasChild: "hasChild",
   expandAll: true
+});
+
+// 表格复选框配置
+const checkboxConfig = reactive({
+  // labelField: 'name',
+  visibleMethod({ row }) {
+    return row.hasChild === false;
+  }
 });
 
 // 新增top级下拉框
@@ -505,10 +569,26 @@ const findList = () => {
 //   return Promise.resolve();
 // };
 const removeRow = async row => {
-  const $table = tableRef.value;
-  if ($table) {
-    await $table.remove(row);
-  }
+  // console.log(row, "row");
+  allregionDelete(row._id).then(res => {
+    if (res.retcode == 200) {
+      const $table = tableRef.value;
+      if ($table) {
+        $table.remove(row);
+      }
+      ElMessage({
+        showClose: true,
+        message: res.message,
+        type: "success"
+      });
+    } else {
+      ElMessage({
+        showClose: true,
+        message: "删除失败",
+        type: "error"
+      });
+    }
+  });
 };
 
 // 批量同级弹框
@@ -521,7 +601,7 @@ const insertEvent = () => {
 };
 
 // 批量子级弹框
-const batchChildLevel = ref(false);
+// const batchChildLevel = ref(false);
 // 批量子级
 // const batchChildEvent = () => {
 //   batchChildLevel.value = true;
@@ -626,7 +706,7 @@ const loadFireNode = (node, resolve) => {
 };
 
 const formLabelWidth = "100px";
-// 表单
+// 新增表单
 const form = reactive({
   parentId: "",
   parentName: "",
@@ -634,6 +714,23 @@ const form = reactive({
   type: "",
   hasParent: false,
   notes: ""
+});
+
+// 修改表单
+const fixForm = reactive({
+  id: "",
+  name: "",
+  notes: ""
+});
+
+const fixFormRules = reactive({
+  name: [
+    {
+      required: true,
+      message: "请输入区域名称",
+      trigger: "blur"
+    }
+  ]
 });
 
 // 批量表单
@@ -699,7 +796,13 @@ const batchRules = reactive({
 });
 // const defaultExpandKeys = ref([659f52b9e89e97d863ad2691]); // 默认展开数的id
 
-const ruleFormRef = ref();
+const sameLevelFormRef = ref(); // 新增同级弹框dom
+const childLevelFormRef = ref(); // 新增子级弹框dom
+const topLevelFormRef = ref(); // 新增顶级弹框dom
+const batchSameLevelFormRef = ref(); // 新增批量同级弹框dom
+// const batchChildLevelFormRef = ref(); // 新增批量子级弹框dom
+const fixFormRef = ref(); // 修改表单dom
+
 // 展示显示同级弹框
 const dialogFormVisible = ref(false);
 // 展示显示子级弹框
@@ -784,25 +887,48 @@ const submitForm = async (formEl, level) => {
   if (!formEl) return;
   await formEl.validate(valid => {
     if (valid) {
-      // console.log("submit!");
-      allregionadd(form).then(res => {
-        // console.log(res);
-        if (res.retcode == 200) {
-          ElMessage({
-            showClose: true,
-            message: res.message,
-            type: "success"
-          });
-          if (level == "toplevel") {
-            topFormVisible.value = false;
-          } else if (level == "samelevel") {
-            dialogFormVisible.value = false;
-          } else if (level == "childlevel") {
-            childFormVisible.value = false;
+      // 修改
+      if (level == "fix") {
+        console.log("修改表单");
+        allregionfix(fixForm).then(res => {
+          if (res.retcode == 200) {
+            // console.log(res.data, "修改成功");
+            ElMessage({
+              showClose: true,
+              message: res.message,
+              type: "success"
+            });
+            fixFormVisible.value = false;
+            findList();
+          } else {
+            ElMessage({
+              showClose: true,
+              message: "新增失败！",
+              type: "error"
+            });
           }
-          findList();
-        }
-      });
+        });
+      } else {
+        allregionadd(form).then(res => {
+          // console.log(res);
+          if (res.retcode == 200) {
+            ElMessage({
+              showClose: true,
+              message: res.message,
+              type: "success"
+            });
+            if (level == "toplevel") {
+              topFormVisible.value = false;
+            } else if (level == "samelevel") {
+              dialogFormVisible.value = false;
+            } else if (level == "childlevel") {
+              childFormVisible.value = false;
+            }
+            formEl.resetFields();
+            findList();
+          }
+        });
+      }
     } else {
       ElMessage({
         showClose: true,
@@ -813,7 +939,24 @@ const submitForm = async (formEl, level) => {
   });
 };
 
-const batchFormRef = ref();
+// 取消新增表单
+const cancelDilog = (formEl, level) => {
+  if (level == "toplevel") {
+    topFormVisible.value = false;
+    formEl.resetFields();
+  } else if (level == "batchFormRef") {
+    batchSameLevel.value = false;
+    formEl.resetFields();
+  } else if (level == "samelevel") {
+    dialogFormVisible.value = false;
+    formEl.resetFields();
+  } else if (level == "childlevel") {
+    childFormVisible.value = false;
+    formEl.resetFields();
+  }
+};
+
+// const batchFormRef = ref();
 // 批量子级
 const submitBatch = async formEl => {
   if (!formEl) return;
@@ -828,7 +971,7 @@ const submitBatch = async formEl => {
             type: "success"
           });
           batchSameLevel.value = false;
-          batchFormRef.value.resetFields();
+          formEl.resetFields();
           findList();
         } else {
           ElMessage({
@@ -836,6 +979,7 @@ const submitBatch = async formEl => {
             message: res.message,
             type: "error"
           });
+          formEl.resetFields();
         }
       });
     } else {
@@ -853,41 +997,41 @@ const batchoptions = ref([]);
 
 // 修改区域数据
 const fixRow = row => {
-  console.log(row);
-  form.id = row._id;
-  form.name = row.name;
-  form.type = row.type;
-  form.notes = row.notes;
-  form.parentId = row.parentId;
-  form.parentName = row.parentName;
+  // console.log(row);
+  fixForm.id = row._id;
+  fixForm.name = row.name;
+  fixForm.type = row.type;
+  fixForm.notes = row.notes;
+  // form.parentId = row.parentId;
+  // form.parentName = row.parentName;
   fixFormVisible.value = true;
 };
 // 修改区域表单
-const fixForm = async formEl => {
-  if (!formEl) return;
-  await formEl.validate(valid => {
-    if (valid) {
-      // console.log("submit!");
-      allregionfix(form.id, form).then(res => {
-        if (res.retcode == 200) {
-          ElMessage({
-            showClose: true,
-            message: res.message,
-            type: "success"
-          });
-          fixFormVisible.value = false;
-          findList();
-        }
-      });
-    } else {
-      ElMessage({
-        showClose: true,
-        message: "新增失败！",
-        type: "error"
-      });
-    }
-  });
-};
+// const fixForm = async formEl => {
+//   if (!formEl) return;
+//   await formEl.validate(valid => {
+//     if (valid) {
+//       // console.log("submit!");
+//       allregionfix(form).then(res => {
+//         if (res.retcode == 200) {
+//           ElMessage({
+//             showClose: true,
+//             message: res.message,
+//             type: "success"
+//           });
+//           fixFormVisible.value = false;
+//           findList();
+//         }
+//       });
+//     } else {
+//       ElMessage({
+//         showClose: true,
+//         message: "新增失败！",
+//         type: "error"
+//       });
+//     }
+//   });
+// };
 
 // 所在区域选择
 // const selectRegion = () => {
@@ -909,6 +1053,42 @@ const regionSelect = node => {
       { id: 2, label: "小区", value: "小区" },
       { id: 3, label: "楼栋", value: "楼栋" }
     ];
+  }
+};
+
+const deleteStr = ref("");
+// 批量删除选中
+const getSelectEvent = () => {
+  const $table = tableRef.value;
+  if ($table) {
+    const selectRecords = $table.getCheckboxRecords();
+    // VXETable.modal.alert(`${selectRecords.length}条数据`);
+    // console.log(JSON.parse(JSON.stringify(selectRecords)), "selectRecords");
+    const deleteListArr = JSON.parse(JSON.stringify(selectRecords));
+    deleteListArr.forEach((item, index) => {
+      if (index === deleteListArr.length - 1) {
+        deleteStr.value += item._id;
+      } else {
+        deleteStr.value += item._id + ",";
+      }
+    });
+    console.log(deleteStr.value, "deleteStr");
+    allregionDelete(deleteStr.value).then(res => {
+      if (res.retcode == 200) {
+        ElMessage({
+          showClose: true,
+          message: res.message,
+          type: "success"
+        });
+        findList();
+      } else {
+        ElMessage({
+          showClose: true,
+          message: "删除失败",
+          type: "error"
+        });
+      }
+    });
   }
 };
 

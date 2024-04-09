@@ -256,6 +256,7 @@
       title="新增采集器"
       width="44%"
       top="1%"
+      @close="closeDialog(ruleFormRef)"
     >
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-row>
@@ -573,7 +574,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="addCollectorVisible = false">取消</el-button>
+          <el-button @click="cancelAddForm(ruleFormRef)">取消</el-button>
           <el-button type="primary" @click="submitForm(ruleFormRef)">
             新增
           </el-button>
@@ -681,6 +682,7 @@ import roomInfo from "./roomInfo.vue";
 import owner from "./owner.vue";
 import { Tour, TourStep } from "vue3-quick-tour";
 import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
+// import { closeDialog } from "@/components/ReDialog";
 
 const showCollector = ref(true); // 展示采集器内容
 const showWaterContent = ref(false); // 展示水表内容
@@ -754,6 +756,7 @@ const addCollectorVisible = ref(false); //新增采集器弹框展示
 // 新增采集器
 const addPrice = () => {
   clear(form);
+  // ruleFormRef.value.resetFields();
   addCollectorVisible.value = true;
 };
 
@@ -982,7 +985,6 @@ const loadFireNode = (node, resolve) => {
     });
   }
   if (node.level === 1) {
-    // console.log(node, "node信息");
     // nowSelectRegion.value = node.data.name;
     // 展示二级区域名称
     const data = {
@@ -1023,8 +1025,12 @@ const loadFireNode = (node, resolve) => {
     });
   }
   if (node.level === 3) {
-    console.log(node, "node信息");
-    console.log("点击第三级");
+    // console.log(node.data.type, "node信息");
+    // console.log("点击第三级");
+    // // 如果是
+    // if () {
+
+    // }
     // nowSelectRegion.value += "-" + node.data.name;
     // console.log(nowSelectRegion.value);
     // 展示二级区域名称
@@ -1032,7 +1038,18 @@ const loadFireNode = (node, resolve) => {
       parentId: node.data.id
     };
     allregion(data).then(res => {
-      if (res.retcode == 200) {
+      if (res.retcode == 200 && node.data.type == "楼栋") {
+        const c = [];
+        res.data.data.forEach(item => {
+          c.push({
+            name: item.unit + "单元" + item.name,
+            id: item._id,
+            hasChild: item.hasChild,
+            type: item.type
+          });
+        });
+        return resolve(c);
+      } else {
         const c = [];
         res.data.data.forEach(item => {
           c.push({
@@ -1047,6 +1064,7 @@ const loadFireNode = (node, resolve) => {
     });
   }
   if (node.level === 4) {
+    console.log("点击了四级");
     // console.log(node, "node信息");
     // nowSelectRegion.value += "-" + node.data.name;
     // console.log(nowSelectRegion.value);
@@ -1071,6 +1089,12 @@ const loadFireNode = (node, resolve) => {
   }
 };
 
+// 新增弹框关闭回调
+const closeDialog = ruleFormRef => {
+  console.log("关闭回调");
+  ruleFormRef.resetFields();
+};
+
 // 新增采集器
 const submitForm = async formEl => {
   if (!formEl) return;
@@ -1085,6 +1109,7 @@ const submitForm = async formEl => {
             type: "success"
           });
           addCollectorVisible.value = false;
+          formEl.resetFields();
           getcollectorList();
           // console.log(demo3.tableData, "tableData");
         }
@@ -1095,8 +1120,15 @@ const submitForm = async formEl => {
         message: "新增失败！",
         type: "error"
       });
+      formEl.resetFields();
     }
   });
+};
+
+// 取消新增表单
+const cancelAddForm = formEl => {
+  addCollectorVisible.value = false;
+  formEl.resetFields();
 };
 
 const batchCollectorVisible = ref(false);
@@ -1482,5 +1514,9 @@ watch(
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+::v-deep .el-dialog__footer {
+  padding-top: 0px !important;
 }
 </style>

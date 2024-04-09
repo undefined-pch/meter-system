@@ -98,6 +98,7 @@
       title="新增房间信息"
       width="40%"
       top="3%"
+      @close="cancelAddForm(ruleFormRef)"
     >
       <el-form :model="form" :rules="rules" ref="ruleFormRef">
         <el-row>
@@ -282,7 +283,10 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="addRoomVisible = false" v-if="active == 0"
+          <!-- <el-button @click="addRoomVisible = false" v-if="active == 0"
+            >取消</el-button
+          > -->
+          <el-button @click="cancelAddForm(ruleFormRef)" v-if="active == 0"
             >取消</el-button
           >
           <el-button type="primary" @click="submitForm(ruleFormRef)">
@@ -608,6 +612,12 @@ const addsRoom = () => {
   addRoomVisible.value = true;
 };
 
+// 取消新增表单
+const cancelAddForm = formEl => {
+  addRoomVisible.value = false;
+  formEl.resetFields();
+};
+
 // 新增房间表单
 const form = reactive({
   fullRegion: "", // 区域全称
@@ -716,7 +726,7 @@ const rules = reactive({
 });
 
 const active = ref(0); // 当前步骤
-const ruleFormRef = ref(); // 表单dom
+const ruleFormRef = ref(); // 新增表单dom
 // const addRoomStep = () => {
 //   // 判断是否填写表单
 //   // active.value++;

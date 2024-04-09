@@ -13,3 +13,10 @@ export const waterPrice = data => {
     data
   });
 };
+
+// 修改水费收费方案
+export const waterPriceFix = data => {
+  return httplocal.request("post", "/api/waterPriceFix", {
+    data
+  });
+};
